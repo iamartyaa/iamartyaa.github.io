@@ -3,6 +3,7 @@ import { ScrollReveal } from "@/components/motion/scroll-reveal";
 import { TextReveal } from "@/components/motion/text-reveal";
 import { TiltCard } from "@/components/motion/tilt-card";
 import { HandNote, Stamp } from "@/components/site/hand-note";
+import { CursorCat } from "@/components/site/cursor-cat";
 import { ProjectFilters } from "@/components/site/project-filters";
 import { Route, RoutePlane } from "@/components/site/route";
 import { Section } from "@/components/site/section";
@@ -16,21 +17,34 @@ import { Sticker } from "@/components/site/sticker";
  * down. Cards alternate sides so the line has a reason to bend.
  */
 
-const ROUTE_H = 3200;
-const ROUTE_D =
-  "M-60 30 C 340 90, 940 150, 1180 400 C 1330 560, 1300 780, 1120 900 " +
-  "C 900 1050, 620 1140, 540 1320 C 460 1500, 1160 1520, 1240 1720 " +
-  "C 1310 1900, 520 1930, 430 2120 C 360 2290, 1180 2300, 1236 2500 " +
-  "C 1276 2660, 620 2700, 566 2860 C 536 2990, 900 3030, 1120 3090";
+/**
+ * The route lives on the landings section alone — it starts where the first
+ * project does and lands on the fourth. The drawer below is off the map on
+ * purpose: the flight is over by then.
+ *
+ * ROUTE_H is close to the section's real pixel height, so the viewBox stretch
+ * stays near 1:1 and the curve keeps the shape it was drawn with.
+ */
+const ROUTE_H = 2400;
 
+/**
+ * Measured against the rendered section (2435px tall at 1440 wide), so the
+ * viewBox stretch is within a couple of percent of 1:1 and the curve keeps the
+ * shape it was drawn with. The line threads the gaps beside the cards — it
+ * passes behind them, the plane passes over them — and every waypoint sits in
+ * open paper next to the card it belongs to, alternating sides with them.
+ */
+const ROUTE_D =
+  "M-60 40 C 300 60, 900 120, 1180 320 C 1250 420, 1200 540, 1120 620 " +
+  "C 980 750, 640 820, 520 931 C 420 1030, 560 1300, 860 1510 " +
+  "C 1030 1630, 720 1900, 520 2093";
+
+/** One per landing — and the last one is where the flight ends. */
 const STOPS = [
-  { x: 1180, y: 400 },
-  { x: 1120, y: 900 },
-  { x: 540, y: 1320 },
-  { x: 1240, y: 1720 },
-  { x: 430, y: 2120 },
-  { x: 1236, y: 2500 },
-  { x: 566, y: 2860 },
+  { x: 1120, y: 620 },
+  { x: 520, y: 931 },
+  { x: 860, y: 1510 },
+  { x: 520, y: 2093 },
 ];
 
 const PROJECTS = [
@@ -116,13 +130,7 @@ const SMALL = [
 export default function ThingsPage() {
   return (
     <div className="relative">
-      {/* the line and its plane sit behind everything, spanning the whole page */}
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-full">
-        <div className="relative mx-auto h-full max-w-[1440px]">
-          <Route d={ROUTE_D} height={ROUTE_H} stops={STOPS} />
-          <RoutePlane d={ROUTE_D} height={ROUTE_H} />
-        </div>
-      </div>
+      <CursorCat />
 
       {/* ─────────────────────────── HEADER ─────────────────────────── */}
       <Section className="relative pt-[9.5rem]">
@@ -152,7 +160,21 @@ export default function ThingsPage() {
       </Section>
 
       {/* ─────────────────────────── LANDINGS ─────────────────────────── */}
-      <Section className="relative mt-[7rem] space-y-[9rem] pb-[7rem]">
+      <Section className="relative mt-[8rem] pb-[9rem]">
+        {/* The line runs behind the cards; the plane flies over them. Two
+            layers, one path — that's what makes it read as depth. */}
+        <div className="pointer-events-none absolute inset-x-[-2vw] inset-y-0 z-0">
+          <div className="relative mx-auto h-full max-w-[1440px]">
+            <Route d={ROUTE_D} height={ROUTE_H} stops={STOPS} />
+          </div>
+        </div>
+        <div className="pointer-events-none absolute inset-x-[-2vw] inset-y-0 z-20">
+          <div className="relative mx-auto h-full max-w-[1440px]">
+            <RoutePlane d={ROUTE_D} height={ROUTE_H} />
+          </div>
+        </div>
+
+        <div className="relative z-10 space-y-[12rem]">
         {PROJECTS.map((p) => (
           <ScrollReveal key={p.n} y={26} amount={0.25}>
             <div
@@ -168,7 +190,7 @@ export default function ThingsPage() {
                 max={p.featured ? 6 : 8}
                 glare={false}
                 className={`relative bg-card shadow-[var(--shadow-card)] ${
-                  p.featured ? "w-full rounded-[2rem]" : "w-full max-w-[46rem] rounded-[1.75rem]"
+                  p.featured ? "w-full rounded-[2rem]" : "w-full max-w-[43rem] rounded-[1.75rem]"
                 }`}
               >
                 <div className={`relative grid gap-8 p-9 ${p.featured ? "lg:grid-cols-[1.15fr_1fr] lg:p-12" : "sm:grid-cols-[1fr_auto]"}`}>
@@ -216,6 +238,7 @@ export default function ThingsPage() {
             </div>
           </ScrollReveal>
         ))}
+        </div>
       </Section>
 
       {/* ──────────────────────── THE DRAWER ──────────────────────── */}
@@ -267,31 +290,22 @@ export default function ThingsPage() {
         </ScrollReveal>
       </Section>
 
-      {/* ──────────────────────── NEXT STOP ──────────────────────── */}
-      <Section className="relative py-[9rem]">
-        <ScrollReveal y={24}>
-          <div className="relative grid items-center gap-10 overflow-hidden rounded-[2rem] bg-card px-14 py-13 shadow-[var(--shadow-card)] lg:grid-cols-[1fr_19rem]">
-            <div>
-              <p className="label">Next stop</p>
-              <h2 className="mt-2.5 font-display text-[clamp(2.25rem,4vw,3.4rem)] font-extrabold leading-none tracking-[-0.04em]">
-                Who made all this?
-              </h2>
-              <p className="mt-4 max-w-[32rem] text-[17px] leading-[1.6] text-ink-soft">
-                The route ends back at the desk, with the person sitting at it.
-              </p>
-              <div className="mt-7">
-                <Sticker tone="ink" size="lg" tilt={-1.5} display magnetic href="/about">
-                  about me
-                  <ArrowRight size={19} />
-                </Sticker>
-              </div>
-            </div>
-            <div className="hidden justify-self-end lg:block">
-              <PaperPlane size={200} />
+      {/* ─────────────────────────── FOOTER ─────────────────────────── */}
+      <Section className="relative pb-[7rem] pt-[5rem]">
+        <ScrollReveal y={18}>
+          <div className="flex flex-wrap items-center justify-between gap-6 border-t-[2.5px] border-dashed border-hairline pt-8">
+            <p className="label">© 2026 Amartya · the route ends, the desk doesn&apos;t</p>
+            <div className="flex items-center gap-3">
+              <HandNote tilt={-2}>the cat will see you out</HandNote>
+              <Sticker tone="ink" size="md" tilt={-1.5} display magnetic href="/about">
+                about me
+                <ArrowRight size={18} />
+              </Sticker>
             </div>
           </div>
         </ScrollReveal>
       </Section>
+
     </div>
   );
 }

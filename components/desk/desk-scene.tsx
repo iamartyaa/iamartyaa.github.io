@@ -3,6 +3,8 @@
 import { ContactShadows, Html, Outlines, PresentationControls, RoundedBox } from "@react-three/drei";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { useTheme } from "next-themes";
+
+import { useThemeToggle } from "@/components/motion/theme-toggle";
 import { useRouter } from "next/navigation";
 import { useMemo, useRef, useState, type ReactNode } from "react";
 import { AdditiveBlending, BufferAttribute, BufferGeometry, DoubleSide, type Group, type Mesh, type MeshStandardMaterial } from "three";
@@ -86,12 +88,12 @@ function Keyboard({ skin }: { skin: Skin }) {
 
   return (
     <group>
-      <RoundedBox args={[1.86, 0.08, 0.78]} radius={0.035} smoothness={3} castShadow>
+      <RoundedBox args={[1.86, 0.1, 0.78]} radius={0.035} smoothness={3} position={[0, 0.05, 0]} castShadow>
         <meshStandardMaterial color={skin.white} roughness={0.65} />
         <Ink thickness={3} />
       </RoundedBox>
       {keys.map((k) => (
-        <mesh key={`${k.x}-${k.z}-${k.w}`} position={[k.x, 0.06, k.z]}>
+        <mesh key={`${k.x}-${k.z}-${k.w}`} position={[k.x, 0.115, k.z]}>
           <boxGeometry args={[k.w * (k.w > 0.2 ? 1 : 1), 0.03, 0.09]} />
           <meshStandardMaterial color={skin.key} roughness={0.9} />
         </mesh>
@@ -179,8 +181,10 @@ function Steam() {
 }
 
 function MugObject({ skin }: { skin: Skin }) {
+  // Every object's own origin is the desk surface: the group below lifts the
+  // geometry by half its height so nothing is ever half-sunk in the wood.
   return (
-    <group>
+    <group position={[0, 0.23, 0]}>
       <mesh castShadow>
         <cylinderGeometry args={[0.27, 0.23, 0.46, 24]} />
         <meshStandardMaterial color={skin.white} roughness={0.5} />
@@ -221,7 +225,7 @@ function PlantObject({ skin }: { skin: Skin }) {
     [],
   );
   return (
-    <group>
+    <group position={[0, 0.22, 0]}>
       <mesh castShadow>
         <cylinderGeometry args={[0.3, 0.23, 0.44, 18]} />
         <meshStandardMaterial color={skin.pot} roughness={0.85} />
@@ -331,8 +335,76 @@ function Pencil() {
   );
 }
 
+/**
+ * The pull chain. Grab it and the room changes.
+ *
+ * The bead is the hit target (a 4mm cord is impossible to click), and the
+ * whole chain slides down and springs back on release — the click reads as a
+ * pull because the thing you pulled moves before the lights do.
+ */
+function PullChain({ onPull }: { onPull: () => void }) {
+  const chain = useRef<Group>(null);
+  const pulled = useRef(0);
+  const target = useRef(0);
+  const [hovered, setHovered] = useState(false);
+
+  useFrame((_, delta) => {
+    const k = Math.min(1, delta * 14);
+    pulled.current += (target.current - pulled.current) * k;
+    if (target.current === 1 && pulled.current > 0.86) target.current = 0;
+    if (chain.current) chain.current.position.y = -pulled.current * 0.26;
+  });
+
+  return (
+    <group
+      ref={chain}
+      onPointerOver={(e) => {
+        e.stopPropagation();
+        setHovered(true);
+        document.body.style.cursor = "pointer";
+      }}
+      onPointerOut={() => {
+        setHovered(false);
+        document.body.style.cursor = "auto";
+      }}
+      onClick={(e) => {
+        e.stopPropagation();
+        target.current = 1;
+        onPull();
+      }}
+    >
+      {/* generous invisible grab area around a very thin cord */}
+      <mesh position={[0, -0.42, 0]} visible={false}>
+        <cylinderGeometry args={[0.16, 0.16, 0.9, 6]} />
+      </mesh>
+      <mesh position={[0, -0.3, 0]}>
+        <cylinderGeometry args={[0.012, 0.012, 0.6, 6]} />
+        <meshStandardMaterial color={ACCENT.ink} />
+      </mesh>
+      {[0, 1, 2].map((i) => (
+        <mesh key={i} position={[0, -0.5 - i * 0.07, 0]}>
+          <sphereGeometry args={[0.03, 8, 8]} />
+          <meshStandardMaterial color="#c9b28a" metalness={0.4} roughness={0.5} />
+        </mesh>
+      ))}
+      <mesh position={[0, -0.74, 0]} castShadow>
+        <sphereGeometry args={[0.075, 14, 14]} />
+        <meshStandardMaterial color={hovered ? ACCENT.yellow : "#d9c08f"} roughness={0.45} />
+        <Ink thickness={2.4} />
+      </mesh>
+      {hovered ? (
+        <Html center distanceFactor={8} position={[0, -1.02, 0]} zIndexRange={[20, 0]} style={{ pointerEvents: "none" }}>
+          <span className="whitespace-nowrap rounded-full bg-card px-4 py-2 font-sans text-[15px] font-semibold text-ink shadow-[var(--shadow-sticker)]">
+            pull the string
+          </span>
+        </Html>
+      ) : null}
+    </group>
+  );
+}
+
 /** The lamp. Its light is the reason night mode exists. */
-function LampObject({ night }: { night: boolean }) {
+function LampObject({ night, onPull }: { night: boolean; onPull: () => void }) {
   return (
     <group>
       <mesh position={[0, 0.07, 0]} castShadow>
@@ -364,6 +436,11 @@ function LampObject({ night }: { night: boolean }) {
           color="#ffcf8f"
           castShadow
         />
+        {/* hangs from the rim of the shade, and hangs straight down whatever
+            angle the shade is tilted at */}
+        <group position={[0.3, -0.24, 0]} rotation={[0, 0, 0.52]}>
+          <PullChain onPull={onPull} />
+        </group>
       </group>
     </group>
   );
@@ -430,7 +507,7 @@ function CatObject({ skin }: { skin: Skin }) {
         <coneGeometry args={[0.035, 0.05, 6]} />
         <meshBasicMaterial color={ACCENT.pink} />
       </mesh>
-      <mesh ref={tail} position={[0, 0.2, -0.42]} rotation={[-0.5, 0, 0]}>
+      <mesh ref={tail} position={[0, 0.26, -0.42]} rotation={[-0.5, 0, 0]}>
         <capsuleGeometry args={[0.055, 0.52, 4, 8]} />
         <meshStandardMaterial color={skin.white} roughness={0.9} />
         <Ink thickness={2.6} />
@@ -561,7 +638,7 @@ function DeskBody({ skin }: { skin: Skin }) {
   );
 }
 
-function DeskContents({ skin, night }: { skin: Skin; night: boolean }) {
+function DeskContents({ skin, night, onPull }: { skin: Skin; night: boolean; onPull: () => void }) {
   return (
     <group position={[0, 0.12, 0]}>
       <LightPool night={night} />
@@ -570,7 +647,7 @@ function DeskContents({ skin, night }: { skin: Skin; night: boolean }) {
         <MonitorObject skin={skin} night={night} />
       </Hotspot>
 
-      <group position={[-0.35, 0.05, 0.62]}>
+      <group position={[-0.35, 0, 0.62]} rotation={[0, 0.03, 0]}>
         <Keyboard skin={skin} />
       </group>
 
@@ -595,10 +672,10 @@ function DeskContents({ skin, night }: { skin: Skin; night: boolean }) {
       </group>
 
       <group position={[-2.62, 0.06, -1.15]}>
-        <LampObject night={night} />
+        <LampObject night={night} onPull={onPull} />
       </group>
 
-      <group position={[1.15, 0.06, -1.0]} rotation={[0, -0.12, 0]}>
+      <group position={[1.15, 0.04, -1.0]} rotation={[0, -0.12, 0]}>
         <CatObject skin={skin} />
       </group>
     </group>
@@ -615,7 +692,7 @@ function FitToViewport({ children }: { children: ReactNode }) {
   return <group scale={scale}>{children}</group>;
 }
 
-function DeskRig({ skin, night }: { skin: Skin; night: boolean }) {
+function DeskRig({ skin, night, onPull }: { skin: Skin; night: boolean; onPull: () => void }) {
   const group = useRef<Group>(null);
   useFrame((state) => {
     if (!group.current) return;
@@ -630,13 +707,17 @@ function DeskRig({ skin, night }: { skin: Skin; night: boolean }) {
   return (
     <group ref={group}>
       <DeskBody skin={skin} />
-      <DeskContents skin={skin} night={night} />
+      <DeskContents skin={skin} night={night} onPull={onPull} />
     </group>
   );
 }
 
 export default function DeskScene() {
   const { resolvedTheme } = useTheme();
+  // The lamp's chain is the site's theme switch. Same beUI View Transition
+  // wipe as everywhere else, but it starts at the top-left — where the lamp
+  // stands — so the dark spreads out of the lamp you just pulled.
+  const { toggle } = useThemeToggle({ variant: "circle-blur", start: "top-left" });
   const night = resolvedTheme === "dark";
   const skin = night ? NIGHT : DAY;
 
@@ -660,19 +741,21 @@ export default function DeskScene() {
       />
       <directionalLight position={[-5, 3, -4]} intensity={night ? 0.1 : 0.35} color="#cfe0ff" />
 
+      {/* No snap and no azimuth fence: the desk spins all the way round and
+          stays where you left it. Polar stays bounded — nobody wants to look
+          at the underside of a desk. */}
       <PresentationControls
         global
-        snap
         cursor
-        speed={1.1}
+        speed={1.4}
         zoom={1}
         rotation={[0.16, -0.5, 0]}
-        polar={[-0.15, 0.35]}
-        azimuth={[-0.8, 0.8]}
+        polar={[-0.25, 0.5]}
+        azimuth={[-Infinity, Infinity]}
       >
         <FitToViewport>
           <group scale={0.95} position={[0, -0.25, 0]}>
-            <DeskRig skin={skin} night={night} />
+            <DeskRig skin={skin} night={night} onPull={toggle} />
             <PaperPlaneObject skin={skin} />
           </group>
         </FitToViewport>

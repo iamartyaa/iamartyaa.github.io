@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 
 import { AvatarMark, ArrowRight } from "@/components/art/cast";
 import { SharedLayoutBg } from "@/components/motion/shared-layout-bg";
-import { NightToggle } from "@/components/site/night-toggle";
+import { PullCord } from "@/components/site/pull-cord";
 import { Sticker } from "@/components/site/sticker";
 import { cn } from "@/lib/utils";
 
@@ -65,13 +65,16 @@ export function SiteNav() {
         </SharedLayoutBg>
 
         <div className="flex items-center gap-2 sm:gap-2.5">
-          <NightToggle />
           <Sticker tone="orange" size="md" tilt={2.5} magnetic href="/about#say-hi">
             say hi
             <ArrowRight size={18} />
           </Sticker>
         </div>
       </nav>
+
+      {/* Home switches the theme by pulling the desk lamp's chain; everywhere
+          else the same string hangs off the top edge of the page. */}
+      {pathname === "/" ? null : <PullCord className="pointer-events-none" />}
     </header>
   );
 }

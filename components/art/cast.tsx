@@ -36,8 +36,25 @@ export function AvatarMark({ className, size = 30 }: ArtProps) {
   );
 }
 
-/** Full figure, waving. The hero portrait and the contact card. */
-export function AvatarWaving({ className, size = 300 }: ArtProps) {
+/** Faces share three moods across the cast, so a reaction reads the same everywhere. */
+export type Mood = "rest" | "peeling" | "placed";
+
+/**
+ * Full figure, waving. The hero portrait and the contact card.
+ *
+ * `mood` drives the face only — the body never changes, which is what keeps
+ * the three states feeling like one drawing reacting rather than three
+ * different characters. `onDark` outlines the hair in paper: on the ink card
+ * the black hair used to dissolve into the background and leave a floating
+ * face.
+ */
+export function AvatarWaving({
+  className,
+  size = 300,
+  mood = "rest",
+  onDark = false,
+}: ArtProps & { mood?: Mood; onDark?: boolean }) {
+  const hairStroke = onDark ? "var(--paper)" : "none";
   return (
     <svg
       className={className}
@@ -45,53 +62,95 @@ export function AvatarWaving({ className, size = 300 }: ArtProps) {
       height={size * 1.15}
       viewBox="0 0 300 345"
       aria-hidden
+      style={{ overflow: "visible" }}
     >
-      <ellipse cx="150" cy="332" rx="96" ry="11" fill="rgba(40,30,20,0.12)" />
+      <ellipse cx="150" cy="332" rx="96" ry="11" fill={onDark ? "rgba(0,0,0,0.35)" : "rgba(40,30,20,0.12)"} />
       <rect x="98" y="182" width="104" height="150" rx="34" fill="var(--blue)" stroke={INK} strokeWidth="3.5" />
+      {/* the waving arm — it goes straight up when the sticker is being peeled */}
+      <g style={{ transformOrigin: "202px 202px", transform: mood === "peeling" ? "rotate(-24deg)" : "none" }}>
+        <path d="M202 202 C 236 190, 246 152, 228 128" stroke={INK} strokeWidth="3.5" fill="none" strokeLinecap="round" />
+        <path
+          d="M220 124 L 236 110 M226 133 L 246 126 M225 145 L 242 149"
+          stroke={INK}
+          strokeWidth="3"
+          fill="none"
+          strokeLinecap="round"
+        />
+      </g>
       <path
-        d="M202 202 C 236 190, 246 152, 228 128"
-        stroke={INK}
-        strokeWidth="3.5"
-        fill="none"
-        strokeLinecap="round"
-      />
-      <path
-        d="M220 124 L 236 110 M226 133 L 246 126 M225 145 L 242 149"
-        stroke={INK}
-        strokeWidth="3"
-        fill="none"
-        strokeLinecap="round"
-      />
-      <path
-        d="M98 212 C 72 222, 68 258, 92 272"
+        d={mood === "peeling" ? "M98 212 C 74 196, 62 168, 78 146" : "M98 212 C 72 222, 68 258, 92 272"}
         stroke={INK}
         strokeWidth="3.5"
         fill="none"
         strokeLinecap="round"
       />
       <circle cx="150" cy="106" r="62" fill="var(--peach)" stroke={INK} strokeWidth="3.5" />
-      <path d="M88 94 C 94 34, 206 22, 220 82 C 200 58, 126 58, 88 94 Z" fill={INK} />
-      <circle cx="128" cy="118" r="16" fill="#fff" stroke={INK} strokeWidth="3.5" />
-      <circle cx="172" cy="118" r="16" fill="#fff" stroke={INK} strokeWidth="3.5" />
-      <path d="M144 118 L 156 118" stroke={INK} strokeWidth="3.5" strokeLinecap="round" />
-      <Eyes cx1={129} cx2={173} cy={120} r={4.2} />
+      {/* hair: filled ink, but outlined in paper on dark grounds so it never
+          disappears into the card behind it */}
       <path
-        d="M134 144 Q 150 158, 166 144"
-        stroke={INK}
-        strokeWidth="3.5"
-        fill="none"
-        strokeLinecap="round"
+        d="M88 94 C 94 34, 206 22, 220 82 C 200 58, 126 58, 88 94 Z"
+        fill={INK}
+        stroke={hairStroke}
+        strokeWidth={onDark ? 4 : 0}
+        strokeLinejoin="round"
       />
-      <circle cx="112" cy="136" r="7" fill="#f4a58a" opacity="0.75" />
-      <circle cx="188" cy="136" r="7" fill="#f4a58a" opacity="0.75" />
+      {onDark ? (
+        <path d="M112 58 C 132 44, 168 42, 190 52" stroke="var(--paper)" strokeWidth="3" fill="none" strokeLinecap="round" opacity="0.55" />
+      ) : null}
+
+      {mood === "placed" ? (
+        <>
+          {/* eyes closed, delighted */}
+          <path d="M114 120 Q 128 108, 142 120" stroke={INK} strokeWidth="4.5" fill="none" strokeLinecap="round" />
+          <path d="M158 120 Q 172 108, 186 120" stroke={INK} strokeWidth="4.5" fill="none" strokeLinecap="round" />
+          <path d="M130 142 Q 150 164, 170 142" stroke={INK} strokeWidth="3.5" fill="none" strokeLinecap="round" />
+        </>
+      ) : mood === "peeling" ? (
+        <>
+          {/* raised brows, wide eyes, a small startled mouth */}
+          <path d="M114 94 Q 128 86, 140 92" stroke={INK} strokeWidth="3.2" fill="none" strokeLinecap="round" />
+          <path d="M160 92 Q 172 86, 186 94" stroke={INK} strokeWidth="3.2" fill="none" strokeLinecap="round" />
+          <circle cx="128" cy="120" r="17.5" fill="#fff" stroke={INK} strokeWidth="3.5" />
+          <circle cx="172" cy="120" r="17.5" fill="#fff" stroke={INK} strokeWidth="3.5" />
+          <circle cx="129" cy="117" r="4.6" fill={INK} />
+          <circle cx="173" cy="117" r="4.6" fill={INK} />
+          <ellipse cx="150" cy="150" rx="9" ry="11" fill={INK} />
+        </>
+      ) : (
+        <>
+          <circle cx="128" cy="118" r="16" fill="#fff" stroke={INK} strokeWidth="3.5" />
+          <circle cx="172" cy="118" r="16" fill="#fff" stroke={INK} strokeWidth="3.5" />
+          <path d="M144 118 L 156 118" stroke={INK} strokeWidth="3.5" strokeLinecap="round" />
+          <Eyes cx1={129} cx2={173} cy={120} r={4.2} />
+          <path d="M134 144 Q 150 158, 166 144" stroke={INK} strokeWidth="3.5" fill="none" strokeLinecap="round" />
+        </>
+      )}
+      <circle cx="112" cy="136" r="7" fill="#f4a58a" opacity={mood === "rest" ? 0.75 : 0.95} />
+      <circle cx="188" cy="136" r="7" fill="#f4a58a" opacity={mood === "rest" ? 0.75 : 0.95} />
     </svg>
   );
 }
 
-/** The cat. Tail wags on its own timer. */
-export function Cat({ className, size = 160 }: ArtProps) {
+/**
+ * The cat. Tail wags on its own timer.
+ *
+ * `look` moves the pupils (−1..1 in each axis) so a wrapper can point them at
+ * the cursor; `mood` is the click reaction. The eyes are drawn as a white +
+ * pupil pair here rather than the shared ink dots, because a pupil needs
+ * somewhere to move inside.
+ */
+export function Cat({
+  className,
+  size = 160,
+  look = { x: 0, y: 0 },
+  mood = "rest",
+  blink = false,
+}: ArtProps & { look?: { x: number; y: number }; mood?: "rest" | "happy" | "startled"; blink?: boolean }) {
+  const dx = Math.max(-1, Math.min(1, look.x)) * 3.4;
+  const dy = Math.max(-1, Math.min(1, look.y)) * 2.6;
+  const closed = blink || mood === "happy";
   return (
-    <svg className={className} width={size} height={size * 0.8} viewBox="0 0 200 160" aria-hidden>
+    <svg className={className} width={size} height={size * 0.8} viewBox="0 0 200 160" aria-hidden style={{ overflow: "visible" }}>
       <path
         className="animate-tailwag origin-[75%_82%]"
         d="M150 132 C 190 126, 196 76, 168 52"
@@ -123,8 +182,25 @@ export function Cat({ className, size = 160 }: ArtProps) {
       />
       <path d="M48 56 L 43 32 L 63 45 Z" fill="#f4a58a" />
       <path d="M119 45 L 129 26 L 126 55 Z" fill="#f4a58a" />
-      <Eyes cx1={68} cx2={112} cy={88} r={5} />
+
+      {closed ? (
+        <>
+          <path d="M58 90 Q 68 80, 78 90" stroke={INK} strokeWidth="4" fill="none" strokeLinecap="round" />
+          <path d="M102 90 Q 112 80, 122 90" stroke={INK} strokeWidth="4" fill="none" strokeLinecap="round" />
+        </>
+      ) : (
+        <>
+          <ellipse cx="68" cy="88" rx="9.5" ry={mood === "startled" ? 11.5 : 10} fill="#fff" stroke={INK} strokeWidth="2.6" />
+          <ellipse cx="112" cy="88" rx="9.5" ry={mood === "startled" ? 11.5 : 10} fill="#fff" stroke={INK} strokeWidth="2.6" />
+          <circle cx={68 + dx} cy={88 + dy} r={mood === "startled" ? 3.4 : 5} fill={INK} />
+          <circle cx={112 + dx} cy={88 + dy} r={mood === "startled" ? 3.4 : 5} fill={INK} />
+        </>
+      )}
+
       <path d="M83 102 L 90 109 L 97 102" stroke={INK} strokeWidth="3.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+      {mood === "happy" ? (
+        <path d="M78 116 Q 90 128, 102 116" stroke={INK} strokeWidth="3" fill="none" strokeLinecap="round" />
+      ) : null}
       <path
         d="M8 96 L 46 92 M8 112 L 46 104 M172 96 L 134 92 M172 112 L 134 104"
         stroke={INK}
@@ -137,7 +213,7 @@ export function Cat({ className, size = 160 }: ArtProps) {
 }
 
 /** The mug. Steam rises on a loop. */
-export function Mug({ className, size = 150 }: ArtProps) {
+export function Mug({ className, size = 150, mood = "rest" }: ArtProps & { mood?: "rest" | "sip" }) {
   return (
     <svg className={className} width={size} height={size * 1.2} viewBox="0 0 150 180" aria-hidden>
       <g stroke="#c3b8a5" strokeWidth="3.4" fill="none" strokeLinecap="round">
@@ -147,8 +223,20 @@ export function Mug({ className, size = 150 }: ArtProps) {
       </g>
       <path d="M28 84 L 36 160 L 110 160 L 118 84 Z" fill="#fff" stroke={INK} strokeWidth="3.5" />
       <path d="M118 96 C 146 96, 146 136, 114 138" stroke={INK} strokeWidth="3.5" fill="none" strokeLinecap="round" />
-      <Eyes cx1={58} cx2={88} cy={116} r={4} />
-      <path d="M62 132 Q 73 140, 84 132" stroke={INK} strokeWidth="3" fill="none" strokeLinecap="round" />
+      {mood === "sip" ? (
+        <>
+          <path d="M50 116 Q 58 108, 66 116" stroke={INK} strokeWidth="3.4" fill="none" strokeLinecap="round" />
+          <path d="M80 116 Q 88 108, 96 116" stroke={INK} strokeWidth="3.4" fill="none" strokeLinecap="round" />
+          <path d="M60 130 Q 73 142, 86 130" stroke={INK} strokeWidth="3" fill="none" strokeLinecap="round" />
+          <circle cx="42" cy="128" r="5.5" fill="#f4a58a" opacity="0.8" />
+          <circle cx="104" cy="128" r="5.5" fill="#f4a58a" opacity="0.8" />
+        </>
+      ) : (
+        <>
+          <Eyes cx1={58} cx2={88} cy={116} r={4} />
+          <path d="M62 132 Q 73 140, 84 132" stroke={INK} strokeWidth="3" fill="none" strokeLinecap="round" />
+        </>
+      )}
       <path d="M28 84 L 118 84" stroke={INK} strokeWidth="3.5" strokeLinecap="round" />
     </svg>
   );
@@ -257,6 +345,15 @@ export function SmileyDot({ className, size = 22 }: ArtProps) {
       <circle cx="9" cy="11" r="1.4" fill={INK} />
       <circle cx="15" cy="11" r="1.4" fill={INK} />
       <path d="M9 15 Q 12 17.5, 15 15" stroke={INK} strokeWidth="2" fill="none" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+/** The X mark, drawn in the same ink as everything else. */
+export function XMark({ className, size = 18 }: ArtProps) {
+  return (
+    <svg className={className} width={size} height={size} viewBox="0 0 24 24" aria-hidden>
+      <path d="M4 4 L 20 20 M20 4 L 4 20" stroke="currentColor" strokeWidth="3" strokeLinecap="round" fill="none" />
     </svg>
   );
 }

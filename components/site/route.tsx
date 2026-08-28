@@ -51,16 +51,20 @@ export function Route({ d, height, stops = [], className }: RouteProps) {
 }
 
 /** The plane itself, flying the given path as the section scrolls past. */
-export function RoutePlane({ d, height, size = 92 }: { d: string; height: number; size?: number }) {
+export function RoutePlane({ d, height, size = 86 }: { d: string; height: number; size?: number }) {
   const ref = useRef<HTMLDivElement>(null);
   const pathRef = useRef<SVGPathElement>(null);
   const reduce = useReducedMotion();
   const samplesRef = useRef<{ x: number; y: number; a: number }[]>([]);
   const [ready, setReady] = useState(false);
 
+  // Centre-to-centre: the plane is at the start of the path when the section
+  // arrives at the middle of the screen and at the end of it when the section
+  // leaves the middle, which is what keeps the plane beside the card you are
+  // actually reading instead of running ahead of it.
   const { scrollYProgress } = useScroll({
     target: ref,
-    offset: ["start end", "end start"],
+    offset: ["start center", "end center"],
   });
   // The plane trails the scroll instead of snapping to it — the single most
   // important detail for making it feel like a thing being carried along.
@@ -102,10 +106,19 @@ export function RoutePlane({ d, height, size = 92 }: { d: string; height: number
       </svg>
       {ready && !reduce ? (
         <motion.div className="absolute" style={{ left, top, rotate, x: "-50%", y: "-50%" }}>
-          <svg width={size} height={size * 0.74} viewBox="0 0 190 140" style={{ overflow: "visible" }}>
-            <path d="M6 68 L 184 12 L 122 132 L 100 86 Z" fill="var(--card)" stroke="#241f1c" strokeWidth="6" strokeLinejoin="round" />
-            <path d="M6 68 L 100 86 L 184 12 Z" fill="#e9eef9" stroke="#241f1c" strokeWidth="6" strokeLinejoin="round" />
-            <path d="M100 86 L 112 112 L 122 132" stroke="#241f1c" strokeWidth="6" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+          <svg
+            width={size}
+            height={size * 0.74}
+            viewBox="0 0 190 140"
+            style={{ overflow: "visible", filter: "drop-shadow(0 10px 12px rgba(40,30,20,0.22))" }}
+          >
+            <path d="M6 68 L 184 12 L 122 132 L 100 86 Z" fill="var(--card)" stroke="#241f1c" strokeWidth="4.5" strokeLinejoin="round" />
+            <path d="M6 68 L 100 86 L 184 12 Z" fill="#e9eef9" stroke="#241f1c" strokeWidth="4.5" strokeLinejoin="round" />
+            <path d="M100 86 L 112 112 L 122 132" stroke="#241f1c" strokeWidth="4.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+            {/* the same face the drawn cast has, so the two planes are one plane */}
+            <circle cx="66" cy="64" r="3.6" fill="#241f1c" />
+            <circle cx="84" cy="64" r="3.6" fill="#241f1c" />
+            <path d="M70 76 Q 78 82, 86 74" stroke="#241f1c" strokeWidth="2.6" fill="none" strokeLinecap="round" />
           </svg>
         </motion.div>
       ) : null}

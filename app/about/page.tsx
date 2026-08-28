@@ -1,21 +1,12 @@
-import {
-  ArrowRight,
-  AvatarMark,
-  AvatarWaving,
-  Cat,
-  Monitor,
-  Mug,
-  Notebook,
-  PaperPlane,
-  Plant,
-  Rocket,
-  Sparkle,
-  SmileyDot,
-} from "@/components/art/cast";
+import { Monitor, Notebook, PaperPlane, Rocket, Sparkle, SmileyDot, XMark } from "@/components/art/cast";
 import { ScrollReveal } from "@/components/motion/scroll-reveal";
 import { TextReveal } from "@/components/motion/text-reveal";
 import { TiltCard } from "@/components/motion/tilt-card";
 import { HandNote, Stamp } from "@/components/site/hand-note";
+import { HowIWork } from "@/components/site/how-i-work";
+import { PilotPortrait } from "@/components/site/pilot-portrait";
+import { Shelf } from "@/components/site/shelf";
+import { Signature } from "@/components/site/signature";
 import { Section, SectionHead } from "@/components/site/section";
 import { FloatingSticker, Sticker } from "@/components/site/sticker";
 
@@ -26,14 +17,6 @@ import { FloatingSticker, Sticker } from "@/components/site/sticker";
  * history is waypoints ([year] → what changed) ending in a dashed "Now" card,
  * which is the only line that ever gets rewritten.
  */
-
-const PACK = [
-  { label: "me", art: <AvatarMark size={94} />, bg: "bg-peach", shape: "rounded-full", tilt: -5 },
-  { label: "chai, actually", art: <Mug size={86} />, bg: "bg-card", shape: "rounded-[1.5rem]", tilt: 4 },
-  { label: "still growing", art: <Plant size={90} />, bg: "bg-mint", shape: "rounded-full", tilt: -2 },
-  { label: "always moving", art: <PaperPlane size={92} />, bg: "bg-sky", shape: "rounded-[1.5rem]", tilt: 3 },
-  { label: "the mascot", art: <Cat size={100} />, bg: "bg-card", shape: "rounded-full", tilt: -6 },
-];
 
 const FLIGHTS = [
   {
@@ -62,39 +45,6 @@ const FLIGHTS = [
       "Walmart Global Tech, on the team behind the workforce tools store associates open every morning. Eleven services, a labour-law deadline, and a Bravo award in the first two quarters. Then I started handing the boring parts to agents.",
     tags: ["Walmart Global Tech", "Bengaluru"],
     art: <Monitor size={120} />,
-  },
-];
-
-const HOW = [
-  {
-    title: "Small things, finished",
-    body: "A working small thing beats a beautiful plan. Ship, then make it nice.",
-    art: (
-      <svg width="88" height="88" viewBox="0 0 100 100" aria-hidden>
-        <rect x="24" y="30" width="52" height="44" rx="8" fill="var(--yellow)" stroke="#241f1c" strokeWidth="3" />
-        <path d="M34 52 L 44 62 L 68 40" stroke="#241f1c" strokeWidth="3" fill="none" strokeLinecap="round" strokeLinejoin="round" />
-      </svg>
-    ),
-  },
-  {
-    title: "Draw it first",
-    body: "If I can't sketch how it works, I don't understand it yet.",
-    art: (
-      <svg width="88" height="88" viewBox="0 0 100 100" aria-hidden>
-        <path d="M20 78 L 26 58 L 66 18 L 84 36 L 44 76 Z" fill="var(--card)" stroke="#241f1c" strokeWidth="3" strokeLinejoin="round" />
-        <path d="M26 58 L 44 76 M64 20 L 82 38" stroke="#241f1c" strokeWidth="3" fill="none" strokeLinecap="round" />
-      </svg>
-    ),
-  },
-  {
-    title: "Show the work",
-    body: "Notes in public. Half of what I know came back to me that way.",
-    art: (
-      <svg width="88" height="88" viewBox="0 0 100 100" aria-hidden>
-        <circle cx="50" cy="50" r="26" fill="var(--sky)" stroke="#241f1c" strokeWidth="3" />
-        <path d="M50 24 C 62 36, 62 64, 50 76 C 38 64, 38 36, 50 24 Z M24 50 H76" stroke="#241f1c" strokeWidth="3" fill="none" />
-      </svg>
-    ),
   },
 ];
 
@@ -127,21 +77,7 @@ export default function AboutPage() {
             </ScrollReveal>
           </div>
 
-          {/* the pilot, with the mug and the cat */}
-          <div className="relative hidden justify-self-center lg:block">
-            <div className="animate-bob">
-              <AvatarWaving size={360} />
-            </div>
-            <div className="absolute -left-16 bottom-6">
-              <Mug size={132} />
-            </div>
-            <div className="absolute -right-10 bottom-0">
-              <Cat size={190} />
-            </div>
-            <HandNote tilt={5} className="absolute -bottom-10 right-0 w-[13rem] leading-tight">
-              the cat follows your cursor with his eyes
-            </HandNote>
-          </div>
+          <PilotPortrait />
         </div>
 
         <div className="mt-14 flex flex-wrap gap-7">
@@ -156,41 +92,18 @@ export default function AboutPage() {
         </div>
       </Section>
 
-      {/* ───────────────────── STICKER PACK OF ME ───────────────────── */}
+      {/* ─────────────────────── ON THE SHELF ─────────────────────── */}
       <Section className="pt-[9rem]">
         <SectionHead
-          label="The pack"
-          title="Sticker pack of me"
-          aside={<HandNote tilt={-1} className="text-right">true regardless of what the job title says</HandNote>}
+          label="Right now"
+          title="On the shelf"
+          aside={
+            <HandNote tilt={-1} className="text-right">
+              the one part of this page that&apos;s meant to go out of date
+            </HandNote>
+          }
         />
-        <ScrollReveal y={24}>
-          <div className="relative rounded-[1.75rem] bg-card p-12 shadow-[var(--shadow-card)]">
-            <div className="pointer-events-none absolute inset-3.5 rounded-[1.35rem] border-[2.5px] border-dashed border-hairline" />
-            <div className="relative grid grid-cols-2 justify-items-center gap-8 sm:grid-cols-3 lg:grid-cols-6">
-              {PACK.map((s) => (
-                <div key={s.label} className="text-center">
-                  <div
-                    className={`flex size-36 items-center justify-center ${s.shape} ${s.bg} shadow-[0_0_0_5px_var(--card),0_0_0_6.5px_var(--hairline)]`}
-                    style={{ transform: `rotate(${s.tilt}deg)` }}
-                  >
-                    {s.art}
-                  </div>
-                  <p className="mt-3 font-display text-[17px] font-extrabold tracking-[-0.03em]">{s.label}</p>
-                </div>
-              ))}
-              <div className="text-center">
-                <div className="flex size-36 rotate-2 items-center justify-center rounded-[1.5rem] border-[3px] border-dashed border-hairline">
-                  <span className="font-hand text-[19px] font-semibold leading-tight text-ink-ghost">
-                    a sticker for
-                    <br />
-                    what&apos;s next
-                  </span>
-                </div>
-                <p className="mt-3 font-display text-[17px] font-extrabold tracking-[-0.03em] text-ink-ghost">[?]</p>
-              </div>
-            </div>
-          </div>
-        </ScrollReveal>
+        <Shelf />
       </Section>
 
       {/* ───────────────────── WHERE I'VE FLOWN ───────────────────── */}
@@ -272,27 +185,23 @@ export default function AboutPage() {
 
       {/* ───────────────────────── HOW I WORK ───────────────────────── */}
       <Section className="pt-[11rem]">
-        <SectionHead label="Regardless of the job" title="How I work" />
-        <div className="grid gap-7 lg:grid-cols-3">
-          {HOW.map((h, i) => (
-            <ScrollReveal key={h.title} delay={i * 0.08} y={22}>
-              <TiltCard max={8} glare={false} className="h-[14.5rem] bg-card shadow-[var(--shadow-card)]">
-                <div className="relative h-full p-9">
-                  <h3 className="font-display text-[26px] font-extrabold leading-tight tracking-[-0.035em]">{h.title}</h3>
-                  <p className="mt-2.5 max-w-[19rem] text-[15.5px] leading-[1.6] text-ink-soft">{h.body}</p>
-                  <div className="absolute bottom-4 right-4 opacity-95">{h.art}</div>
-                </div>
-              </TiltCard>
-            </ScrollReveal>
-          ))}
-        </div>
+        <SectionHead
+          label="Regardless of the job"
+          title="How I work"
+          aside={
+            <HandNote tilt={-2} className="text-right">
+              four promises, in the order they happen
+            </HandNote>
+          }
+        />
+        <HowIWork />
       </Section>
 
       {/* ─────────────────────────── SAY HI ─────────────────────────── */}
       <Section id="say-hi" className="scroll-mt-32 py-[11rem]">
         <ScrollReveal y={26}>
           <div className="relative overflow-hidden rounded-[2rem] bg-ink px-[3.75rem] py-[3.6rem] text-paper">
-            <div className="grid items-center gap-10 lg:grid-cols-[1fr_17rem]">
+            <div className="grid items-center gap-10 lg:grid-cols-[1fr_21rem]">
               <div>
                 <p className="label text-ink-ghost">Say hi</p>
                 <h2 className="mt-3 font-display text-[clamp(2.4rem,4.4vw,3.6rem)] font-extrabold leading-[0.98] tracking-[-0.04em]">
@@ -310,13 +219,18 @@ export default function AboutPage() {
                   <Sticker tone="white" size="md" tilt={-1} on="ink" href="https://linkedin.com/in/iamartyaa">
                     linkedin
                   </Sticker>
+                  <Sticker tone="white" size="md" tilt={1} on="ink" href="https://x.com/evilseyee">
+                    <XMark size={17} />
+                    x
+                  </Sticker>
                   <Sticker tone="white" size="md" tilt={2} on="ink" href="/resume.pdf">
                     résumé
                   </Sticker>
                 </div>
               </div>
+              {/* signed, rather than stamped with another plane */}
               <div className="hidden justify-self-end lg:block">
-                <PaperPlane size={210} />
+                <Signature className="w-[21rem]" />
               </div>
             </div>
           </div>

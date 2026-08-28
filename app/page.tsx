@@ -1,17 +1,15 @@
 import Link from "next/link";
 
-import { ArrowRight, AvatarWaving, CurlyArrow, Monitor, Notebook, PaperPlane, Plant, Rocket, Sparkle, SmileyDot } from "@/components/art/cast";
+import { ArrowRight, AvatarWaving, Monitor, Notebook, PaperPlane, Plant, Rocket, XMark } from "@/components/art/cast";
 import { Desk } from "@/components/desk/desk";
 import { Marquee } from "@/components/motion/marquee";
-import { Parallax } from "@/components/motion/parallax";
 import { ScrollReveal } from "@/components/motion/scroll-reveal";
 import { TextReveal } from "@/components/motion/text-reveal";
 import { TiltCard } from "@/components/motion/tilt-card";
 import { HandNote } from "@/components/site/hand-note";
+import { HeroBand } from "@/components/site/hero-band";
 import { Section, SectionHead } from "@/components/site/section";
-import { PeelSticker } from "@/components/site/peel-sticker";
 import { Sticker } from "@/components/site/sticker";
-import { ThrowableSticker } from "@/components/site/throwable-sticker";
 
 const DESK_OBJECTS = [
   {
@@ -73,11 +71,13 @@ const TEASERS = [
 ];
 
 const MARQUEE_WORDS = [
-  ["make things", "var(--yellow)"],
-  ["write them down", "var(--orange)"],
-  ["show your work", "var(--green)"],
-  ["keep the drawings", "var(--blue)"],
-  ["start again", "var(--yellow)"],
+  ["Inference", "var(--yellow)"],
+  ["CUDA", "var(--green)"],
+  ["GPU Programming", "var(--orange)"],
+  ["AI Agents", "var(--blue)"],
+  ["Distributed Systems", "var(--yellow)"],
+  ["Frontend Engineering", "var(--green)"],
+  ["Computer Vision", "var(--orange)"],
 ] as const;
 
 export default function HomePage() {
@@ -133,38 +133,8 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* Peeling portrait + the three traits. Normal flow, not absolute
-            positioning: this band sits between two tall neighbours and has to
-            keep its distance from both at every viewport. */}
-        <div className="mt-6 hidden items-start gap-16 lg:flex">
-          <Parallax speed={0.1}>
-            <PeelSticker className="w-[19rem]">
-              <div className="px-6 pt-4">
-                <AvatarWaving size={248} />
-              </div>
-            </PeelSticker>
-            <HandNote tilt={-4} className="mt-4 pl-36 text-[17px]">
-              ↖ hover: it peels
-            </HandNote>
-          </Parallax>
+        <HeroBand />
 
-          <div className="flex flex-col items-start gap-7 pt-10">
-            <ThrowableSticker tone="sky" rotate={-7} size="md">
-              <Sparkle size={20} />
-              learns in public
-            </ThrowableSticker>
-            <ThrowableSticker tone="white" rotate={5} size="md" className="ml-12">
-              <SmileyDot size={20} />
-              ships small things often
-            </ThrowableSticker>
-            <ThrowableSticker tone="ink" rotate={-10} size="md" className="ml-4">
-              Bengaluru, IN
-            </ThrowableSticker>
-            <HandNote tone="orange" tilt={2} className="ml-2 mt-1">
-              pick these up and throw them →
-            </HandNote>
-          </div>
-        </div>
       </Section>
 
       {/* ───────────────────────── MARQUEE ───────────────────────── */}
@@ -270,13 +240,17 @@ export default function HomePage() {
                   <Sticker tone="white" size="md" tilt={-1} on="ink" href="https://linkedin.com/in/iamartyaa">
                     linkedin
                   </Sticker>
+                  <Sticker tone="white" size="md" tilt={1} on="ink" href="https://x.com/evilseyee">
+                    <XMark size={17} />
+                    x
+                  </Sticker>
                   <Sticker tone="white" size="md" tilt={2} on="ink" href="/resume.pdf">
                     résumé
                   </Sticker>
                 </div>
               </div>
               <div className="relative hidden justify-self-end lg:block">
-                <AvatarWaving size={260} />
+                <AvatarWaving size={260} onDark />
                 <HandNote tone="orange" tilt={-6} className="absolute left-0 top-2 text-yellow">
                   waves back
                 </HandNote>

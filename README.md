@@ -80,8 +80,10 @@ That's it — the workflow does the rest, and every later push redeploys.
 - [x] Mobile pass — fluid gutters, wrapping nav, the desk refits itself to the
       canvas, the route plane is desktop-only; reduced motion respected throughout
 - [x] Real content from the résumé
-- [ ] A few `[Small thing]` slots in the drawer still want filling
-- [ ] Open Graph image
+- [x] The drawer — only real things go on the sheet; the dashed circle at the
+      end is the honest placeholder. Send me a title + year and I'll add one.
+- [x] Open Graph card (`public/og.png`, drawn in the design system) + `app/icon.svg`
+- [ ] Push to GitHub and turn Pages on — the two steps that need your login (below)
 
 ## The route
 

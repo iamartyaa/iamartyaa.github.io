@@ -42,6 +42,9 @@ const geistMono = localFont({
   display: "swap",
 });
 
+/** Empty on a user site, "/<repo>" on a project site — set by the deploy workflow. */
+const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
+
 export const metadata: Metadata = {
   metadataBase: new URL("https://iamartyaa.github.io"),
   title: "Amartya Yadav — I make things",
@@ -52,6 +55,25 @@ export const metadata: Metadata = {
     description:
       "Software engineer in Bengaluru. Workforce tools, AI agents, and long notes about how things work.",
     type: "website",
+    url: "/",
+    siteName: "Amartya Yadav",
+    images: [
+      {
+        // Drawn in the site's own design system (paper, route, stickers) and
+        // rasterised at 1200x630 — the card is the first frame of the site.
+        url: `${BASE_PATH}/og.png`,
+        width: 1200,
+        height: 630,
+        alt: "Amartya Yadav — I make things, and keep the desk a little messy.",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Amartya Yadav — I make things",
+    description:
+      "Software engineer in Bengaluru. Workforce tools, AI agents, and long notes about how things work.",
+    images: [`${BASE_PATH}/og.png`],
   },
 };
 

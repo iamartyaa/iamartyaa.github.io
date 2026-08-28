@@ -81,11 +81,36 @@ const PROJECTS = [
   },
 ];
 
+/**
+ * The drawer is deliberately short. Only things that actually exist go on the
+ * sheet — the dashed circle at the end is the honest placeholder, not a
+ * filled-in one.
+ */
 const SMALL = [
-  { title: "This desk", year: "2026", art: <Monitor size={96} />, bg: "bg-peach", shape: "rounded-full" },
-  { title: "[Small thing]", year: "[year]", art: <PaperPlane size={96} />, bg: "bg-sky", shape: "rounded-[1.6rem]" },
-  { title: "[Small thing]", year: "[year]", art: <Plant size={92} />, bg: "bg-mint", shape: "rounded-full" },
-  { title: "[Small thing]", year: "[year]", art: <Rocket size={92} />, bg: "bg-butter", shape: "rounded-[1.6rem]" },
+  {
+    title: "This desk",
+    year: "2026",
+    note: "the site you're on",
+    art: <Monitor size={96} />,
+    bg: "bg-peach",
+    shape: "rounded-full",
+  },
+  {
+    title: "CUDA, at night",
+    year: "2026",
+    note: "kernels, slowly",
+    art: <Rocket size={92} />,
+    bg: "bg-butter",
+    shape: "rounded-[1.6rem]",
+  },
+  {
+    title: "Agents in the editor",
+    year: "2025",
+    note: "the MCP half of Dev-Assistant",
+    art: <PaperPlane size={96} />,
+    bg: "bg-sky",
+    shape: "rounded-[1.6rem]",
+  },
 ];
 
 export default function ThingsPage() {
@@ -206,13 +231,13 @@ export default function ThingsPage() {
               className="mt-2.5 font-display text-[clamp(2.25rem,4vw,3.4rem)] font-extrabold leading-none tracking-[-0.04em]"
             />
           </div>
-          <HandNote tilt={-2}>weekend experiments · peel one to open it</HandNote>
+          <HandNote tilt={-2}>weekend experiments · the ones that stayed small</HandNote>
         </div>
 
         <ScrollReveal y={24}>
           <div className="relative rounded-[1.75rem] bg-card p-12 shadow-[var(--shadow-card)]">
             <div className="pointer-events-none absolute inset-3.5 rounded-[1.35rem] border-[2.5px] border-dashed border-hairline" />
-            <div className="relative grid grid-cols-2 gap-9 sm:grid-cols-3 lg:grid-cols-5">
+            <div className="relative grid grid-cols-2 gap-9 sm:grid-cols-4">
               {SMALL.map((s, i) => (
                 <div key={i} className="text-center">
                   <div
@@ -223,6 +248,7 @@ export default function ThingsPage() {
                   </div>
                   <p className="mt-4 font-display text-[19px] font-extrabold tracking-[-0.03em]">{s.title}</p>
                   <p className="label mt-1">{s.year}</p>
+                  <p className="mt-1.5 font-hand text-[15px] leading-snug text-ink-faint">{s.note}</p>
                 </div>
               ))}
               <div className="text-center">
@@ -233,7 +259,7 @@ export default function ThingsPage() {
                     goes here
                   </span>
                 </div>
-                <p className="mt-4 font-display text-[19px] font-extrabold tracking-[-0.03em] text-ink-ghost">[Soon]</p>
+                <p className="mt-4 font-display text-[19px] font-extrabold tracking-[-0.03em] text-ink-ghost">Soon</p>
                 <p className="label mt-1">the sheet grows</p>
               </div>
             </div>

@@ -19,7 +19,7 @@ import { cn } from "@/lib/utils";
 export function PeelSticker({
   children,
   className,
-  corner = 128,
+  corner = 62,
 }: {
   children: ReactNode;
   className?: string;
@@ -53,17 +53,18 @@ export function PeelSticker({
       >
         {children}
 
-        {/* the backing paper the sticker is lifting away from */}
+        {/* The curl: a triangle of the sticker's underside lifting away from the
+            page, with the shadow it would cast on what it uncovers. Small at
+            rest — a corner that has just started to lift, not a torn page. */}
         <motion.div
           aria-hidden
-          className="absolute bottom-0 right-0 origin-bottom-right"
-          animate={{ width: active ? corner * 1.5 : corner, height: active ? corner * 1.5 : corner }}
+          className="absolute bottom-0 right-0"
+          animate={{ width: active ? corner * 1.6 : corner, height: active ? corner * 1.6 : corner }}
           transition={SPRING_PANEL}
           style={{
-            background:
-              "linear-gradient(225deg, var(--paper) 0 47%, color-mix(in oklab, var(--paper) 78%, black) 47% 53%, var(--paper-2) 53%)",
-            borderRadius: "0 0 9rem 0",
-            boxShadow: "-10px -10px 22px rgba(40,30,20,0.28)",
+            clipPath: "polygon(100% 0, 100% 100%, 0 100%)",
+            background: "linear-gradient(225deg, var(--paper-2) 0%, var(--paper-3) 62%, var(--hairline) 100%)",
+            filter: "drop-shadow(-6px -6px 10px rgba(40,30,20,0.22))",
           }}
         />
       </motion.div>

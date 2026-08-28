@@ -48,16 +48,40 @@ components/
 lib/            cn(), motion tokens, hooks
 ```
 
+## Deploy (GitHub Pages)
+
+The site is a static export (`output: "export"`), so Pages can serve it as-is.
+`.github/workflows/deploy.yml` builds on every push to `main` and works for
+either repo shape — it derives `basePath` from the repo name, so a user site
+(`iamartyaa.github.io`) serves from `/` and a project repo from `/<repo>`.
+
+First time, from this folder:
+
+```bash
+# 1. create the repo on github.com (empty, no README), then:
+git remote add origin https://github.com/iamartyaa/iamartyaa.github.io.git
+git push -u origin main
+
+# 2. on GitHub: Settings → Pages → Source: "GitHub Actions"
+```
+
+That's it — the workflow does the rest, and every later push redeploys.
+
 ## Status
 
 - [x] Design system, fonts, tokens, night mode (View Transition wipe, lamp-lit 3D)
 - [x] Home — hero, 3D desk (drag/hover/click objects), marquee, "what's on it", teasers, contact
 - [x] /things — the dashed route with the plane flown by scroll, landings, sticker sheet
 - [x] /about — the pilot, sticker pack, "where I've flown", how I work, say hi
-- [ ] Home — peel-portrait interaction + sticker physics (Rapier)
-- [ ] Page transitions — the plane carries you between routes
-- [ ] Mobile pass (< 900px) and a reduced-motion audit
-- [ ] Real content (every placeholder is in `[BRACKETS]`)
+- [x] Home — the portrait peels on hover; the trait stickers are draggable
+      and throwable (drag momentum, tilt into the throw)
+- [x] Page transitions — `app/template.tsx` flies the plane across on every
+      route change while the new page settles in
+- [x] Mobile pass — fluid gutters, wrapping nav, the desk refits itself to the
+      canvas, the route plane is desktop-only; reduced motion respected throughout
+- [x] Real content from the résumé
+- [ ] A few `[Small thing]` slots in the drawer still want filling
+- [ ] Open Graph image
 
 ## The route
 

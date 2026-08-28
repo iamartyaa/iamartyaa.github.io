@@ -107,10 +107,28 @@ export function Sticker({
 
   const style = tilt ? { transform: `rotate(${tilt}deg)` } : undefined;
 
+  // A mailto:, an off-site profile, or a file in /public is a real navigation,
+  // not a route — next/link would try to client-side route to it and land on
+  // nothing. Those get a plain anchor; everything else stays a Link so the
+  // page transition still plays.
+  const external = Boolean(href && (/^(https?:|mailto:|tel:)/.test(href) || /\.[a-z0-9]{2,4}$/i.test(href)));
+
   const inner = href ? (
-    <Link href={href} className={classes} style={style}>
-      {children}
-    </Link>
+    external ? (
+      <a
+        href={href}
+        className={classes}
+        style={style}
+        target={href.startsWith("mailto:") ? undefined : "_blank"}
+        rel="noopener noreferrer"
+      >
+        {children}
+      </a>
+    ) : (
+      <Link href={href} className={classes} style={style}>
+        {children}
+      </Link>
+    )
   ) : onClick ? (
     <button type="button" onClick={onClick} aria-label={ariaLabel} className={classes} style={style}>
       {children}

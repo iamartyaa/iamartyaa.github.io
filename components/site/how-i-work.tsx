@@ -108,26 +108,29 @@ export function HowIWork() {
 
   return (
     <div className="relative">
-      {/* the line that runs through all four, drawn as the section arrives */}
-      <motion.svg
+      {/* The line that runs through all four. Deliberately NOT drawn with
+          motion's pathLength: pathLength drives stroke-dasharray itself and
+          would eat the dashes. It fades up instead, and the dashes are
+          already marching along it (animate-dashrun). */}
+      <motion.div
         aria-hidden
-        className="pointer-events-none absolute inset-x-6 -top-[3.2rem] hidden h-14 lg:block"
-        viewBox="0 0 1200 60"
-        preserveAspectRatio="none"
-        initial="hidden"
-        whileInView="show"
-        viewport={{ once: true, amount: 0.4 }}
+        className="pointer-events-none absolute inset-x-6 -top-[3.4rem] hidden h-14 lg:block"
+        initial={{ opacity: 0, y: 10 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.3 }}
+        transition={{ duration: 0.8, ease: EASE_OUT }}
       >
-        <motion.path
-          d="M20 44 C 200 6, 330 52, 470 26 C 610 2, 700 50, 840 26 C 980 2, 1090 44, 1180 20"
-          stroke="var(--blue)"
-          strokeWidth="3"
-          strokeDasharray="9 11"
-          strokeLinecap="round"
-          fill="none"
-          variants={{ hidden: { pathLength: 0 }, show: { pathLength: 1, transition: { duration: 1.6, ease: EASE_OUT } } }}
-        />
-      </motion.svg>
+        <svg className="h-full w-full" viewBox="0 0 1200 60" preserveAspectRatio="none" fill="none">
+          <path
+            d="M20 44 C 200 6, 330 52, 470 26 C 610 2, 700 50, 840 26 C 980 2, 1090 44, 1180 20"
+            stroke="var(--blue)"
+            strokeWidth="3"
+            strokeDasharray="9 11"
+            strokeLinecap="round"
+            className="animate-dashrun"
+          />
+        </svg>
+      </motion.div>
 
       <div className="relative grid gap-7 sm:grid-cols-2 lg:grid-cols-4">
         {STEPS.map((s, i) => (

@@ -70,20 +70,34 @@ That's it — the workflow does the rest, and every later push redeploys.
 ## Status
 
 - [x] Design system, fonts, tokens, night mode (View Transition wipe, lamp-lit 3D)
-- [x] Home — hero, 3D desk (drag/hover/click objects), marquee, "what's on it", teasers, contact
-- [x] /things — the dashed route with the plane flown by scroll, landings, sticker sheet
-- [x] /about — the pilot, sticker pack, "where I've flown", how I work, say hi
-- [x] Home — the portrait peels on hover; the trait stickers are draggable
-      and throwable (drag momentum, tilt into the throw)
-- [x] Page transitions — `app/template.tsx` flies the plane across on every
-      route change while the new page settles in
-- [x] Mobile pass — fluid gutters, wrapping nav, the desk refits itself to the
-      canvas, the route plane is desktop-only; reduced motion respected throughout
+- [x] Home — hero, 3D desk, marquee, "what's on it", teasers, contact
+- [x] /things — the route, four landings, the drawer
+- [x] /about — the pilot, the shelf, "where I've flown", how I work, say hi
 - [x] Real content from the résumé
-- [x] The drawer — only real things go on the sheet; the dashed circle at the
-      end is the honest placeholder. Send me a title + year and I'll add one.
-- [x] Open Graph card (`public/og.png`, drawn in the design system) + `app/icon.svg`
-- [ ] Push to GitHub and turn Pages on — the two steps that need your login (below)
+- [x] Open Graph card (`public/og.png`) + `app/icon.svg`
+- [x] The portrait peels off and can be stuck anywhere in the band; the face
+      reacts through the gesture (`components/site/peel-sticker.tsx`)
+- [x] The desk spins a true 360 and every object sits on the surface
+- [x] Night mode is the lamp's pull chain on Home, and the cord hanging off
+      the top edge everywhere else (`components/site/pull-cord.tsx`)
+- [x] The cat's eyes follow the cursor on /about, and he is the mascot that
+      follows it around /things (`components/site/cursor-cat.tsx`)
+- [x] The say-hi card is signed by hand (`components/site/signature.tsx`)
+- [ ] Push to GitHub and turn Pages on — the two steps that need your login
+- [ ] Drop a `resume.pdf` into `public/` — the "résumé" sticker links to it
+
+## Interaction map
+
+| Where | What it does |
+| --- | --- |
+| Home, the desk | drag to spin 360°, hover an object for its label, click to go there |
+| Home, the lamp chain | pulls night mode on and off, and the wipe starts at the lamp |
+| Home, the portrait | peel it off, drop it anywhere in the band, double-click to put it back |
+| Home, the trait stickers | pick up and throw (drag momentum) |
+| /things | the plane flies the four landings and stops at 04; the cat follows your cursor |
+| /about, the cat | pupils track the pointer; click him for a hop |
+| /about, the mug | click for a sip — it keeps count |
+| Anywhere but Home | the cord top-right: drag it down or click it |
 
 ## The route
 

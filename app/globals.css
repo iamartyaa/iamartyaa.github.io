@@ -1,0 +1,225 @@
+@import "tailwindcss";
+
+/* ============================================================
+   AMARTYA — DESIGN SYSTEM
+   Locked in the design canvas. Nothing here is decorative-by-accident:
+   every token below appears in the approved artboards.
+   ============================================================ */
+
+:root {
+    /* Paper stack */
+    --paper: #f4eee2;
+    --paper-2: #fbf7ee;
+    --paper-3: #ece4d3;
+    --card: #ffffff;
+
+    /* Ink */
+    --ink: #241f1c;
+    --ink-soft: #5c554d;
+    --ink-faint: #7a7168;
+    --ink-ghost: #a99e91;
+    --hairline: #e6ddcc;
+
+    /* Accents — one job each, never swapped */
+    --orange: #e8562f; /* the voice: emphasis, primary CTA, stamps */
+    --blue: #2f6fed;   /* the route: the plane's line, links in flight */
+    --yellow: #ffc53a; /* the hoodie: highlights, sticker fills */
+    --green: #6fae7b;  /* growth: the "currently" pulse, the plant */
+    --sky: #bfe1ff;
+    --mint: #d9f2c9;
+    --peach: #ffd8a8;
+    --butter: #ffe66d;
+
+    /* beUI components read these two names. */
+    --background: var(--paper);
+    --foreground: var(--ink);
+
+    /* Elevation — stickers sit ON the page, cards sit IN it. */
+    --shadow-sticker: 0 0 0 5px #fff, 0 12px 22px -14px rgba(40, 30, 20, 0.6);
+    --shadow-sticker-sm: 0 0 0 4px #fff, 0 10px 18px -12px rgba(40, 30, 20, 0.6);
+    --shadow-card: 0 22px 38px -26px rgba(40, 30, 20, 0.5);
+    --shadow-lift: 0 40px 60px -30px rgba(40, 30, 20, 0.6);
+}
+
+
+/* ── NIGHT DESK ──────────────────────────────────────────────
+   Not an inverted palette: the room goes dark and the lamp stays on.
+   Paper becomes warm charcoal (never blue-black — it is still paper),
+   the accents hold their hue, and the 3D scene dims its own lights to
+   match in components/desk/desk-scene.tsx.
+   ──────────────────────────────────────────────────────────── */
+[data-theme="dark"] {
+    --paper: #17140f;
+    --paper-2: #1f1a14;
+    --paper-3: #110f0b;
+    --card: #241f18;
+
+    --ink: #f6f0e4;
+    --ink-soft: #b9ada0;
+    --ink-faint: #8b8173;
+    --ink-ghost: #6c6355;
+    --hairline: #362b20;
+
+    --orange: #ff6a41;
+    --blue: #6f9cff;
+    --yellow: #ffcf55;
+    --green: #82c48e;
+    --sky: #2b3f55;
+    --mint: #2a3b2c;
+    --peach: #ffd8a8;
+    --butter: #4a4222;
+
+    --shadow-sticker: 0 0 0 5px var(--card), 0 14px 26px -14px rgba(0, 0, 0, 0.85);
+    --shadow-sticker-sm: 0 0 0 4px var(--card), 0 12px 20px -12px rgba(0, 0, 0, 0.85);
+    --shadow-card: 0 24px 40px -26px rgba(0, 0, 0, 0.8);
+    --shadow-lift: 0 44px 66px -30px rgba(0, 0, 0, 0.9);
+}
+
+@theme inline {
+    /* Easing — beUI's curves, shared with lib/ease.ts */
+    --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+    --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+    --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+
+    --color-paper: var(--paper);
+    --color-paper-2: var(--paper-2);
+    --color-paper-3: var(--paper-3);
+    --color-card: var(--card);
+    --color-ink: var(--ink);
+    --color-ink-soft: var(--ink-soft);
+    --color-ink-faint: var(--ink-faint);
+    --color-ink-ghost: var(--ink-ghost);
+    --color-hairline: var(--hairline);
+    --color-orange: var(--orange);
+    --color-blue: var(--blue);
+    --color-yellow: var(--yellow);
+    --color-green: var(--green);
+    --color-sky: var(--sky);
+    --color-mint: var(--mint);
+    --color-peach: var(--peach);
+    --color-butter: var(--butter);
+    --color-background: var(--background);
+    --color-foreground: var(--foreground);
+
+    --font-display: var(--font-bricolage), "Helvetica Neue", Arial, sans-serif;
+    --font-sans: var(--font-instrument), "Helvetica Neue", Arial, sans-serif;
+    --font-hand: var(--font-shantell), "Segoe Print", cursive;
+    --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+
+    /* Locked layout rhythm (design canvas, round 4 spacing pass).
+       76px on desktop, easing down to a thumb-friendly 20px on phones —
+       the ratio between gutter and section rhythm is what's locked, not
+       the pixel. */
+    --spacing-gutter: clamp(1.25rem, 5vw, 4.75rem);
+    --spacing-section: 12.5rem; /* 200px between sections */
+}
+
+@theme {
+    --animate-marquee: marquee 30s linear infinite;
+    --animate-marquee-vertical: marquee-vertical 30s linear infinite;
+    --animate-bob: bob 5s ease-in-out infinite;
+    --animate-wobble: wobble 6s ease-in-out infinite;
+    --animate-blink: blink 5.5s infinite;
+    --animate-steam: steam 3.4s ease-out infinite;
+    --animate-tailwag: tailwag 2.6s ease-in-out infinite;
+    --animate-dashrun: dashrun 22s linear infinite;
+
+    @keyframes marquee {
+        from { transform: translateX(0); }
+        to { transform: translateX(calc(-100% - var(--gap, 1rem))); }
+    }
+    @keyframes marquee-vertical {
+        from { transform: translateY(0); }
+        to { transform: translateY(calc(-100% - var(--gap, 1rem))); }
+    }
+    @keyframes bob {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-10px); }
+    }
+    @keyframes wobble {
+        0%, 100% { transform: rotate(var(--r, 0deg)) translateY(0); }
+        50% { transform: rotate(calc(var(--r, 0deg) + 4deg)) translateY(-12px); }
+    }
+    @keyframes blink {
+        0%, 93%, 100% { transform: scaleY(1); }
+        96% { transform: scaleY(0.08); }
+    }
+    @keyframes steam {
+        0% { transform: translateY(0) scaleX(1); opacity: 0; }
+        25% { opacity: 0.55; }
+        100% { transform: translateY(-34px) scaleX(1.5); opacity: 0; }
+    }
+    @keyframes tailwag {
+        0%, 100% { transform: rotate(0deg); }
+        50% { transform: rotate(-14deg); }
+    }
+    @keyframes dashrun {
+        to { stroke-dashoffset: -600; }
+    }
+}
+
+@layer base {
+    html {
+        -webkit-text-size-adjust: 100%;
+        /* Rotated stickers and absolutely-placed drawings must never be able to
+           widen the page. `clip` (not `hidden`) so position: fixed still works. */
+        overflow-x: clip;
+    }
+
+    body {
+        overflow-x: clip;
+    }
+    body {
+        background-color: var(--paper);
+        color: var(--ink);
+        font-family: var(--font-sans);
+        -webkit-font-smoothing: antialiased;
+        text-rendering: optimizeLegibility;
+    }
+    ::selection {
+        background: var(--yellow);
+        color: var(--ink);
+    }
+    /* The page is paper: a fixed grain layer over everything, never scrolling. */
+    /* The lamp's pool of warmth on the page in night mode. */
+    [data-theme="dark"] body {
+        background-image: radial-gradient(
+            ellipse 70% 45% at 72% 18%,
+            rgba(255, 190, 110, 0.09),
+            transparent 60%
+        );
+        background-attachment: fixed;
+    }
+    body::after {
+        content: "";
+        position: fixed;
+        inset: 0;
+        z-index: 60;
+        pointer-events: none;
+        opacity: 0.42;
+        background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.42 0 0 0 0 0.36 0 0 0 0 0.28 0 0 0 0.09 0'/></filter><rect width='240' height='240' filter='url(%23n)'/></svg>");
+    }
+    /* Grain reads heavier on a dark ground — pull it back. */
+    [data-theme="dark"] body::after {
+        opacity: 0.3;
+        mix-blend-mode: screen;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+            animation-duration: 0.01ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: 0.01ms !important;
+        }
+    }
+}
+
+@utility label {
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+}

@@ -23,10 +23,10 @@ const DESK_OBJECTS = [
   {
     label: "The notebook",
     tone: "text-yellow",
-    title: "Notes & drawings",
-    body: "How things work, drawn badly first and then properly.",
+    title: "Things I wrote",
+    body: "Long notes on how something works — each one built in its own design system.",
     art: <Notebook size={120} />,
-    href: "/things",
+    href: "/writing",
   },
   {
     label: "The plant",

@@ -12,6 +12,7 @@ import { cn } from "@/lib/utils";
 const ROUTES = [
   { href: "/", label: "the desk" },
   { href: "/things", label: "things" },
+  { href: "/writing", label: "writing" },
   { href: "/about", label: "about" },
 ] as const;
 
@@ -53,7 +54,7 @@ export function SiteNav() {
                   <Sticker
                     tone={active ? "ink" : "white"}
                     size="md"
-                    tilt={active ? 0 : i === 1 ? 1.5 : -1.5}
+                    tilt={active ? 0 : i % 2 ? 1.5 : -1.5}
                     className={cn(active && "shadow-[var(--shadow-sticker-sm)]")}
                   >
                     {route.label}

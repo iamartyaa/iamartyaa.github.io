@@ -3,9 +3,8 @@ import localFont from "next/font/local";
 import { ThemeProvider } from "next-themes";
 import type { ReactNode } from "react";
 
-import { ScrollProgress } from "@/components/motion/scroll-progress";
 import { SmoothScroll } from "@/components/motion/smooth-scroll";
-import { SiteNav } from "@/components/site/site-nav";
+import { SiteChrome } from "@/components/site/site-chrome";
 
 import "./globals.css";
 
@@ -50,6 +49,10 @@ export const metadata: Metadata = {
   title: "Amartya Yadav — I make things",
   description:
     "Software engineer in Bengaluru. Workforce tools that fifteen thousand people open every morning, AI agents that do the boring half, and long notes about how things work.",
+  alternates: {
+    canonical: "/",
+    types: { "application/rss+xml": `${BASE_PATH}/feed.xml` },
+  },
   openGraph: {
     title: "Amartya Yadav — I make things",
     description:
@@ -88,8 +91,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <ThemeProvider attribute="data-theme" defaultTheme="light" enableSystem={false} disableTransitionOnChange>
           {/* Lenis drives every scroll-linked effect on the site; one instance, at the root. */}
           <SmoothScroll lerp={0.09} duration={1.25}>
-            <ScrollProgress className="bg-blue" height={3} />
-            <SiteNav />
+            <SiteChrome />
             <main>{children}</main>
           </SmoothScroll>
         </ThemeProvider>

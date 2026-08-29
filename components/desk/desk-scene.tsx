@@ -659,7 +659,7 @@ function DeskContents({ skin, night, onPull }: { skin: Skin; night: boolean; onP
         <PlantObject skin={skin} />
       </Hotspot>
 
-      <Hotspot label="notes & drawings →" href="/things" position={[-2.3, 0, 0.3]}>
+      <Hotspot label="things I wrote →" href="/writing" position={[-2.3, 0, 0.3]}>
         <NotebookObject skin={skin} />
       </Hotspot>
 

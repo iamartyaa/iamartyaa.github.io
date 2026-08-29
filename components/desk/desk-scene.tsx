@@ -69,7 +69,7 @@ type Skin = typeof DAY;
 
 /* ────────────────────────────── the objects ────────────────────────────── */
 
-function Keyboard({ skin }: { skin: Skin }) {
+function Keyboard({ skin, typeSeq, onType }: { skin: Skin; typeSeq: number; onType: () => void }) {
   // 5 × 14 keycaps, laid out once and memoised — the detail that makes the
   // whole desk read as a real object rather than a grey slab.
   const keys = useMemo(() => {
@@ -86,23 +86,98 @@ function Keyboard({ skin }: { skin: Skin }) {
     return out;
   }, []);
 
+  // A press runs a wave of depressed keycaps left to right, the way a burst of
+  // typing actually looks from across a room. Positions are written straight
+  // to the instanced group's children — no state, no re-render, 60fps.
+  const caps = useRef<Group>(null);
+  const seen = useRef(typeSeq);
+  const startedAt = useRef(-99);
+  const [hovered, setHovered] = useState(false);
+  useFrame((state) => {
+    if (!caps.current) return;
+    if (seen.current !== typeSeq) {
+      seen.current = typeSeq;
+      startedAt.current = state.clock.elapsedTime;
+    }
+    const since = state.clock.elapsedTime - startedAt.current;
+    caps.current.children.forEach((cap, i) => {
+      const k = keys[i];
+      if (!k) return;
+      // the wave sweeps across in ~0.9s; each key dips for ~120ms
+      const t = since - (k.x + 0.9) * 0.42 - Math.abs(k.z) * 0.12;
+      const dip = since >= 0 && t > 0 && t < 0.16 ? Math.sin((t / 0.16) * Math.PI) * 0.028 : 0;
+      cap.position.y += (0.115 - dip - cap.position.y) * 0.5;
+    });
+  });
+
   return (
-    <group>
+    <group
+      onPointerOver={(e) => {
+        e.stopPropagation();
+        setHovered(true);
+        document.body.style.cursor = "pointer";
+      }}
+      onPointerOut={() => {
+        setHovered(false);
+        document.body.style.cursor = "auto";
+      }}
+      onClick={(e) => {
+        e.stopPropagation();
+        onType();
+      }}
+    >
       <RoundedBox args={[1.86, 0.1, 0.78]} radius={0.035} smoothness={3} position={[0, 0.05, 0]} castShadow>
         <meshStandardMaterial color={skin.white} roughness={0.65} />
         <Ink thickness={3} />
       </RoundedBox>
-      {keys.map((k) => (
-        <mesh key={`${k.x}-${k.z}-${k.w}`} position={[k.x, 0.115, k.z]}>
-          <boxGeometry args={[k.w * (k.w > 0.2 ? 1 : 1), 0.03, 0.09]} />
-          <meshStandardMaterial color={skin.key} roughness={0.9} />
-        </mesh>
-      ))}
+      <group ref={caps}>
+        {keys.map((k) => (
+          <mesh key={`${k.x}-${k.z}-${k.w}`} position={[k.x, 0.115, k.z]}>
+            <boxGeometry args={[k.w, 0.03, 0.09]} />
+            <meshStandardMaterial color={skin.key} roughness={0.9} />
+          </mesh>
+        ))}
+      </group>
+      {hovered ? (
+        <Html center distanceFactor={8} position={[0, 0.75, 0]} zIndexRange={[20, 0]} style={{ pointerEvents: "none" }}>
+          <span className="whitespace-nowrap rounded-full bg-card px-4 py-2 font-sans text-[15px] font-semibold text-ink shadow-[var(--shadow-sticker)]">
+            type something
+          </span>
+        </Html>
+      ) : null}
     </group>
   );
 }
 
-function MonitorObject({ skin, night }: { skin: Skin; night: boolean }) {
+function MonitorObject({ skin, night, typeSeq }: { skin: Skin; night: boolean; typeSeq: number }) {
+  // The line the keyboard is writing. It grows character by character with a
+  // caret blinking at the end, then sits there until the next burst.
+  const line = useRef<Mesh>(null);
+  const caret = useRef<Mesh>(null);
+  const seen = useRef(typeSeq);
+  const startedAt = useRef(-99);
+  const FULL = 1.34;
+
+  useFrame((state) => {
+    const t = state.clock.elapsedTime;
+    if (seen.current !== typeSeq) {
+      seen.current = typeSeq;
+      startedAt.current = t;
+    }
+    const since = t - startedAt.current;
+    const grow = Math.max(0, Math.min(1, since / 1.1));
+    const w = startedAt.current < 0 ? 0 : FULL * grow;
+    if (line.current) {
+      line.current.scale.x = Math.max(0.0001, w);
+      line.current.position.x = -0.83 + w / 2;
+      line.current.visible = w > 0.001;
+    }
+    if (caret.current) {
+      caret.current.position.x = -0.8 + w;
+      caret.current.visible = startedAt.current > 0 && since < 3.2 && Math.sin(t * 7) > 0;
+    }
+  });
+
   return (
     <group>
       <RoundedBox args={[2.5, 1.56, 0.16]} radius={0.12} smoothness={4} position={[0, 1.02, 0]} castShadow>
@@ -138,6 +213,15 @@ function MonitorObject({ skin, night }: { skin: Skin; night: boolean }) {
       <mesh position={[-0.83, 0.6, 0.11]}>
         <planeGeometry args={[0.44, 0.07]} />
         <meshStandardMaterial color={ACCENT.yellow} />
+      </mesh>
+      {/* the line being typed, and its caret */}
+      <mesh ref={line} position={[-0.83, 0.48, 0.11]} visible={false}>
+        <planeGeometry args={[1, 0.07]} />
+        <meshStandardMaterial color={ACCENT.green} />
+      </mesh>
+      <mesh ref={caret} position={[-0.8, 0.48, 0.11]} visible={false}>
+        <planeGeometry args={[0.035, 0.1]} />
+        <meshStandardMaterial color={ACCENT.ink} />
       </mesh>
 
       {/* neck + foot */}
@@ -457,13 +541,71 @@ function LightPool({ night }: { night: boolean }) {
   );
 }
 
-/** The cat: loaf shape, ears with pink insides, blinking, tail on its own clock. */
+/**
+ * The cat: loaf shape, ears with pink insides, blinking, tail on its own clock
+ * — and the only thing on the desk with an opinion about being clicked.
+ *
+ * Poke him and he crouches, hops to another corner of the desk along a real
+ * parabola, lands with a squash, and turns to face where he came from. Three
+ * spots, cycled, so the desk is never quite the same twice.
+ */
+const CAT_SPOTS: [number, number, number][] = [
+  [1.15, 0.06, -1.0],
+  [2.15, 0.06, 1.05],
+  [-2.05, 0.06, -1.35],
+];
+
 function CatObject({ skin }: { skin: Skin }) {
+  const root = useRef<Group>(null);
+  const body = useRef<Group>(null);
   const tail = useRef<Mesh>(null);
   const lids = useRef<Group>(null);
+  const [spot, setSpot] = useState(0);
+  const [hovered, setHovered] = useState(false);
+  const [hopping, setHopping] = useState(false);
+  const from = useRef<[number, number, number]>(CAT_SPOTS[0]);
+  const startedAt = useRef(-99);
+
+  const poke = () => {
+    from.current = CAT_SPOTS[spot];
+    startedAt.current = -1; // the next frame stamps it, because it has the clock
+    setSpot((n) => (n + 1) % CAT_SPOTS.length);
+    setHopping(true);
+  };
+
   useFrame((state) => {
     const t = state.clock.elapsedTime;
-    if (tail.current) tail.current.rotation.x = Math.sin(t * 1.5) * 0.4 - 0.5;
+    if (startedAt.current === -1) startedAt.current = t;
+
+    const to = CAT_SPOTS[spot];
+    const since = startedAt.current > 0 ? t - startedAt.current : 99;
+    const DUR = 0.78;
+
+    if (root.current) {
+      if (since < DUR) {
+        const k = since / DUR;
+        const e = 1 - Math.pow(1 - k, 2.2);
+        root.current.position.x = from.current[0] + (to[0] - from.current[0]) * e;
+        root.current.position.z = from.current[2] + (to[2] - from.current[2]) * e;
+        root.current.position.y = to[1] + Math.sin(k * Math.PI) * 0.62;
+        root.current.rotation.y = Math.atan2(to[0] - from.current[0], to[2] - from.current[2]) - Math.PI;
+      } else {
+        root.current.position.set(to[0], to[1], to[2]);
+        if (hopping) setHopping(false);
+      }
+    }
+
+    if (body.current) {
+      const stretch = since < DUR ? 1 + Math.sin((since / DUR) * Math.PI) * 0.08 : 1;
+      const land = since >= DUR && since < DUR + 0.22 ? 1 - (0.22 - (since - DUR)) * 0.5 : 1;
+      const breathe = 1 + Math.sin(t * 1.6) * 0.012;
+      body.current.scale.y += (stretch * land * breathe - body.current.scale.y) * 0.35;
+    }
+
+    if (tail.current) {
+      const excited = since < DUR + 1.4 ? 3.4 : 1.5;
+      tail.current.rotation.x = Math.sin(t * excited) * 0.4 - 0.5;
+    }
     if (lids.current) {
       const blink = Math.sin(t * 1.1) > 0.985 ? 0.05 : 1;
       lids.current.scale.y += (blink - lids.current.scale.y) * 0.4;
@@ -471,47 +613,80 @@ function CatObject({ skin }: { skin: Skin }) {
   });
 
   return (
-    <group>
-      <mesh position={[0, 0.3, 0]} scale={[1, 0.86, 1.25]} castShadow>
-        <sphereGeometry args={[0.38, 20, 16]} />
-        <meshStandardMaterial color={skin.white} roughness={0.9} />
-        <Ink thickness={3.2} />
-      </mesh>
-      <mesh position={[0, 0.52, 0.2]} castShadow>
-        <sphereGeometry args={[0.27, 20, 16]} />
-        <meshStandardMaterial color={skin.white} roughness={0.9} />
-        <Ink thickness={3.2} />
-      </mesh>
-      {[-0.15, 0.15].map((x) => (
-        <group key={x} position={[x, 0.74, 0.16]} rotation={[0.25, 0, x > 0 ? -0.25 : 0.25]}>
-          <mesh castShadow>
-            <coneGeometry args={[0.11, 0.24, 4]} />
-            <meshStandardMaterial color={skin.white} />
-            <Ink thickness={2.6} />
-          </mesh>
-          <mesh position={[0, -0.01, 0.05]} scale={0.6}>
-            <coneGeometry args={[0.1, 0.22, 4]} />
-            <meshStandardMaterial color={ACCENT.pink} />
-          </mesh>
-        </group>
-      ))}
-      <group ref={lids}>
-        {[-0.11, 0.11].map((x) => (
-          <mesh key={x} position={[x, 0.55, 0.44]}>
-            <sphereGeometry args={[0.038, 10, 10]} />
-            <meshBasicMaterial color={INK} />
-          </mesh>
+    <group
+      ref={root}
+      position={CAT_SPOTS[0]}
+      rotation={[0, -0.12, 0]}
+      onPointerOver={(e) => {
+        e.stopPropagation();
+        setHovered(true);
+        document.body.style.cursor = "pointer";
+      }}
+      onPointerOut={() => {
+        setHovered(false);
+        document.body.style.cursor = "auto";
+      }}
+      onClick={(e) => {
+        e.stopPropagation();
+        poke();
+      }}
+    >
+      <group ref={body}>
+        <mesh position={[0, 0.3, 0]} scale={[1, 0.86, 1.25]} castShadow>
+          <sphereGeometry args={[0.38, 20, 16]} />
+          <meshStandardMaterial color={skin.white} roughness={0.9} />
+          <Ink thickness={3.2} />
+        </mesh>
+        <mesh position={[0, 0.52, 0.2]} castShadow>
+          <sphereGeometry args={[0.27, 20, 16]} />
+          <meshStandardMaterial color={skin.white} roughness={0.9} />
+          <Ink thickness={3.2} />
+        </mesh>
+        {[-0.15, 0.15].map((x) => (
+          <group key={x} position={[x, 0.74, 0.16]} rotation={[0.25, 0, x > 0 ? -0.25 : 0.25]}>
+            <mesh castShadow>
+              <coneGeometry args={[0.11, 0.24, 4]} />
+              <meshStandardMaterial color={skin.white} />
+              <Ink thickness={2.6} />
+            </mesh>
+            <mesh position={[0, -0.01, 0.05]} scale={0.6}>
+              <coneGeometry args={[0.1, 0.22, 4]} />
+              <meshStandardMaterial color={ACCENT.pink} />
+            </mesh>
+          </group>
         ))}
+        <group ref={lids}>
+          {[-0.11, 0.11].map((x) => (
+            <mesh key={x} position={[x, 0.55, 0.44]}>
+              <sphereGeometry args={[0.038, 10, 10]} />
+              <meshBasicMaterial color={INK} />
+            </mesh>
+          ))}
+        </group>
+        <mesh position={[0, 0.47, 0.46]}>
+          <coneGeometry args={[0.035, 0.05, 6]} />
+          <meshBasicMaterial color={ACCENT.pink} />
+        </mesh>
+        <mesh ref={tail} position={[0, 0.26, -0.42]} rotation={[-0.5, 0, 0]}>
+          <capsuleGeometry args={[0.055, 0.52, 4, 8]} />
+          <meshStandardMaterial color={skin.white} roughness={0.9} />
+          <Ink thickness={2.6} />
+        </mesh>
       </group>
-      <mesh position={[0, 0.47, 0.46]}>
-        <coneGeometry args={[0.035, 0.05, 6]} />
-        <meshBasicMaterial color={ACCENT.pink} />
-      </mesh>
-      <mesh ref={tail} position={[0, 0.26, -0.42]} rotation={[-0.5, 0, 0]}>
-        <capsuleGeometry args={[0.055, 0.52, 4, 8]} />
-        <meshStandardMaterial color={skin.white} roughness={0.9} />
-        <Ink thickness={2.6} />
-      </mesh>
+
+      {hopping ? (
+        <Html center distanceFactor={8} position={[0, 1.25, 0]} zIndexRange={[20, 0]} style={{ pointerEvents: "none" }}>
+          <span className="whitespace-nowrap rounded-full bg-ink px-3.5 py-1.5 font-hand text-[15px] font-semibold text-paper shadow-[var(--shadow-sticker-sm)]">
+            mrrp!
+          </span>
+        </Html>
+      ) : hovered ? (
+        <Html center distanceFactor={8} position={[0, 1.2, 0]} zIndexRange={[20, 0]} style={{ pointerEvents: "none" }}>
+          <span className="whitespace-nowrap rounded-full bg-card px-4 py-2 font-sans text-[15px] font-semibold text-ink shadow-[var(--shadow-sticker)]">
+            poke the cat
+          </span>
+        </Html>
+      ) : null}
     </group>
   );
 }
@@ -638,36 +813,43 @@ function DeskBody({ skin }: { skin: Skin }) {
   );
 }
 
-function DeskContents({ skin, night, onPull }: { skin: Skin; night: boolean; onPull: () => void }) {
+function DeskContents({
+  skin, night, onPull, typeSeq, onType,
+}: {
+  skin: Skin; night: boolean; onPull: () => void; typeSeq: number; onType: () => void;
+}) {
   return (
     <group position={[0, 0.12, 0]}>
       <LightPool night={night} />
 
       <Hotspot label="things I made →" href="/things" position={[-0.35, 0, -1.15]}>
-        <MonitorObject skin={skin} night={night} />
+        <MonitorObject skin={skin} night={night} typeSeq={typeSeq} />
       </Hotspot>
 
-      <group position={[-0.35, 0, 0.62]} rotation={[0, 0.03, 0]}>
-        <Keyboard skin={skin} />
+      {/* Every object clears the surface by the same 0.05 the lamp does.
+          Flush-at-zero reads as "sunk" once the ink outline lands in the same
+          plane as the desk top. */}
+      <group position={[-0.35, 0.05, 0.62]} rotation={[0, 0.03, 0]}>
+        <Keyboard skin={skin} typeSeq={typeSeq} onType={onType} />
       </group>
 
-      <Hotspot label="say hi →" href="/about#say-hi" position={[1.95, 0, 0.45]}>
+      <Hotspot label="say hi →" href="/about#say-hi" position={[1.95, 0.05, 0.45]}>
         <MugObject skin={skin} />
       </Hotspot>
 
-      <Hotspot label="still growing →" href="/about" position={[2.62, 0, -1.1]}>
+      <Hotspot label="still growing →" href="/about" position={[2.62, 0.05, -1.1]}>
         <PlantObject skin={skin} />
       </Hotspot>
 
-      <Hotspot label="things I wrote →" href="/writings" position={[-2.3, 0, 0.3]}>
+      <Hotspot label="things I wrote →" href="/writings" position={[-2.3, 0.03, 0.3]}>
         <NotebookObject skin={skin} />
       </Hotspot>
 
-      <Hotspot label="about me →" href="/about" position={[-1.5, 0, 1.24]}>
+      <Hotspot label="about me →" href="/about" position={[-1.5, 0.03, 1.24]}>
         <StickyNote skin={skin} />
       </Hotspot>
 
-      <group position={[-1.35, 0.02, 0.62]} rotation={[0, 0.5, 0]}>
+      <group position={[-1.35, 0.05, 0.62]} rotation={[0, 0.5, 0]}>
         <Pencil />
       </group>
 
@@ -675,9 +857,7 @@ function DeskContents({ skin, night, onPull }: { skin: Skin; night: boolean; onP
         <LampObject night={night} onPull={onPull} />
       </group>
 
-      <group position={[1.15, 0.04, -1.0]} rotation={[0, -0.12, 0]}>
-        <CatObject skin={skin} />
-      </group>
+      <CatObject skin={skin} />
     </group>
   );
 }
@@ -692,7 +872,11 @@ function FitToViewport({ children }: { children: ReactNode }) {
   return <group scale={scale}>{children}</group>;
 }
 
-function DeskRig({ skin, night, onPull }: { skin: Skin; night: boolean; onPull: () => void }) {
+function DeskRig({
+  skin, night, onPull, typeSeq, onType,
+}: {
+  skin: Skin; night: boolean; onPull: () => void; typeSeq: number; onType: () => void;
+}) {
   const group = useRef<Group>(null);
   useFrame((state) => {
     if (!group.current) return;
@@ -707,7 +891,7 @@ function DeskRig({ skin, night, onPull }: { skin: Skin; night: boolean; onPull: 
   return (
     <group ref={group}>
       <DeskBody skin={skin} />
-      <DeskContents skin={skin} night={night} onPull={onPull} />
+      <DeskContents skin={skin} night={night} onPull={onPull} typeSeq={typeSeq} onType={onType} />
     </group>
   );
 }
@@ -718,6 +902,9 @@ export default function DeskScene() {
   // wipe as everywhere else, but it starts at the top-left — where the lamp
   // stands — so the dark spreads out of the lamp you just pulled.
   const { toggle } = useThemeToggle({ variant: "circle-blur", start: "top-left" });
+  // One counter keeps the keyboard and the monitor in step without either
+  // owning the other: click the keys, the screen types a line.
+  const [typeSeq, setTypeSeq] = useState(0);
   const night = resolvedTheme === "dark";
   const skin = night ? NIGHT : DAY;
 
@@ -755,7 +942,7 @@ export default function DeskScene() {
       >
         <FitToViewport>
           <group scale={0.95} position={[0, -0.25, 0]}>
-            <DeskRig skin={skin} night={night} onPull={toggle} />
+            <DeskRig skin={skin} night={night} onPull={toggle} typeSeq={typeSeq} onType={() => setTypeSeq((n) => n + 1)} />
             <PaperPlaneObject skin={skin} />
           </group>
         </FitToViewport>

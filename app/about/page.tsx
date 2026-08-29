@@ -1,7 +1,7 @@
-import { Monitor, Notebook, PaperPlane, Rocket, Sparkle, SmileyDot, XMark } from "@/components/art/cast";
+import { Sparkle, SmileyDot, XMark } from "@/components/art/cast";
 import { ScrollReveal } from "@/components/motion/scroll-reveal";
 import { TextReveal } from "@/components/motion/text-reveal";
-import { TiltCard } from "@/components/motion/tilt-card";
+import { FlightPath, type Flight } from "@/components/site/flight-path";
 import { Guestbook } from "@/components/site/guestbook";
 import { HandNote, Stamp } from "@/components/site/hand-note";
 import { HowIWork } from "@/components/site/how-i-work";
@@ -19,33 +19,39 @@ import { FloatingSticker, Sticker } from "@/components/site/sticker";
  * which is the only line that ever gets rewritten.
  */
 
-const FLIGHTS = [
+const FLIGHTS: Flight[] = [
   {
     year: "2020",
-    tone: "text-orange",
     title: "Started building things in Kanpur",
     body:
-      "Four years of Information Technology at Harcourt Butler Technical University, and a lot of evenings spent making things that were not on the syllabus. Left with a 9.0 and the habit of finishing what I start.",
+      "Four years of Information Technology at HBTU, and a lot of evenings making things that were not on the syllabus. Left with a 9.0 and the habit of finishing what I start.",
     tags: ["HBTU, Kanpur", "B.Tech IT"],
-    art: <Notebook size={120} />,
+    costume: 0,
   },
   {
     year: "2024",
-    tone: "text-blue",
     title: "Six months teaching a phone to read",
     body:
-      "A research internship on Samsung's Generative AI team in Noida: a capture-and-extraction pipeline that turns a photograph of a lab report into a health dashboard. It shipped pre-installed on Galaxy devices, which is still the largest number of people my code has ever reached.",
-    tags: ["Samsung R&D, Noida", "Computer vision"],
-    art: <Rocket size={110} />,
+      "Samsung's Generative AI team in Noida: a pipeline that turns a photograph of a lab report into a health dashboard. It ships pre-installed on Galaxy devices.",
+    tags: ["Samsung R&D", "Computer vision"],
+    costume: 1,
   },
   {
     year: "2024",
-    tone: "text-green",
     title: "Moved to Bengaluru, met 4,600 stores",
     body:
-      "Walmart Global Tech, on the team behind the workforce tools store associates open every morning. Eleven services, a labour-law deadline, and a Bravo award in the first two quarters. Then I started handing the boring parts to agents.",
+      "Walmart Global Tech, on the tools store associates open every morning. Eleven services, a labour-law deadline, a Bravo award — then I started handing the boring parts to agents.",
     tags: ["Walmart Global Tech", "Bengaluru"],
-    art: <Monitor size={120} />,
+    costume: 2,
+  },
+  {
+    year: "Now",
+    title: "Going a layer down",
+    body:
+      "Learning GPU work properly — CUDA, kernels, and what actually makes inference fast — and writing down what I find as I go.",
+    tags: ["CUDA", "Inference"],
+    costume: 3,
+    now: true,
   },
 ];
 
@@ -108,79 +114,18 @@ export default function AboutPage() {
       </Section>
 
       {/* ───────────────────── WHERE I'VE FLOWN ───────────────────── */}
-      <Section className="pt-[11rem]">
+      <Section className="pt-[10rem]">
         <SectionHead
           label="The route so far"
           title="Where I've flown"
-          aside={<HandNote tilt={-2} className="text-right">the plane flies down this line as you scroll</HandNote>}
+          aside={
+            <HandNote tilt={-2} className="text-right">
+              he changes clothes at every stop — scroll and watch
+            </HandNote>
+          }
         />
-
-        <div className="relative pl-6 sm:pl-16">
-          {/* the vertical leg of the route */}
-          <div
-            aria-hidden
-            className="absolute bottom-8 left-1.5 top-4 w-px border-l-[3px] border-dashed border-blue/60 sm:left-9"
-          />
-          <div className="space-y-14">
-            {FLIGHTS.map((f, i) => (
-              <ScrollReveal key={`${f.year}-${i}`} y={22} amount={0.3}>
-                <div className="relative grid gap-8 sm:grid-cols-[6rem_1fr]">
-                  <span
-                    aria-hidden
-                    className="absolute -left-[1.35rem] top-4 size-[18px] rounded-full border-[3px] border-blue bg-card sm:-left-[2.35rem]"
-                  />
-                  <p className={`font-display text-[clamp(1.6rem,2.4vw,2.15rem)] font-extrabold leading-none tracking-[-0.04em] ${f.tone}`}>
-                    {f.year}
-                  </p>
-                  <TiltCard max={5} glare={false} className="bg-card shadow-[var(--shadow-card)]">
-                    <div className="grid items-center gap-6 p-9 sm:grid-cols-[1fr_8rem]">
-                      <div>
-                        <h3 className="font-display text-[clamp(1.4rem,2vw,1.75rem)] font-extrabold leading-tight tracking-[-0.035em]">
-                          {f.title}
-                        </h3>
-                        <p className="mt-2.5 max-w-[42rem] text-[16px] leading-[1.6] text-ink-soft">{f.body}</p>
-                        <div className="mt-4 flex flex-wrap gap-2">
-                          {f.tags.map((t) => (
-                            <Sticker key={t} tone="white" size="sm" className="shadow-[0_0_0_3px_var(--card)]">
-                              {t}
-                            </Sticker>
-                          ))}
-                        </div>
-                      </div>
-                      <div className="hidden justify-self-end sm:block">{f.art}</div>
-                    </div>
-                  </TiltCard>
-                </div>
-              </ScrollReveal>
-            ))}
-
-            {/* the only card that ever gets rewritten */}
-            <ScrollReveal y={22} amount={0.3}>
-              <div className="relative grid gap-8 sm:grid-cols-[6rem_1fr]">
-                <span
-                  aria-hidden
-                  className="absolute -left-[1.35rem] top-4 size-[18px] rounded-full border-[3px] border-dashed border-ink-ghost bg-paper sm:-left-[2.35rem]"
-                />
-                <p className="font-display text-[clamp(1.6rem,2.4vw,2.15rem)] font-extrabold leading-none tracking-[-0.04em] text-ink-ghost">
-                  Now
-                </p>
-                <div className="grid items-center gap-6 rounded-[1.5rem] border-[3px] border-dashed border-hairline p-9 sm:grid-cols-[1fr_8rem]">
-                  <div>
-                    <h3 className="font-display text-[clamp(1.4rem,2vw,1.75rem)] font-extrabold leading-tight tracking-[-0.035em]">
-                      Going a layer down
-                    </h3>
-                    <p className="mt-2.5 max-w-[42rem] text-[16px] leading-[1.6] text-ink-soft">
-                      Learning GPU work properly — CUDA, kernels, and what actually makes model
-                      inference fast — and writing down what I find as I go.
-                    </p>
-                  </div>
-                  <div className="hidden justify-self-end sm:block">
-                    <PaperPlane size={120} />
-                  </div>
-                </div>
-              </div>
-            </ScrollReveal>
-          </div>
+        <div className="max-w-[54rem]">
+          <FlightPath flights={FLIGHTS} />
         </div>
       </Section>
 
@@ -208,10 +153,10 @@ export default function AboutPage() {
       {/* ─────────────────────────── SAY HI ─────────────────────────── */}
       <Section id="say-hi" className="scroll-mt-32 py-[11rem]">
         <ScrollReveal y={26}>
-          <div className="relative overflow-hidden rounded-[2rem] bg-ink px-[3.75rem] py-[3.6rem] text-paper">
+          <div className="relative overflow-hidden rounded-[2rem] bg-panel px-[3.75rem] py-[3.6rem] text-on-panel ring-1 ring-[var(--panel-edge)]">
             <div className="grid items-center gap-10 lg:grid-cols-[1fr_21rem]">
               <div>
-                <p className="label text-ink-ghost">Say hi</p>
+                <p className="label text-on-panel-soft">Say hi</p>
                 <h2 className="mt-3 font-display text-[clamp(2.4rem,4.4vw,3.6rem)] font-extrabold leading-[0.98] tracking-[-0.04em]">
                   Tell me what
                   <br />
@@ -227,9 +172,15 @@ export default function AboutPage() {
                   <Sticker tone="white" size="md" tilt={-1} on="ink" href="https://linkedin.com/in/iamartyaa">
                     linkedin
                   </Sticker>
-                  <Sticker tone="white" size="md" tilt={1} on="ink" href="https://x.com/evilseyee">
+                  <Sticker
+                    tone="white"
+                    size="md"
+                    tilt={1}
+                    on="ink"
+                    href="https://x.com/evilseyee"
+                    aria-label="Amartya on X"
+                  >
                     <XMark size={17} />
-                    x
                   </Sticker>
                   <Sticker tone="white" size="md" tilt={2} on="ink" href="/resume.pdf">
                     résumé

@@ -16,8 +16,8 @@
     /* Ink */
     --ink: #241f1c;
     --ink-soft: #5c554d;
-    --ink-faint: #7a7168;
-    --ink-ghost: #a99e91;
+    --ink-faint: #6b6259;  /* 5.2:1 on paper — hand notes carry instructions */
+    --ink-ghost: #8d8375;  /* 3.6:1 — placeholders and disabled marks only */
     --hairline: #e6ddcc;
 
     /* Accents — one job each, never swapped */
@@ -29,6 +29,23 @@
     --mint: #d9f2c9;
     --peach: #ffd8a8;
     --butter: #ffe66d;
+
+    /* Text twins. The accents above are FILLS — at label size they measure
+       1.6:1 (yellow) to 4.1:1 (blue) on card, which is unreadable. Anything
+       set in an accent uses these instead: same hue, ≥4.5:1 on paper/card. */
+    /* Large inverted panels (contact cards, the marquee band). An ink
+       sticker flipping to paper in night mode is right for a 40px pill and
+       wrong for a 400px slab — a slab that inverts turns into a floodlight.
+       These stay dark in both themes and only change their depth. */
+    --panel: #241f1c;
+    --on-panel: #f4eee2;
+    --on-panel-soft: #bdb2a4;
+    --panel-edge: rgba(255, 255, 255, 0.06);
+
+    --orange-ink: #c23c18;
+    --blue-ink: #1f52c0;
+    --yellow-ink: #8a6300;
+    --green-ink: #3f7a4c;
 
     /* beUI components read these two names. */
     --background: var(--paper);
@@ -69,6 +86,16 @@
     --peach: #ffd8a8;
     --butter: #4a4222;
 
+    --panel: #0f0c08;
+    --on-panel: #f6f0e4;
+    --on-panel-soft: #a99e91;
+    --panel-edge: rgba(255, 255, 255, 0.09);
+
+    --orange-ink: #ff8a68;
+    --blue-ink: #9dbcff;
+    --yellow-ink: #ffd979;
+    --green-ink: #9ad6a5;
+
     --shadow-sticker: 0 0 0 5px var(--card), 0 14px 26px -14px rgba(0, 0, 0, 0.85);
     --shadow-sticker-sm: 0 0 0 4px var(--card), 0 12px 20px -12px rgba(0, 0, 0, 0.85);
     --shadow-card: 0 24px 40px -26px rgba(0, 0, 0, 0.8);
@@ -94,6 +121,13 @@
     --color-blue: var(--blue);
     --color-yellow: var(--yellow);
     --color-green: var(--green);
+    --color-panel: var(--panel);
+    --color-on-panel: var(--on-panel);
+    --color-on-panel-soft: var(--on-panel-soft);
+    --color-orange-ink: var(--orange-ink);
+    --color-blue-ink: var(--blue-ink);
+    --color-yellow-ink: var(--yellow-ink);
+    --color-green-ink: var(--green-ink);
     --color-sky: var(--sky);
     --color-mint: var(--mint);
     --color-peach: var(--peach);
@@ -222,4 +256,44 @@
     letter-spacing: 0.2em;
     text-transform: uppercase;
     color: var(--ink-faint);
+}
+
+
+/* The hand actually waves: a slow rotation about the shoulder, with a pause
+   at the bottom so it reads as a greeting rather than a metronome. */
+@keyframes wave {
+    0%, 62%, 100% { transform: rotate(0deg); }
+    70% { transform: rotate(-16deg); }
+    78% { transform: rotate(6deg); }
+    86% { transform: rotate(-12deg); }
+    94% { transform: rotate(3deg); }
+}
+
+.animate-wave {
+    animation: wave 3.6s ease-in-out infinite;
+    transform-box: fill-box;
+    transform-origin: 78% 22%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .animate-wave { animation: none; }
+}
+
+/* ─────────────────────────── FOCUS ───────────────────────────
+   Every sticker already wears a 5px ring of paper, so the browser's 1px
+   outline lands inside it and disappears. This is the site's own ring: the
+   route's blue, offset far enough to clear the sticker's own shadow.        */
+:focus-visible {
+    outline: 3px solid var(--blue);
+    outline-offset: 3px;
+    border-radius: 999px;
+}
+
+/* Non-round things keep their own corner. */
+h1:focus-visible,
+h2:focus-visible,
+section:focus-visible,
+div:focus-visible,
+[data-focus-square]:focus-visible {
+    border-radius: 1.25rem;
 }

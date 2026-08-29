@@ -189,7 +189,7 @@ export function Guestbook() {
                 />
               ) : null}
 
-              <div className="relative rounded-[1.1rem] border-[3.5px] border-orange px-7 py-5 text-center text-orange shadow-[0_0_0_1.5px_rgba(232,86,47,0.25)_inset]">
+              <div className="relative rounded-[1.1rem] border-[3.5px] border-orange-ink px-7 py-5 text-center text-orange-ink shadow-[0_0_0_1.5px_rgba(232,86,47,0.25)_inset]">
                 <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.24em]">visitor</p>
                 <p className="mt-1 font-display text-[clamp(2.4rem,4vw,3.1rem)] font-extrabold leading-none tracking-[-0.045em] tabular-nums">
                   {count ? `№${shown.toLocaleString("en-GB")}` : "№—"}

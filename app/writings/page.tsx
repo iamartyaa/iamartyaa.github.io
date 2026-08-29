@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 
-import { ArrowRight, Notebook, PaperPlane, Sparkle } from "@/components/art/cast";
+import { ArrowRight, PaperPlane } from "@/components/art/cast";
 import { ScrollReveal } from "@/components/motion/scroll-reveal";
 import { TextReveal } from "@/components/motion/text-reveal";
 import { ArticleSticker } from "@/components/site/article-sticker";
 import { HandNote, Stamp } from "@/components/site/hand-note";
-import { Section, SectionHead } from "@/components/site/section";
+import { Section } from "@/components/site/section";
 import { Sticker } from "@/components/site/sticker";
 import { WRITINGS } from "@/lib/writings";
 
@@ -31,24 +31,6 @@ export const metadata: Metadata = {
     type: "website",
   },
 };
-
-const RULES = [
-  {
-    title: "One piece, one world",
-    body: "Every article gets its own type, palette, motion and physics. Nothing from this site leaks in, and nothing from the article leaks out.",
-    art: <Sparkle size={26} />,
-  },
-  {
-    title: "Built, not templated",
-    body: "Each one is hand-built HTML, CSS and JS — the diagrams are drawn on canvas, the charts run on real numbers, and it all ships as one file.",
-    art: <Notebook size={26} />,
-  },
-  {
-    title: "The wrong turns stay in",
-    body: "Notes are written the way the work actually went: the dead ends, the thing that was slow, and why. That's the useful half.",
-    art: <PaperPlane size={26} />,
-  },
-];
 
 export default function WritingsPage() {
   return (
@@ -98,33 +80,22 @@ export default function WritingsPage() {
         </div>
       </Section>
 
-      {/* ─────────────────────── HOW THESE ARE MADE ─────────────────────── */}
-      <Section className="pt-[11rem]">
-        <SectionHead
-          label="The rules"
-          title="Why they all look different"
-          aside={
-            <HandNote tilt={-1} className="text-right">
-              a portfolio of one design system is a portfolio of one idea
-            </HandNote>
-          }
-        />
-        <div className="grid gap-7 lg:grid-cols-3">
-          {RULES.map((r, i) => (
-            <ScrollReveal key={r.title} delay={i * 0.08} y={22}>
-              <div className="h-full rounded-[1.75rem] bg-card p-9 shadow-[var(--shadow-card)]">
-                <div className="flex items-center gap-3">
-                  {r.art}
-                  <span className="label">0{i + 1}</span>
-                </div>
-                <h3 className="mt-4 font-display text-[24px] font-extrabold leading-tight tracking-[-0.035em]">
-                  {r.title}
-                </h3>
-                <p className="mt-3 text-[15.5px] leading-[1.6] text-ink-soft">{r.body}</p>
-              </div>
-            </ScrollReveal>
-          ))}
-        </div>
+      {/* ───────────────────────── THE ONE RULE ───────────────────────── */}
+      <Section className="pt-[9rem]">
+        <ScrollReveal y={22}>
+          <div className="relative overflow-hidden rounded-[2rem] bg-panel px-9 py-12 text-on-panel ring-1 ring-[var(--panel-edge)] sm:px-14 sm:py-14">
+            <p className="label text-on-panel-soft">The only rule</p>
+            <p className="mt-4 max-w-[52rem] font-display text-[clamp(1.9rem,4vw,3.2rem)] font-extrabold leading-[1.04] tracking-[-0.04em]">
+              Every piece is its own website — its own type, its own colour, its own physics.
+              <span className="text-yellow"> Nothing here is a template.</span>
+            </p>
+            <p className="mt-6 max-w-[38rem] text-[16.5px] leading-[1.65] text-on-panel-soft">
+              Hand-built HTML, CSS and JS, shipped as one file: the diagrams are drawn on canvas,
+              the charts run on the real numbers, and the wrong turns stay in — that half is
+              usually the useful one.
+            </p>
+          </div>
+        </ScrollReveal>
       </Section>
 
       {/* ─────────────────────────── FOOTER ─────────────────────────── */}

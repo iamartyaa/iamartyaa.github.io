@@ -50,7 +50,7 @@ const STOPS = [
 const PROJECTS = [
   {
     n: "01",
-    tone: "text-orange",
+    tone: "text-orange-ink",
     title: "Dev-Assistant",
     meta: "AI agents · 2024 — now · Architect",
     body:
@@ -62,7 +62,7 @@ const PROJECTS = [
   },
   {
     n: "02",
-    tone: "text-blue",
+    tone: "text-blue-ink",
     title: "LA Fair Work Week",
     meta: "Product · 2025 · Lead",
     body:
@@ -73,7 +73,7 @@ const PROJECTS = [
   },
   {
     n: "03",
-    tone: "text-green",
+    tone: "text-green-ink",
     title: "Lab reports, read by phone",
     meta: "Computer vision · 2024 · Samsung R&D",
     body:
@@ -84,7 +84,7 @@ const PROJECTS = [
   },
   {
     n: "04",
-    tone: "text-yellow",
+    tone: "text-yellow-ink",
     title: "Eleven services, quietly up",
     meta: "Systems · ongoing",
     body:

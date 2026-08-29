@@ -28,7 +28,34 @@ export function PilotPortrait() {
   const [hop, setHop] = useState(0);
   const [sips, setSips] = useState(0);
   const [sipping, setSipping] = useState(false);
+  const [act, setAct] = useState<"idle" | "wave" | "sip" | "stretch">("idle");
+  const [says, setSays] = useState<string | null>(null);
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
+
+  /**
+   * He is not a portrait, he is someone sitting at a desk while you read: on
+   * his own clock he waves, stretches, or reaches for the chai, and his eyes
+   * track your cursor the whole time. Poke him and he does one on demand.
+   */
+  const SCENES: { act: "wave" | "sip" | "stretch"; line: string }[] = [
+    { act: "wave", line: "hello" },
+    { act: "sip", line: "one more cup" },
+    { act: "stretch", line: "been here a while" },
+    { act: "wave", line: "still here" },
+  ];
+
+  const play = (i?: number) => {
+    const scene = SCENES[i ?? Math.floor(Math.random() * SCENES.length)];
+    setAct(scene.act);
+    setSays(scene.line);
+    if (scene.act === "sip") {
+      setSipping(true);
+      setSips((n) => n + 1);
+      timers.current.push(setTimeout(() => setSipping(false), 1500));
+    }
+    timers.current.push(setTimeout(() => setAct("idle"), 2200));
+    timers.current.push(setTimeout(() => setSays(null), 2600));
+  };
 
   useEffect(() => {
     if (reduce) return;
@@ -61,6 +88,18 @@ export function PilotPortrait() {
     return () => list.forEach(clearTimeout);
   }, []);
 
+  // the idle loop — long enough apart that it reads as a person, not a GIF
+  useEffect(() => {
+    if (reduce) return;
+    let i = 0;
+    const id = setInterval(() => {
+      i += 1;
+      play(i % 4);
+    }, 9000);
+    return () => clearInterval(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [reduce]);
+
   const pokeCat = () => {
     setCatMood("startled");
     setHop((h) => h + 1);
@@ -76,9 +115,32 @@ export function PilotPortrait() {
 
   return (
     <div className="relative hidden justify-self-center lg:block">
-      <div className="animate-bob">
-        <AvatarWaving size={360} />
-      </div>
+      <motion.button
+        type="button"
+        onClick={() => play()}
+        aria-label="Say hello to Amartya's avatar"
+        className="animate-bob block cursor-pointer"
+        whileHover={reduce ? undefined : { y: -6 }}
+        whileTap={reduce ? undefined : { scale: 0.98 }}
+        transition={SPRING_PRESS}
+      >
+        <AvatarWaving size={360} act={act} look={look} />
+      </motion.button>
+
+      <AnimatePresence>
+        {says ? (
+          <motion.span
+            key={says + act}
+            initial={{ opacity: 0, y: 8, scale: 0.85, rotate: -6 }}
+            animate={{ opacity: 1, y: 0, scale: 1, rotate: -3 }}
+            exit={{ opacity: 0, y: -10, scale: 0.9 }}
+            transition={SPRING_PRESS}
+            className="pointer-events-none absolute right-2 top-6 rounded-full bg-card px-4 py-2 font-hand text-[17px] font-semibold text-ink shadow-[var(--shadow-sticker-sm)]"
+          >
+            {says}
+          </motion.span>
+        ) : null}
+      </AnimatePresence>
 
       {/* the mug: click it for a sip, and it keeps count */}
       <motion.button
@@ -87,7 +149,7 @@ export function PilotPortrait() {
         aria-label="Take a sip of chai"
         className="absolute -left-16 bottom-6 cursor-pointer"
         style={{ transformOrigin: "80% 90%" }}
-        animate={sipping ? { rotate: -26, y: -14 } : { rotate: 0, y: 0 }}
+        animate={sipping ? { rotate: -26, y: -54, x: 26 } : { rotate: 0, y: 0, x: 0 }}
         transition={sipping ? { duration: 0.32, ease: EASE_OUT } : SPRING_PRESS}
         whileHover={{ y: -6 }}
         whileTap={{ scale: 0.96 }}
@@ -138,8 +200,8 @@ export function PilotPortrait() {
         ) : null}
       </AnimatePresence>
 
-      <HandNote tilt={-3} className="absolute -bottom-16 left-0 w-[15rem] leading-tight">
-        he watches your cursor · poke him, and click the mug
+      <HandNote tilt={-3} className="absolute -bottom-16 left-0 w-[15.5rem] leading-tight">
+        everyone here watches your cursor · poke any of them
       </HandNote>
     </div>
   );

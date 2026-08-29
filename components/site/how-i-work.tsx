@@ -39,7 +39,7 @@ const STEPS: Step[] = [
     n: "01",
     when: "Day one",
     title: "It gets drawn",
-    tone: "text-orange",
+    tone: "text-orange-ink",
     body: "Before any code, a sketch of how the thing works. If I can't draw it, I don't understand it yet — and it's much cheaper to argue with a drawing than with a pull request.",
     icon: (
       <motion.svg width="92" height="92" viewBox="0 0 100 100" fill="none" initial="hidden" whileInView="show" viewport={{ once: true, amount: 0.6 }}>
@@ -59,7 +59,7 @@ const STEPS: Step[] = [
     n: "02",
     when: "Day two",
     title: "Something already runs",
-    tone: "text-blue",
+    tone: "text-blue-ink",
     body: "A small working thing beats a beautiful plan. You get something you can click while the spec is still warm, even if it's ugly — especially if it's ugly.",
     icon: (
       <motion.svg width="92" height="92" viewBox="0 0 100 100" fill="none" initial="hidden" whileInView="show" viewport={{ once: true, amount: 0.6 }}>
@@ -74,7 +74,7 @@ const STEPS: Step[] = [
     n: "03",
     when: "Then",
     title: "Correct, kind, fast — in that order",
-    tone: "text-green",
+    tone: "text-green-ink",
     body: "Right first, pleasant to use second, quick third. Every other order I've tried spends someone else's week.",
     icon: (
       <motion.svg width="92" height="92" viewBox="0 0 100 100" fill="none" initial="hidden" whileInView="show" viewport={{ once: true, amount: 0.6 }}>
@@ -89,7 +89,7 @@ const STEPS: Step[] = [
     n: "04",
     when: "Always",
     title: "The notes are public",
-    tone: "text-yellow",
+    tone: "text-yellow-ink",
     body: "Whatever I worked out gets written down, so the next person doesn't have to come and ask me. Half of what I know came back to me that way.",
     icon: (
       <motion.svg width="92" height="92" viewBox="0 0 100 100" fill="none" initial="hidden" whileInView="show" viewport={{ once: true, amount: 0.6 }}>
@@ -158,7 +158,7 @@ export function HowIWork() {
 
       {/* the short version, in his own hand */}
       <ScrollReveal y={20} delay={0.15}>
-        <div className="mt-9 flex flex-wrap items-center justify-between gap-6 rounded-[1.5rem] bg-ink px-9 py-7 text-paper">
+        <div className="mt-9 flex flex-wrap items-center justify-between gap-6 rounded-[1.5rem] bg-panel px-9 py-7 text-on-panel ring-1 ring-[var(--panel-edge)]">
           <p className="max-w-[46rem] font-display text-[clamp(1.3rem,2.1vw,1.75rem)] font-extrabold leading-tight tracking-[-0.035em]">
             The short version: you&apos;ll see something working before you see a status update.
           </p>

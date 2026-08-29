@@ -53,8 +53,28 @@ export function AvatarWaving({
   size = 300,
   mood = "rest",
   onDark = false,
-}: ArtProps & { mood?: Mood; onDark?: boolean }) {
-  const hairStroke = onDark ? "var(--paper)" : "none";
+  waving = false,
+  act = "idle",
+  look = { x: 0, y: 0 },
+}: ArtProps & {
+  mood?: Mood;
+  onDark?: boolean;
+  waving?: boolean;
+  /** A little scene he plays on his own, or when you poke him. */
+  act?: "idle" | "wave" | "sip" | "stretch";
+  /** Pupil direction, −1..1 — point him at the cursor. */
+  look?: { x: number; y: number };
+}) {
+  // On the ink card, ink-on-ink hair used to vanish. A paper outline fixed the
+  // silhouette but read as a halo, so instead the hair goes warm-dark and
+  // takes a soft rim light — the way hair actually separates from a dark
+  // background.
+  const hairFill = onDark ? "#4a3a31" : INK;
+  const dx = Math.max(-1, Math.min(1, look.x)) * 4.5;
+  const dy = Math.max(-1, Math.min(1, look.y)) * 3;
+  const eyesShut = act === "sip" || act === "stretch";
+  const rightArm =
+    act === "stretch" ? "rotate(-74deg)" : act === "sip" ? "rotate(-38deg)" : mood === "peeling" ? "rotate(-24deg)" : undefined;
   return (
     <svg
       className={className}
@@ -66,8 +86,12 @@ export function AvatarWaving({
     >
       <ellipse cx="150" cy="332" rx="96" ry="11" fill={onDark ? "rgba(0,0,0,0.35)" : "rgba(40,30,20,0.12)"} />
       <rect x="98" y="182" width="104" height="150" rx="34" fill="var(--blue)" stroke={INK} strokeWidth="3.5" />
-      {/* the waving arm — it goes straight up when the sticker is being peeled */}
-      <g style={{ transformOrigin: "202px 202px", transform: mood === "peeling" ? "rotate(-24deg)" : "none" }}>
+      {/* The waving arm. It really waves — a slow rotation about the shoulder —
+          and goes straight up when the sticker is being peeled. */}
+      <g
+        className={(waving || act === "wave") && mood === "rest" ? "animate-wave" : undefined}
+        style={{ transformOrigin: "202px 202px", transform: rightArm, transition: "transform .45s cubic-bezier(.16,1,.3,1)" }}
+      >
         <path d="M202 202 C 236 190, 246 152, 228 128" stroke={INK} strokeWidth="3.5" fill="none" strokeLinecap="round" />
         <path
           d="M220 124 L 236 110 M226 133 L 246 126 M225 145 L 242 149"
@@ -78,7 +102,11 @@ export function AvatarWaving({
         />
       </g>
       <path
-        d={mood === "peeling" ? "M98 212 C 74 196, 62 168, 78 146" : "M98 212 C 72 222, 68 258, 92 272"}
+        d={
+          mood === "peeling" || act === "stretch"
+            ? "M98 212 C 74 196, 62 168, 78 146"
+            : "M98 212 C 72 222, 68 258, 92 272"
+        }
         stroke={INK}
         strokeWidth="3.5"
         fill="none"
@@ -87,15 +115,12 @@ export function AvatarWaving({
       <circle cx="150" cy="106" r="62" fill="var(--peach)" stroke={INK} strokeWidth="3.5" />
       {/* hair: filled ink, but outlined in paper on dark grounds so it never
           disappears into the card behind it */}
-      <path
-        d="M88 94 C 94 34, 206 22, 220 82 C 200 58, 126 58, 88 94 Z"
-        fill={INK}
-        stroke={hairStroke}
-        strokeWidth={onDark ? 4 : 0}
-        strokeLinejoin="round"
-      />
+      <path d="M88 94 C 94 34, 206 22, 220 82 C 200 58, 126 58, 88 94 Z" fill={hairFill} strokeLinejoin="round" />
       {onDark ? (
-        <path d="M112 58 C 132 44, 168 42, 190 52" stroke="var(--paper)" strokeWidth="3" fill="none" strokeLinecap="round" opacity="0.55" />
+        <>
+          <path d="M108 56 C 130 40, 172 38, 196 50" stroke="#8a7263" strokeWidth="5" fill="none" strokeLinecap="round" opacity="0.7" />
+          <path d="M96 78 C 104 62, 118 52, 132 47" stroke="#8a7263" strokeWidth="3.5" fill="none" strokeLinecap="round" opacity="0.45" />
+        </>
       ) : null}
 
       {mood === "placed" ? (
@@ -116,12 +141,27 @@ export function AvatarWaving({
           <circle cx="173" cy="117" r="4.6" fill={INK} />
           <ellipse cx="150" cy="150" rx="9" ry="11" fill={INK} />
         </>
+      ) : eyesShut ? (
+        <>
+          {/* mid-sip, or mid-stretch: eyes shut, and the mouth says which */}
+          <circle cx="128" cy="118" r="16" fill="#fff" stroke={INK} strokeWidth="3.5" />
+          <circle cx="172" cy="118" r="16" fill="#fff" stroke={INK} strokeWidth="3.5" />
+          <path d="M144 118 L 156 118" stroke={INK} strokeWidth="3.5" strokeLinecap="round" />
+          <path d="M119 120 Q 129 112, 139 120" stroke={INK} strokeWidth="3.6" fill="none" strokeLinecap="round" />
+          <path d="M163 120 Q 173 112, 183 120" stroke={INK} strokeWidth="3.6" fill="none" strokeLinecap="round" />
+          {act === "stretch" ? (
+            <ellipse cx="150" cy="150" rx="11" ry="14" fill={INK} />
+          ) : (
+            <path d="M138 146 Q 150 156, 162 146" stroke={INK} strokeWidth="3.5" fill="none" strokeLinecap="round" />
+          )}
+        </>
       ) : (
         <>
           <circle cx="128" cy="118" r="16" fill="#fff" stroke={INK} strokeWidth="3.5" />
           <circle cx="172" cy="118" r="16" fill="#fff" stroke={INK} strokeWidth="3.5" />
           <path d="M144 118 L 156 118" stroke={INK} strokeWidth="3.5" strokeLinecap="round" />
-          <Eyes cx1={129} cx2={173} cy={120} r={4.2} />
+          <circle className="animate-blink origin-center" cx={129 + dx} cy={120 + dy} r={4.2} fill={INK} />
+          <circle className="animate-blink origin-center" cx={173 + dx} cy={120 + dy} r={4.2} fill={INK} />
           <path d="M134 144 Q 150 158, 166 144" stroke={INK} strokeWidth="3.5" fill="none" strokeLinecap="round" />
         </>
       )}

@@ -22,8 +22,8 @@ export type Writing = {
   date: string;
   readTime: string;
   tags: string[];
-  /** Which specimen to draw on the sticker. */
-  specimen: "gemm";
+  /** Alt text for the preview image on the shelf. */
+  previewAlt: string;
   /** How the article describes its own look — shown as the card's footnote. */
   system: string;
 };
@@ -36,7 +36,8 @@ export const WRITINGS: Writing[] = [
     date: "2026-08-29",
     readTime: "~35 min",
     tags: ["CUDA", "GPU", "performance"],
-    specimen: "gemm",
+    previewAlt:
+      "The GEMM Scrapbook: grid paper, the title in red pen, and a bar chart of seven CUDA kernels climbing from 1.3% to 93.7% of cuBLAS",
     system: "engineering notebook · grid paper, red pen, highlighter",
   },
 ];
@@ -44,9 +45,15 @@ export const WRITINGS: Writing[] = [
 /** Kept in one place — the feed and the sitemap need absolute URLs. */
 export const SITE_URL = "https://iamartyaa.github.io";
 
-export const href = (w: Writing) => `/writings/${w.slug}/`;
+/** Empty on a user site, "/<repo>" on a project site — set by the workflow. */
+const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 
-export const articleUrl = (w: Writing) => `${SITE_URL}${href(w)}`;
+export const href = (w: Writing) => `${BASE_PATH}/writings/${w.slug}/`;
+
+/** The article's own share card, which doubles as its preview on the shelf. */
+export const preview = (w: Writing) => `${BASE_PATH}/writings/${w.slug}/og.png`;
+
+export const articleUrl = (w: Writing) => `${SITE_URL}/writings/${w.slug}/`;
 
 export const readableDate = (iso: string) =>
   new Date(iso + "T00:00:00Z").toLocaleDateString("en-GB", {

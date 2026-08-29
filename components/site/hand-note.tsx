@@ -22,8 +22,8 @@ export function HandNote({
       className={cn(
         "font-hand text-[19px] font-semibold leading-tight",
         tone === "faint" && "text-ink-faint",
-        tone === "orange" && "text-orange",
-        tone === "blue" && "text-blue",
+        tone === "orange" && "text-orange-ink",
+        tone === "blue" && "text-blue-ink",
         tone === "ink" && "text-ink",
         className,
       )}
@@ -49,7 +49,7 @@ export function Stamp({
       className={cn(
         "inline-block rotate-[-8deg] rounded-[10px] border-[3px] px-3 py-[7px]",
         "font-mono text-[13px] font-bold uppercase tracking-[0.12em] opacity-90",
-        tone === "orange" ? "border-orange text-orange" : "border-green text-green",
+        tone === "orange" ? "border-orange-ink text-orange-ink" : "border-green-ink text-green-ink",
         className,
       )}
     >

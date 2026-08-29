@@ -97,6 +97,13 @@ export function PeelSticker({
         onDoubleClick={putBack}
         onHoverStart={() => setHovered(true)}
         onHoverEnd={() => setHovered(false)}
+        // motion makes a draggable focusable; without these it lands in the
+        // tab order as an unnamed div
+        role={interactive ? "button" : undefined}
+        aria-label={interactive ? "Peel the portrait off the page and drag it somewhere else" : undefined}
+        onKeyDown={(e) => {
+          if (e.key === "Escape") putBack();
+        }}
         // NB: never animate `y` here — `style.y` is the drag's own motion
         // value, and animating it would drag the sticker back out from under
         // the cursor. The hover lift lives on the card inside instead.

@@ -5,10 +5,9 @@ import { useState } from "react";
 
 import { ArrowRight } from "@/components/art/cast";
 import { Stamp } from "@/components/site/hand-note";
-import { SPECIMENS } from "@/components/site/specimens";
 import { Sticker } from "@/components/site/sticker";
 import { EASE_OUT, SPRING_PANEL } from "@/lib/ease";
-import { href, readableDate, type Writing } from "@/lib/writings";
+import { href, preview, readableDate, type Writing } from "@/lib/writings";
 import { cn } from "@/lib/utils";
 
 /**
@@ -30,7 +29,6 @@ import { cn } from "@/lib/utils";
 export function ArticleSticker({ writing, index = 0 }: { writing: Writing; index?: number }) {
   const reduce = useReducedMotion();
   const [hot, setHot] = useState(false);
-  const Specimen = SPECIMENS[writing.specimen];
 
   // Pointer parallax on the specimen rather than a 3D tilt on the card: the
   // specimen paints a grid, a rounded clip and a blend layer, and browsers
@@ -70,14 +68,19 @@ export function ArticleSticker({ writing, index = 0 }: { writing: Writing; index
       <div>
         {/* the specimen: a window into the article's own world */}
         <div className="relative h-[19rem] overflow-hidden rounded-[1.25rem] ring-[2px] ring-hairline sm:h-[21rem]">
-          <motion.div
-            className="absolute -inset-10"
+          {/* The preview IS the article's share card — drawn in the
+              article's own system, so the shelf shows the world you are
+              about to walk into rather than a summary of it. */}
+          <motion.img
+            src={preview(writing)}
+            alt={writing.previewAlt}
+            loading="lazy"
+            decoding="async"
+            className="absolute -inset-6 h-[calc(100%+3rem)] w-[calc(100%+3rem)] max-w-none object-cover object-center"
             style={reduce ? undefined : { x: shiftX, y: shiftY }}
-            animate={{ scale: hot && !reduce ? 1.03 : 1 }}
+            animate={{ scale: hot && !reduce ? 1.045 : 1 }}
             transition={SPRING_PANEL}
-          >
-            <Specimen active={hot || Boolean(reduce)} />
-          </motion.div>
+          />
 
           {/* Foil: one narrow band sweeping across on approach. It blends
               rather than paints — a wide white wash would flatten the specimen

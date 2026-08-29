@@ -119,13 +119,14 @@ export function Sticker({
         href={href}
         className={classes}
         style={style}
+        aria-label={ariaLabel}
         target={href.startsWith("mailto:") ? undefined : "_blank"}
         rel="noopener noreferrer"
       >
         {children}
       </a>
     ) : (
-      <Link href={href} className={classes} style={style}>
+      <Link href={href} className={classes} style={style} aria-label={ariaLabel}>
         {children}
       </Link>
     )

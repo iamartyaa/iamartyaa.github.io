@@ -363,6 +363,44 @@ export function Notebook({ className, size = 130 }: ArtProps) {
   );
 }
 
+/**
+ * The mouse. Runs the route on /things with the cat behind it, so it is drawn
+ * facing +x with its tail trailing — the wrapper flips it by travel direction.
+ */
+export function Mouse({ className, size = 62, scared = false }: ArtProps & { scared?: boolean }) {
+  return (
+    <svg className={className} width={size} height={size * 0.72} viewBox="0 0 100 72" aria-hidden style={{ overflow: "visible" }}>
+      {/* tail, trailing behind */}
+      <path
+        d="M18 46 C 2 44, -6 30, 6 22"
+        stroke={INK}
+        strokeWidth="3"
+        fill="none"
+        strokeLinecap="round"
+      />
+      {/* body + head in one loaf */}
+      <path
+        d="M20 50 C 12 34, 26 20, 46 20 C 70 20, 84 32, 86 44 C 87 50, 80 52, 72 52 Z"
+        fill="#efe7dc"
+        stroke={INK}
+        strokeWidth="3"
+        strokeLinejoin="round"
+      />
+      {/* ears */}
+      <circle cx="42" cy="22" r="12" fill="#efe7dc" stroke={INK} strokeWidth="3" />
+      <circle cx="42" cy="22" r="6" fill="var(--peach)" />
+      <circle cx="60" cy="20" r="9" fill="#efe7dc" stroke={INK} strokeWidth="3" />
+      <circle cx="60" cy="20" r="4.4" fill="var(--peach)" />
+      {/* face */}
+      <circle cx="76" cy="38" r={scared ? 4 : 3.2} fill={INK} />
+      <circle cx="86" cy="44" r="3" fill="var(--peach)" stroke={INK} strokeWidth="2" />
+      <path d="M70 46 h 8 M70 50 h 7" stroke={INK} strokeWidth="1.8" strokeLinecap="round" />
+      {/* feet */}
+      <path d="M34 52 v 5 M50 53 v 5 M64 52 v 5" stroke={INK} strokeWidth="3" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 /** Little marks used inside stickers. */
 export function Sparkle({ className, size = 22 }: ArtProps) {
   return (

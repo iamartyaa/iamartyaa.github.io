@@ -76,7 +76,8 @@ export default function HomePage() {
               <p className="mt-8 max-w-[28rem] text-[17px] leading-[1.7] text-ink-soft sm:text-[19px]">
                 Software mostly — workforce tools that fifteen thousand people open every morning, and
                 agents that do the boring half of my job. Sometimes drawings, sometimes long notes about
-                how something works. It&apos;s all on this desk: poke around, then follow the plane.
+                how something works. It&apos;s all on this desk: click the cat, type on the keyboard, pull the
+                lamp&apos;s chain.
               </p>
               <div className="mt-9 flex flex-wrap gap-3.5">
                 <Sticker tone="ink" size="lg" tilt={-1.5} display magnetic href="/things">

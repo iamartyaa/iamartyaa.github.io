@@ -37,8 +37,8 @@ export function ArticleSticker({ writing, index = 0 }: { writing: Writing; index
   // always paints.
   const px = useMotionValue(0.5);
   const py = useMotionValue(0.5);
-  const shiftX = useSpring(useTransform(px, [0, 1], [10, -10]), SPRING_PANEL);
-  const shiftY = useSpring(useTransform(py, [0, 1], [8, -8]), SPRING_PANEL);
+  const shiftX = useSpring(useTransform(px, [0, 1], [9, -9]), SPRING_PANEL);
+  const shiftY = useSpring(useTransform(py, [0, 1], [6, -6]), SPRING_PANEL);
 
   const tilt = index % 2 === 0 ? -1.4 : 1.4;
 
@@ -67,7 +67,7 @@ export function ArticleSticker({ writing, index = 0 }: { writing: Writing; index
     >
       <div>
         {/* the specimen: a window into the article's own world */}
-        <div className="relative h-[19rem] overflow-hidden rounded-[1.25rem] ring-[2px] ring-hairline sm:h-[21rem]">
+        <div className="relative aspect-[1200/630] overflow-hidden rounded-[1.25rem] ring-[2px] ring-hairline">
           {/* The preview IS the article's share card — drawn in the
               article's own system, so the shelf shows the world you are
               about to walk into rather than a summary of it. */}
@@ -76,9 +76,9 @@ export function ArticleSticker({ writing, index = 0 }: { writing: Writing; index
             alt={writing.previewAlt}
             loading="lazy"
             decoding="async"
-            className="absolute -inset-6 h-[calc(100%+3rem)] w-[calc(100%+3rem)] max-w-none object-cover object-center"
+            className="absolute inset-0 h-full w-full object-cover object-center"
             style={reduce ? undefined : { x: shiftX, y: shiftY }}
-            animate={{ scale: hot && !reduce ? 1.045 : 1 }}
+            animate={{ scale: hot && !reduce ? 1.08 : 1.045 }}
             transition={SPRING_PANEL}
           />
 

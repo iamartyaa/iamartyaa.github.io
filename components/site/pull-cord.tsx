@@ -7,7 +7,7 @@ import { useThemeToggle } from "@/components/motion/theme-toggle";
 import { SPRING_SWAP } from "@/lib/ease";
 import { cn } from "@/lib/utils";
 
-const REST = 96; // how far the cord hangs before you touch it
+const REST = 96; // how far the cord hangs before you touch it (from its own top)
 const PULL = 74; // how far it can be pulled down
 const TRIP = 30; // pull past this and the lights change
 
@@ -44,7 +44,15 @@ export function PullCord({ className }: { className?: string }) {
   };
 
   return (
-    <div className={cn("pointer-events-none fixed right-7 top-0 z-30 flex flex-col items-center", className)}>
+    <div
+      className={cn(
+        // Below md the nav wraps to two rows and the cord used to hang
+        // straight onto the active pill — two tap targets in one place. It
+        // clears the whole header there instead.
+        "pointer-events-none fixed right-5 top-[7.5rem] z-30 flex flex-col items-center sm:right-7 sm:top-0",
+        className,
+      )}
+    >
       {/* the string */}
       <motion.div aria-hidden className="w-[2.5px] rounded-full bg-ink/55" style={{ height: length }} />
       {/* the bead */}

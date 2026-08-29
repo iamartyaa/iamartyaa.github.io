@@ -1,19 +1,25 @@
 "use client";
 
-import { useState } from "react";
-
 import { SharedLayoutBg } from "@/components/motion/shared-layout-bg";
 import { Sticker } from "@/components/site/sticker";
-
-const FILTERS = ["everything", "ai agents", "product", "systems", "just for fun"];
 
 /**
  * Filters are stickers, not a segmented control — same hover glide as the nav
  * (beUI SharedLayoutBg) so the two rows feel like the same object family.
+ *
+ * They are controlled, and they really filter: the landings below are the
+ * matching ones, and the dashed line is regenerated through whatever is left,
+ * which is what the note beside them promises.
  */
-export function ProjectFilters() {
-  const [active, setActive] = useState(FILTERS[0]);
-
+export function ProjectFilters({
+  options,
+  value,
+  onChange,
+}: {
+  options: string[];
+  value: string;
+  onChange: (next: string) => void;
+}) {
   return (
     <SharedLayoutBg
       as="div"
@@ -21,18 +27,22 @@ export function ProjectFilters() {
       inset={6}
       pillClassName="rounded-full bg-ink/[0.05]"
     >
-      {FILTERS.map((f, i) => (
-        <div key={f}>
-          <Sticker
-            tone={active === f ? "ink" : "white"}
-            size="sm"
-            tilt={active === f ? 0 : i % 2 ? 1 : -1}
-            onClick={() => setActive(f)}
-          >
-            {f}
-          </Sticker>
-        </div>
-      ))}
+      {options.map((f, i) => {
+        const active = value === f;
+        return (
+          <div key={f}>
+            <Sticker
+              tone={active ? "ink" : "white"}
+              size="sm"
+              tilt={active ? 0 : i % 2 ? 1 : -1}
+              onClick={() => onChange(f)}
+              aria-label={active ? `Showing ${f}` : `Show ${f}`}
+            >
+              {f}
+            </Sticker>
+          </div>
+        );
+      })}
     </SharedLayoutBg>
   );
 }

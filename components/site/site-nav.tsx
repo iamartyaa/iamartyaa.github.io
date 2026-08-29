@@ -12,7 +12,7 @@ import { cn } from "@/lib/utils";
 const ROUTES = [
   { href: "/", label: "the desk" },
   { href: "/things", label: "things" },
-  { href: "/writing", label: "writing" },
+  { href: "/writings", label: "writings" },
   { href: "/about", label: "about" },
 ] as const;
 

@@ -83,8 +83,8 @@ That's it — the workflow does the rest, and every later push redeploys.
 - [x] The cat's eyes follow the cursor on /about, and he is the mascot that
       follows it around /things (`components/site/cursor-cat.tsx`)
 - [x] The say-hi card is signed by hand (`components/site/signature.tsx`)
-- [x] /writing — the index, plus the GEMM Scrapbook in a design system of
-      its own (see below)
+- [x] /writings — the shelf, plus The GEMM Scrapbook served verbatim in its
+      own design system (see below)
 - [x] Traffic plumbing: sitemap.xml, robots.txt, RSS at /feed.xml,
       per-article canonical + OpenGraph + TechArticle JSON-LD
 - [ ] Push to GitHub and turn Pages on — the two steps that need your login
@@ -103,31 +103,42 @@ That's it — the workflow does the rest, and every later push redeploys.
 | /about, the mug | click for a sip — it keeps count |
 | Anywhere but Home | the cord top-right: drag it down or click it |
 
-## Writing: one design system per article
+## Writings: one design system per article
 
-`lib/articles.ts` is the registry — the index, the sitemap, the feed, the
-JSON-LD and the share links all read from it. Publishing is two steps:
+An article is not a route. Each one is a **standalone HTML file** — its own
+type, palette, motion and physics, everything inlined — dropped at
+`public/writings/<slug>/index.html` and served verbatim. Next never renders it,
+so nothing from the site's design system can leak in and nothing from the
+article can leak out. That is the whole point of the shelf: a portfolio of one
+design system is a portfolio of one idea.
 
-1. `app/writing/<slug>/` — `page.tsx`, `theme.css` (the article's own design
-   system, scoped under `[data-article="<slug>"]`), `parts.tsx` (its own
-   components), and any fonts it needs via `next/font/local`.
-2. An entry in `ARTICLES`, including `accent` — the index card is painted in
-   those colours, so the index shows the range of systems at a glance.
+Publishing is three steps:
 
-Two rules keep the systems from bleeding into each other:
+1. `public/writings/<slug>/index.html` — the article itself, as built.
+2. `public/writings/<slug>/og.png` — a 1200×630 share card, drawn in *that
+   article's* palette, not this site's.
+3. A row in `WRITINGS` (`lib/writings.ts`) and a specimen in
+   `components/site/specimens.tsx`.
 
-- **Scope everything.** Article CSS lives under `[data-article="<slug>"]`, and
-  the page surface is claimed with `html[data-surface="<slug>"]` (see
-  `SurfaceLock` in the GEMM article) so overscroll and the paper grain agree
-  with the article rather than the site.
-- **No site chrome inside an article.** `components/site/site-chrome.tsx`
-  hides the sticker nav and the blue progress bar on `/writing/<slug>`; the
-  article brings its own header, its own progress indicator, and its own way
-  back to the site.
+The specimen is the interesting part. `components/site/article-sticker.tsx`
+renders one big die-cut sticker per piece, and the artwork on it is a live
+miniature of the article's own world — painted in the article's colours, in the
+article's type, animating on hover. The index is therefore a contact sheet of
+design systems rather than a list of links.
 
-Numbers in an article are either derived in-page or attributed to whoever
-measured them — the GEMM ladder is Simon Boehm's A6000 run and says so in
-§03 and in the colophon.
+Two things get injected into each published file, and only these two:
+
+- share tags in `<head>` (canonical, OpenGraph, Twitter, description), so a
+  link to it previews properly;
+- one small fixed "← more writing" chip, styled with the article's *own* CSS
+  variables so it wears the article's paper and ink.
+
+`lib/writings.ts` is the registry the sitemap, the RSS feed at `/feed.xml` and
+`robots.txt` all read from, so a new entry propagates everywhere.
+
+Numbers in a card or a share image are read out of the article, never invented:
+the GEMM ladder on the sticker and the OG image is the `DATA` array in that
+file.
 
 ## The route
 

@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 
-import { PUBLISHED, SITE_URL, articleUrl } from "@/lib/articles";
+import { SITE_URL, WRITINGS, articleUrl } from "@/lib/writings";
 
 /**
  * Static sitemap — generated at build time into out/sitemap.xml, which is what
@@ -10,16 +10,16 @@ import { PUBLISHED, SITE_URL, articleUrl } from "@/lib/articles";
 export const dynamic = "force-static";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const pages = ["", "/things/", "/writing/", "/about/"].map((path) => ({
+  const pages = ["", "/things/", "/writings/", "/about/"].map((path) => ({
     url: `${SITE_URL}${path || "/"}`,
     lastModified: new Date(),
     changeFrequency: "monthly" as const,
     priority: path === "" ? 1 : 0.7,
   }));
 
-  const articles = PUBLISHED.map((a) => ({
+  const articles = WRITINGS.map((a) => ({
     url: articleUrl(a),
-    lastModified: new Date(a.updated ?? a.date),
+    lastModified: new Date(a.date),
     changeFrequency: "yearly" as const,
     priority: 0.9,
   }));

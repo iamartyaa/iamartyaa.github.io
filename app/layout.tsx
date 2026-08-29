@@ -3,8 +3,9 @@ import localFont from "next/font/local";
 import { ThemeProvider } from "next-themes";
 import type { ReactNode } from "react";
 
+import { ScrollProgress } from "@/components/motion/scroll-progress";
 import { SmoothScroll } from "@/components/motion/smooth-scroll";
-import { SiteChrome } from "@/components/site/site-chrome";
+import { SiteNav } from "@/components/site/site-nav";
 
 import "./globals.css";
 
@@ -91,7 +92,8 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <ThemeProvider attribute="data-theme" defaultTheme="light" enableSystem={false} disableTransitionOnChange>
           {/* Lenis drives every scroll-linked effect on the site; one instance, at the root. */}
           <SmoothScroll lerp={0.09} duration={1.25}>
-            <SiteChrome />
+            <ScrollProgress className="bg-blue" height={3} />
+            <SiteNav />
             <main>{children}</main>
           </SmoothScroll>
         </ThemeProvider>

@@ -1,0 +1,2017 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>The GEMM Scrapbook</title>
+<meta name="description" content="One matrix multiplication, seven CUDA kernels, and a 70x speedup - documented like a road trip with the wrong turns left in. From 1.3% of peak to 94%.">
+<meta name="author" content="Amartya Yadav">
+<link rel="canonical" href="https://iamartyaa.github.io/writings/the-gemm-scrapbook/">
+<link rel="icon" href="/icon.svg" type="image/svg+xml">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Amartya Yadav">
+<meta property="og:title" content="The GEMM Scrapbook">
+<meta property="og:description" content="One matrix multiplication, seven CUDA kernels, and a 70x speedup - documented like a road trip with the wrong turns left in. From 1.3% of peak to 94%.">
+<meta property="og:url" content="https://iamartyaa.github.io/writings/the-gemm-scrapbook/">
+<meta property="og:image" content="https://iamartyaa.github.io/writings/the-gemm-scrapbook/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="The GEMM Scrapbook">
+<meta name="twitter:description" content="One matrix multiplication, seven CUDA kernels, and a 70x speedup - documented like a road trip with the wrong turns left in. From 1.3% of peak to 94%.">
+<meta name="twitter:image" content="https://iamartyaa.github.io/writings/the-gemm-scrapbook/og.png">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Shantell+Sans:wght@400;500;700;800&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Caveat:wght@500;700&family=JetBrains+Mono:wght@400;600;800&display=swap">
+<style>
+/* ============================================================
+   THE GEMM SCRAPBOOK — single-theme paper world.
+   This page deliberately commits to one visual world (an
+   engineering notebook), so every color is painted explicitly.
+   ============================================================ */
+:root{
+  --paper:#f7f7f4;
+  --paper-card:#fdfdfb;
+  --grid-line:rgba(90,130,190,.13);
+  --grid-line-major:rgba(90,130,190,.20);
+  --ink:#1e2430;
+  --ink-soft:#4d5566;
+  --ink-faint:#8a90a0;
+  --redpen:#d03b3b;
+  --redpen-soft:rgba(208,59,59,.12);
+  --highlighter:rgba(255,230,107,.55);
+  --highlighter-solid:#ffe66b;
+  --tape:rgba(240,225,160,.55);
+  --tape-edge:rgba(190,170,90,.35);
+  --blue:#2a78d6;
+  --blue-deep:#1c5cab;
+  --blue-wash:rgba(42,120,214,.10);
+  --orange:#eb6834;
+  --orange-wash:rgba(235,104,52,.12);
+  --green:#0ca30c;
+  --green-ink:#006300;
+  --aqua:#1baf7a;
+  --violet:#4a3aa7;
+  --code-bg:#20242e;
+  --code-ink:#e8eaf0;
+  --code-comment:#7d8598;
+  --code-kw:#8ab8f5;
+  --code-type:#6fd3a6;
+  --code-num:#f5c877;
+  --code-fn:#e8a2c0;
+  --shadow:0 1px 2px rgba(30,36,48,.08), 0 6px 18px rgba(30,36,48,.09);
+  --shadow-lift:0 2px 4px rgba(30,36,48,.10), 0 14px 34px rgba(30,36,48,.13);
+  --font-head:"Shantell Sans", "Comic Sans MS", cursive;
+  --font-body:"Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+  --font-hand:"Caveat", "Segoe Script", cursive;
+  --font-mono:"JetBrains Mono", "Cascadia Code", Consolas, monospace;
+  /* chart ordinal ramp (validated reference palette, steps 250–650) */
+  --ramp-1:#86b6ef; --ramp-2:#6da7ec; --ramp-3:#5598e7; --ramp-4:#3987e5;
+  --ramp-5:#2a78d6; --ramp-6:#256abf; --ramp-7:#104281;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;overflow-x:hidden}
+body{
+  margin:0;
+  background:
+    linear-gradient(var(--grid-line-major) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line-major) 1px, transparent 1px),
+    linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px),
+    var(--paper);
+  background-size:120px 120px,120px 120px,24px 24px,24px 24px;
+  color:var(--ink);
+  font-family:var(--font-body);
+  font-size:17px;
+  line-height:1.65;
+  overflow-x:hidden;
+}
+::selection{background:var(--highlighter-solid);color:var(--ink)}
+
+/* ---------- layout ---------- */
+.page{max-width:980px;margin:0 auto;padding:0 20px}
+.prose{max-width:68ch;margin-left:auto;margin-right:auto}
+.prose p{margin:0 0 1.1em}
+section.chapter{padding:72px 0 40px;position:relative}
+h1,h2,h3{font-family:var(--font-head);line-height:1.15;text-wrap:balance;margin:0}
+h2{font-size:clamp(28px,4.4vw,42px);font-weight:800;margin-bottom:10px}
+h3{font-size:clamp(19px,2.6vw,24px);font-weight:700;margin:1.6em 0 .5em}
+.eyebrow{
+  font-family:var(--font-mono);font-size:12px;font-weight:600;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--blue-deep);
+  display:inline-flex;align-items:center;gap:8px;margin-bottom:10px;
+}
+.eyebrow::before{content:"";width:26px;height:2px;background:var(--blue-deep);border-radius:2px}
+a{color:var(--blue-deep);text-decoration-thickness:1.5px;text-underline-offset:3px}
+a:hover{color:var(--blue)}
+strong{font-weight:700}
+em{font-style:italic}
+.mono{font-family:var(--font-mono);font-size:.88em}
+mark{background:linear-gradient(transparent 8%, var(--highlighter) 8% 88%, transparent 88%);color:inherit;padding:0 .15em;border-radius:2px}
+
+/* ---------- scrapbook furniture ---------- */
+.card{
+  background:var(--paper-card);
+  border:1px solid rgba(30,36,48,.10);
+  border-radius:6px;
+  box-shadow:var(--shadow);
+  padding:22px 24px;
+  position:relative;
+  margin:26px 0;
+}
+.card.taped::before,.card.taped::after{
+  content:"";position:absolute;top:-12px;width:92px;height:26px;
+  background:var(--tape);border:1px solid var(--tape-edge);
+  box-shadow:0 1px 2px rgba(30,36,48,.06);
+}
+.card.taped::before{left:8%;transform:rotate(-3deg)}
+.card.taped::after{right:8%;transform:rotate(2.5deg)}
+.tilt-l{transform:rotate(-.5deg)}
+.tilt-r{transform:rotate(.5deg)}
+
+.sticky{
+  background:#fff7c2;
+  border:1px solid rgba(190,170,90,.4);
+  box-shadow:0 3px 10px rgba(30,36,48,.10);
+  padding:14px 16px 12px;
+  font-family:var(--font-hand);
+  font-size:21px;line-height:1.3;color:#4a4020;
+  max-width:300px;transform:rotate(1.5deg);
+  margin:20px auto;
+}
+.sticky .from{display:block;margin-top:6px;font-size:17px;opacity:.7}
+
+.margin-note{
+  font-family:var(--font-hand);
+  font-size:21px;line-height:1.25;
+  color:var(--redpen);
+  transform:rotate(-1.6deg);
+  margin:14px auto;max-width:56ch;
+  padding-left:14px;
+  border-left:3px solid var(--redpen-soft);
+}
+.margin-note.blue{color:var(--blue-deep);transform:rotate(1deg)}
+
+.stamp{
+  display:inline-block;
+  font-family:var(--font-mono);font-weight:800;
+  border:3px double currentColor;border-radius:8px;
+  padding:8px 16px;line-height:1.25;
+  transform:rotate(-2.4deg);
+  text-transform:uppercase;letter-spacing:.05em;
+  font-size:14px;
+  opacity:.92;
+}
+.stamp .big{font-size:24px;display:block;letter-spacing:.02em}
+.stamp.bad{color:var(--redpen)}
+.stamp.meh{color:#b07800}
+.stamp.good{color:var(--green-ink)}
+
+/* speed strip under each kernel: where are we on the ladder */
+.speedline{margin:22px 0 4px}
+.speedline .lane{
+  position:relative;height:30px;background:rgba(30,36,48,.06);
+  border-radius:15px;overflow:hidden;border:1px solid rgba(30,36,48,.10);
+}
+.speedline .fill{
+  position:absolute;inset:0 auto 0 0;width:0%;
+  background:linear-gradient(90deg,var(--ramp-1),var(--ramp-5));
+  border-radius:15px;
+  transition:width 1.4s cubic-bezier(.22,.9,.3,1);
+}
+.speedline .runner{
+  position:absolute;top:50%;left:0%;transform:translate(-50%,-54%);
+  font-size:20px;transition:left 1.4s cubic-bezier(.22,.9,.3,1);
+  filter:drop-shadow(0 1px 1px rgba(0,0,0,.25));
+}
+.speedline .labels{
+  display:flex;justify-content:space-between;
+  font-family:var(--font-mono);font-size:12px;color:var(--ink-soft);
+  margin-top:6px;font-variant-numeric:tabular-nums;
+}
+.speedline .cublas-mark{
+  position:absolute;right:0;top:-4px;bottom:-4px;width:0;
+  border-right:2px dashed var(--ink-faint);
+}
+
+/* ---------- viz frames (polaroid style) ---------- */
+.viz{
+  background:var(--paper-card);
+  border:1px solid rgba(30,36,48,.12);
+  border-radius:4px;
+  box-shadow:var(--shadow-lift);
+  padding:14px 14px 10px;
+  margin:30px auto;
+}
+.viz canvas{display:block;width:100%;height:auto;border-radius:3px;background:#fcfcf8}
+.viz .caption{
+  font-family:var(--font-hand);font-size:20px;color:var(--ink-soft);
+  text-align:center;padding:10px 6px 2px;line-height:1.3;
+}
+.viz .controls{
+  display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+  padding:10px 4px 4px;border-top:1px dashed rgba(30,36,48,.15);margin-top:10px;
+}
+.btn{
+  font-family:var(--font-mono);font-size:13px;font-weight:600;
+  border:1.5px solid var(--ink);border-radius:6px;
+  background:var(--paper-card);color:var(--ink);
+  padding:6px 14px;cursor:pointer;
+  box-shadow:2px 2px 0 rgba(30,36,48,.85);
+  transition:transform .08s, box-shadow .08s;
+}
+.btn:hover{transform:translate(-1px,-1px);box-shadow:3px 3px 0 rgba(30,36,48,.85)}
+.btn:active{transform:translate(1px,1px);box-shadow:1px 1px 0 rgba(30,36,48,.85)}
+.btn:focus-visible,.seek:focus-visible,a:focus-visible,.codefold summary:focus-visible{
+  outline:3px solid var(--blue);outline-offset:2px;
+}
+.seek{flex:1;min-width:120px;accent-color:var(--blue);height:22px}
+.controls .readout{font-family:var(--font-mono);font-size:12px;color:var(--ink-soft);font-variant-numeric:tabular-nums;min-width:110px}
+
+/* ---------- code ---------- */
+.codefold{margin:24px 0}
+.codefold summary{
+  cursor:pointer;list-style:none;
+  font-family:var(--font-mono);font-size:13px;font-weight:600;
+  color:var(--code-ink);
+  background:var(--code-bg);
+  padding:10px 16px;border-radius:8px 8px 0 0;
+  display:flex;align-items:center;gap:10px;
+  border:1px solid rgba(30,36,48,.4);
+  user-select:none;
+}
+.codefold summary::-webkit-details-marker{display:none}
+.codefold summary::before{content:"▸";transition:transform .15s;color:var(--code-num)}
+.codefold[open] summary::before{transform:rotate(90deg)}
+.codefold summary .hint{margin-left:auto;font-weight:400;color:var(--code-comment);font-size:12px}
+.codefold:not([open]) summary{border-radius:8px}
+pre.code{
+  margin:0;background:var(--code-bg);color:var(--code-ink);
+  font-family:var(--font-mono);font-size:13.5px;line-height:1.55;
+  padding:16px 18px;border-radius:0 0 8px 8px;
+  overflow-x:auto;border:1px solid rgba(30,36,48,.4);border-top:none;
+  tab-size:4;
+}
+pre.code .c{color:var(--code-comment);font-style:italic}
+pre.code .k{color:var(--code-kw);font-weight:600}
+pre.code .t{color:var(--code-type)}
+pre.code .n{color:var(--code-num)}
+pre.code .f{color:var(--code-fn)}
+pre.code .hl{background:rgba(255,230,107,.16);display:inline-block;width:100%;border-left:3px solid var(--highlighter-solid);margin-left:-18px;padding-left:15px}
+
+/* ---------- math notes ---------- */
+.mathnote{
+  font-family:Georgia,"Times New Roman",serif;
+  background:var(--blue-wash);
+  border-left:4px solid var(--blue);
+  border-radius:0 8px 8px 0;
+  padding:14px 20px;margin:22px 0;
+  font-size:17px;line-height:1.8;
+  overflow-x:auto;
+}
+.mathnote .eq{display:block;text-align:center;font-style:italic;font-size:19px;margin:.35em 0}
+.mathnote .eq b{font-style:normal}
+.mathnote sub,.mathnote sup{font-size:.72em}
+.frac{display:inline-flex;flex-direction:column;text-align:center;vertical-align:middle;margin:0 .25em;line-height:1.25}
+.frac .top{border-bottom:1.4px solid currentColor;padding:0 .3em}
+.frac .bot{padding:0 .3em}
+
+/* ---------- tables ---------- */
+.tablewrap{overflow-x:auto;margin:22px 0}
+table.ledger{border-collapse:collapse;width:100%;font-size:15px;background:var(--paper-card);box-shadow:var(--shadow);border-radius:6px;overflow:hidden}
+table.ledger th{
+  font-family:var(--font-mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;
+  text-align:left;color:var(--ink-soft);background:rgba(30,36,48,.05);
+  padding:10px 14px;border-bottom:2px solid rgba(30,36,48,.15);
+}
+table.ledger td{padding:9px 14px;border-bottom:1px solid rgba(30,36,48,.08);font-variant-numeric:tabular-nums}
+table.ledger tr:last-child td{border-bottom:none}
+table.ledger td.num{text-align:right;font-family:var(--font-mono);font-size:13.5px}
+
+/* ---------- hero ---------- */
+#hero{padding:40px 0 30px;text-align:center;position:relative}
+#hero .kicker{font-family:var(--font-hand);font-size:clamp(22px,3vw,28px);color:var(--redpen);transform:rotate(-1.2deg);display:inline-block;margin-bottom:2px}
+#hero h1{
+  font-size:clamp(44px,8vw,86px);font-weight:800;letter-spacing:-.01em;
+  margin:6px 0 4px;
+}
+#hero h1 .gemm{
+  background:linear-gradient(transparent 12%, var(--highlighter) 12% 88%, transparent 88%);
+  padding:0 .08em;border-radius:4px;
+}
+#hero .sub{max-width:60ch;margin:12px auto 0;font-size:clamp(16px,2.2vw,19px);color:var(--ink-soft)}
+#hero3d-wrap{margin:34px auto 8px;max-width:900px}
+#hero3d-wrap .viz{margin-top:0}
+.hero-meta{
+  display:flex;justify-content:center;gap:14px;flex-wrap:wrap;margin-top:26px;
+  font-family:var(--font-mono);font-size:12.5px;color:var(--ink-soft);
+}
+.hero-meta span{border:1px dashed rgba(30,36,48,.3);border-radius:20px;padding:5px 13px;background:var(--paper-card)}
+
+/* ---------- table of contents strip ---------- */
+.toc{
+  display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin:30px 0 4px;
+}
+.toc a{
+  font-family:var(--font-mono);font-size:12.5px;font-weight:600;text-decoration:none;
+  color:var(--ink);background:var(--paper-card);
+  border:1.5px solid rgba(30,36,48,.7);border-radius:20px;padding:6px 13px;
+  box-shadow:2px 2px 0 rgba(30,36,48,.5);
+  transition:transform .08s;
+}
+.toc a:hover{transform:translate(-1px,-1px);background:#fff}
+
+/* ---------- kernel header plate ---------- */
+.kplate{
+  display:flex;align-items:flex-start;gap:18px;flex-wrap:wrap;
+  margin-bottom:18px;
+}
+.kplate .knum{
+  font-family:var(--font-head);font-weight:800;font-size:52px;line-height:1;
+  color:var(--paper);background:var(--ink);
+  border-radius:10px;padding:10px 16px 14px;
+  transform:rotate(-2deg);
+  box-shadow:3px 3px 0 rgba(30,36,48,.25);
+  flex:0 0 auto;
+}
+.kplate .ktitle{flex:1;min-width:230px}
+.kplate .ktag{font-family:var(--font-hand);font-size:22px;color:var(--ink-soft);margin-top:2px}
+.kplate .kstamp{flex:0 0 auto;margin-top:6px}
+
+/* dialogue / cartoon strip */
+.cast{
+  display:flex;gap:14px;align-items:flex-start;margin:24px 0;flex-wrap:wrap;
+}
+.cast .who{flex:0 0 auto;text-align:center;width:74px}
+.cast .who .face{font-size:38px;line-height:1}
+.cast .who .name{font-family:var(--font-mono);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft);margin-top:4px}
+.cast .bubble{
+  flex:1;min-width:220px;position:relative;
+  background:var(--paper-card);border:1.5px solid var(--ink);
+  border-radius:14px;padding:12px 16px;
+  font-size:15.5px;box-shadow:3px 3px 0 rgba(30,36,48,.18);
+}
+.cast .bubble::before{
+  content:"";position:absolute;left:-9px;top:22px;
+  width:14px;height:14px;background:var(--paper-card);
+  border-left:1.5px solid var(--ink);border-bottom:1.5px solid var(--ink);
+  transform:rotate(45deg);
+}
+.cast.flip{flex-direction:row-reverse}
+.cast.flip .bubble::before{left:auto;right:-9px;transform:rotate(225deg)}
+
+/* chart */
+#chartLadder .row{display:grid;grid-template-columns:150px 1fr 92px;gap:10px;align-items:center;margin:9px 0}
+#chartLadder .rname{font-family:var(--font-mono);font-size:12.5px;text-align:right;color:var(--ink);line-height:1.25}
+#chartLadder .rname small{display:block;color:var(--ink-faint);font-size:10.5px}
+#chartLadder .rtrack{position:relative;height:26px;background:rgba(30,36,48,.05);border-radius:4px}
+#chartLadder .rbar{position:absolute;inset:2px auto 2px 0;width:0%;border-radius:3px 4px 4px 3px;transition:width 1.2s cubic-bezier(.2,.85,.3,1)}
+#chartLadder .rval{font-family:var(--font-mono);font-size:12.5px;color:var(--ink-soft);font-variant-numeric:tabular-nums}
+#chartLadder .cublas-line{position:absolute;top:-6px;bottom:-6px;border-right:2px dashed var(--redpen);width:0}
+
+/* footer */
+footer{padding:60px 0 80px;text-align:center;color:var(--ink-soft);font-size:14.5px}
+footer .sig{font-family:var(--font-hand);font-size:24px;color:var(--ink);margin-bottom:8px}
+
+/* wide-screen margin doodles */
+@media (min-width:1240px){
+  .side-note{
+    position:absolute;width:210px;font-family:var(--font-hand);
+    font-size:20px;line-height:1.25;color:var(--ink-soft);
+  }
+  .side-note.right{right:-236px;transform:rotate(2deg)}
+  .side-note.left{left:-236px;transform:rotate(-2deg);text-align:right}
+}
+@media (max-width:1239px){
+  .side-note{display:block;position:static;max-width:56ch;margin:10px auto;font-family:var(--font-hand);font-size:20px;color:var(--ink-soft)}
+  .side-note.left{text-align:left}
+}
+@media (max-width:640px){
+  body{font-size:16px}
+  .card{padding:16px 16px}
+  .kplate .knum{font-size:38px;padding:8px 12px 10px}
+  #chartLadder .row{grid-template-columns:98px 1fr 76px}
+  #chartLadder .rname{font-size:10.5px}
+}
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *{transition-duration:.01ms !important}
+}
+</style>
+<meta name="description" content="From a naive CUDA matmul kernel to 94% of cuBLAS — an animated, scrapbook-style walk through GEMM optimization: coalescing, shared-memory tiling, register tiling, float4, warptiling.">
+</head>
+<body>
+
+<div id="scrapbook-root">
+<!-- ================= HERO ================= -->
+<header id="hero" class="page">
+  <span class="kicker">field notes from the bottom of the software stack ↓</span>
+  <h1>The <span class="gemm">GEMM</span> Scrapbook</h1>
+  <p class="sub">One matrix multiplication. Seven CUDA kernels. A <strong>70× speedup</strong>, documented like a road trip — with the wrong turns left in. By the end you'll know exactly why the naive kernel crawls at <span class="mono">1.3%</span> of what the GPU can do, and how to claw your way to <span class="mono">94%</span>.</p>
+
+  <div id="hero3d-wrap">
+    <div class="viz taped card" style="padding-top:26px">
+      <canvas id="hero3d" width="880" height="460" aria-label="3D visualization of matrix multiplication: matrices A and B combining into C, one dot product at a time"></canvas>
+      <div class="caption">C = A × B, in its natural habitat. Every cell of C is one row of A meeting one column of B. Drag to look around.</div>
+      <div class="controls">
+        <button class="btn" id="hero3dPlay" aria-label="Play or pause 3D animation">⏸ pause</button>
+        <span class="readout" id="hero3dReadout">warming up…</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="hero-meta">
+    <span>audience: knows basic CUDA C++</span>
+    <span>benchmarks: RTX A6000 · 4096×4096 · fp32</span>
+    <span>reading time: one good coffee ×2</span>
+  </div>
+
+  <nav class="toc" aria-label="Chapters">
+    <a href="#ch-gemm">what's GEMM?</a>
+    <a href="#ch-gpu">meet the GPU</a>
+    <a href="#k1">k1 naive</a>
+    <a href="#k2">k2 coalescing</a>
+    <a href="#k3">k3 smem</a>
+    <a href="#k4">k4 1D tile</a>
+    <a href="#k5">k5 2D tile</a>
+    <a href="#k6">k6 float4</a>
+    <a href="#k7">k7 warptile</a>
+    <a href="#finale">the finish line</a>
+  </nav>
+</header>
+
+<!-- ================= CH 0 : WHAT IS GEMM ================= -->
+<section class="chapter page" id="ch-gemm">
+  <div class="prose">
+    <span class="eyebrow">chapter 0</span>
+    <h2>What even is GEMM, and why does everyone keep yelling about it?</h2>
+    <p><strong>GEMM</strong> = <mark>GE</mark>neral <mark>M</mark>atrix <mark>M</mark>ultiply. The full BLAS ceremony is <em>C&nbsp;=&nbsp;αAB&nbsp;+&nbsp;βC</em>, but the α and β are seasoning. The meal is <em>C&nbsp;=&nbsp;AB</em>: take a matrix <strong>A</strong> (size M×K), a matrix <strong>B</strong> (size K×N), and produce <strong>C</strong> (size M×N), where every cell of C is a <em>dot product</em> — one row of A pointwise-multiplied with one column of B, then summed.</p>
+
+    <div class="mathnote">
+      <span class="eq"><b>C</b><sub>ij</sub> = Σ<sub>k=0…K−1</sub> &nbsp;<b>A</b><sub>ik</sub> · <b>B</b><sub>kj</sub></span>
+      Each of the M·N output cells needs K multiplies and K adds → <span class="eq"><b>total work</b> = 2·M·N·K floating-point operations (FLOPs)</span>
+      For M = N = K = 4096, that's 2·4096³ ≈ <b>137&nbsp;billion FLOPs</b>. Per multiplication. And we're going to do it in ~6 milliseconds.
+    </div>
+
+    <p>Why does it matter? Because <strong>a large language model is, to a first approximation, a machine for doing GEMMs</strong>. Attention projections: GEMMs. The feed-forward blocks: two big GEMMs. The output head: a giant GEMM. When you're waiting for a chatbot's next token, you're mostly waiting for matrix multiplications. Make GEMM 2× faster and inference gets roughly 2× cheaper. That's why NVIDIA employs small armies to tune it, and why it's the single best kernel to learn GPU optimization on: <mark>simple enough to hold in your head, deep enough to teach you the whole machine</mark>.</p>
+  </div>
+
+  <div class="viz card" style="max-width:820px">
+    <canvas id="vizMatmul" width="800" height="420" aria-label="Interactive matrix multiplication: hover cells of C to see which row of A and column of B produce them"></canvas>
+    <div class="caption">Hover (or tap) any cell of C — its row of A and column of B light up. Press play to watch one dot product accumulate.</div>
+    <div class="controls">
+      <button class="btn" id="vizMatmulPlay">▶ play</button>
+      <input type="range" class="seek" id="vizMatmulSeek" min="0" max="1000" value="0" aria-label="Scrub dot product animation">
+      <span class="readout" id="vizMatmulReadout">k = 0 / 8</span>
+    </div>
+  </div>
+
+  <div class="prose">
+    <p>Here's the property that makes the next seven chapters possible: those 137 billion FLOPs are <strong>almost embarrassingly parallel</strong>. Every cell of C can be computed independently — no cell needs another cell's answer. 16.7 million independent little jobs (for 4096×4096). That's the shape of workload GPUs were born for.</p>
+    <p>And here's the property that makes the next seven chapters <em>necessary</em>: the inputs are only <span class="mono">A + B + C ≈ 201 MB</span>, but the arithmetic touches those same numbers over and over — each element of A is needed by 4096 different output cells. <mark>GEMM is a data-reuse game.</mark> Win the reuse game, you win everything. Spoiler: the naive kernel loses the reuse game so badly it re-requests about half a terabyte from memory.</p>
+  </div>
+
+  <div class="sticky">
+    "scalar-vector: boring. vector-vector: cute. matrix-matrix: <u>this is where the money is</u>."
+    <span class="from">— every BLAS library, basically</span>
+  </div>
+</section>
+
+<!-- ================= CH 1 : MEET THE GPU ================= -->
+<section class="chapter page" id="ch-gpu">
+  <div class="prose">
+    <span class="eyebrow">chapter 1</span>
+    <h2>Meet the hardware (a workplace comedy)</h2>
+    <p>Before writing kernel one, meet the cast. A GPU like the RTX A6000 is a factory with <strong>84 identical workshops</strong> called <em>SMs</em> (Streaming Multiprocessors). You don't hire individual workers; you submit a <strong>grid</strong> of <strong>thread blocks</strong>, and each block gets assigned to a workshop. Inside a block are up to 1024 <strong>threads</strong> — the actual workers.</p>
+    <p>But the threads don't move freely. The hardware bundles them into groups of 32 called <strong>warps</strong>, and a warp moves in lockstep: 32 threads, one instruction, all together. Think of a warp as a 32-segment caterpillar. It's the single most important creature in this scrapbook, so let's give it a name.</p>
+  </div>
+
+  <div class="cast prose">
+    <div class="who"><div class="face">🐛</div><div class="name">Warpy<br>(32 threads)</div></div>
+    <div class="bubble">We're 32 threads but we share <em>one</em> brain — every step, all my segments execute the same instruction. When I ask memory for data, I ask for all 32 of us <em>at once</em>. Remember that. It will ruin someone's benchmark in chapter 3.</div>
+  </div>
+
+  <h3 class="prose" style="margin-left:auto;margin-right:auto">The memory hierarchy, drawn to (emotional) scale</h3>
+  <div class="prose">
+    <p>Threads need data, and data lives at very different distances. The numbers below are the whole plot of this scrapbook — every optimization we make is just <mark>moving work from a far shelf to a near one</mark>:</p>
+  </div>
+
+  <div class="viz card" style="max-width:860px">
+    <canvas id="vizMem" width="840" height="400" aria-label="Animated memory hierarchy: couriers travel from registers, shared memory, L2 cache and global memory with latencies proportional to distance"></canvas>
+    <div class="caption">Press play: four couriers leave at once to fetch one number each. Distance drawn ∝ latency. The DRAM courier will be a while.</div>
+    <div class="controls">
+      <button class="btn" id="vizMemPlay">▶ race the couriers</button>
+      <input type="range" class="seek" id="vizMemSeek" min="0" max="1000" value="0" aria-label="Scrub memory latency race">
+      <span class="readout" id="vizMemReadout">t = 0 cycles</span>
+    </div>
+  </div>
+
+  <div class="tablewrap prose">
+    <table class="ledger">
+      <thead><tr><th>Storage</th><th>Lives</th><th>Latency-ish</th><th>Size-ish</th><th>Kitchen analogy</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Registers</strong></td><td>per thread</td><td class="num">~1 cycle</td><td class="num">255 per thread</td><td>your own two hands</td></tr>
+        <tr><td><strong>Shared memory</strong></td><td>per block (on-SM)</td><td class="num">~20–30 cycles</td><td class="num">up to 100 KB/SM</td><td>the counter you're standing at</td></tr>
+        <tr><td><strong>L2 cache</strong></td><td>whole GPU</td><td class="num">~200 cycles</td><td class="num">6 MB</td><td>the pantry down the hall</td></tr>
+        <tr><td><strong>Global memory</strong> (DRAM)</td><td>off-chip</td><td class="num">~400–600 cycles</td><td class="num">48 GB @ 768 GB/s</td><td>the warehouse across town</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="margin-note">≈500 cycles for DRAM vs 1 for a register. if a register read were 1 second, a DRAM read would be ~8 minutes. now imagine cooking a dish where every single ingredient is a separate 8-minute drive. that's kernel 1. we wrote that kernel. on purpose. for science.</div>
+
+  <div class="prose">
+    <h3>The one equation to tape inside your locker</h3>
+    <p>The A6000 can do ~<strong>38.7 TFLOP/s</strong> of fp32 math but can only pull ~<strong>768 GB/s</strong> from DRAM. Divide those and you get the machine's <em>ridge point</em>:</p>
+    <div class="mathnote">
+      <span class="eq">
+        <span class="frac"><span class="top">38,700 GFLOP/s</span><span class="bot">768 GB/s</span></span> ≈ <b>50 FLOPs per byte</b>
+      </span>
+      Every byte you fetch from DRAM must be repaid with ~50 floating-point operations, or the math units sit idle waiting for deliveries. The ratio of FLOPs done to bytes moved is called <b>arithmetic intensity</b> — it is the score we'll be chasing for seven kernels.
+    </div>
+    <p>A whole GEMM has arithmetic intensity of roughly <span class="mono">2·4096³ FLOPs / 201 MB ≈ 680 FLOPs/byte</span> — way above 50, so GEMM <em>deserves</em> to be compute-bound. Whether your kernel actually achieves that depends entirely on how much reuse you capture on-chip. That's the game. Let's play badly first.</p>
+  </div>
+
+  <div class="cast prose flip">
+    <div class="who"><div class="face">🏭</div><div class="name">DRAM<br>warehouse</div></div>
+    <div class="bubble">Big Boxy Memory Co. — 48 GB in stock, 768 GB/s at the loading dock! We have your data, come get it. (eventually.) (bring a book.)</div>
+  </div>
+</section>
+
+<!-- ================= LADDER INTRO ================= -->
+<section class="chapter page" id="ch-ladder">
+  <div class="prose">
+    <span class="eyebrow">the rules</span>
+    <h2>The ladder: how we keep score</h2>
+    <p>From here on, every chapter is one kernel. Same problem every time — <span class="mono">C = A·B</span>, 4096×4096, fp32 — so the only thing changing is <em>how well we use the machine</em>. We measure <strong>GFLOP/s</strong>: the 137 billion FLOPs of work divided by wall-clock time. The reference bar is NVIDIA's own <strong>cuBLAS</strong> at <span class="mono">23,250 GFLOP/s</span>.</p>
+    <p>A note on honesty, since this will become an article: the numbers on these pages are from <a href="https://siboehm.com/articles/22/CUDA-MMM">Simon Boehm's classic kernel ladder</a>, measured on an RTX A6000 — the canonical modern walk up this mountain. The kernels here follow the same route. A ready-to-run harness ships with this scrapbook so the numbers can be re-measured on any card, and the <em>ratios</em> between rungs are the durable lesson: they look similar on every modern NVIDIA GPU.</p>
+  </div>
+  <div class="sticky" style="transform:rotate(-1.8deg)">
+    benchmark rules: warm up first, time with CUDA events, average many reps, and <u>always verify the output</u> against cuBLAS. a wrong matmul is infinitely fast and infinitely useless.
+    <span class="from">— past me, after a very embarrassing afternoon</span>
+  </div>
+</section>
+<!-- ================= KERNEL 1 : NAIVE ================= -->
+<section class="chapter page" id="k1">
+  <div class="prose">
+    <div class="kplate">
+      <div class="knum">K1</div>
+      <div class="ktitle">
+        <span class="eyebrow">kernel one</span>
+        <h2>Naive: one thread, one number, zero shame</h2>
+        <div class="ktag">"just translate the math into code, how bad can it be" — famous last words</div>
+      </div>
+      <div class="kstamp"><span class="stamp bad"><span class="big">309 GFLOP/s</span>1.3% of cuBLAS</span></div>
+    </div>
+    <p>The obvious plan, and honestly a beautiful one: C has 16.7 million cells, GPUs have millions of threads, so <strong>give every thread one cell</strong>. Each thread walks its row of A and its column of B, multiply-accumulates K = 4096 times, writes one float. Done. This is the kernel every CUDA tutorial ends with, and the kernel every fast library begins by deleting.</p>
+  </div>
+
+  <details class="codefold prose" open>
+    <summary>sgemm_naive.cu <span class="hint">14 lines of crime</span></summary>
+<pre class="code"><span class="k">__global__</span> <span class="t">void</span> <span class="f">sgemm_naive</span>(<span class="t">int</span> M, <span class="t">int</span> N, <span class="t">int</span> K,
+                            <span class="k">const</span> <span class="t">float</span> *A, <span class="k">const</span> <span class="t">float</span> *B, <span class="t">float</span> *C) {
+  <span class="c">// one thread ↔ one output cell of C</span>
+  <span class="k">const</span> <span class="t">uint</span> x = blockIdx.x * blockDim.x + threadIdx.x;  <span class="c">// row of C</span>
+  <span class="k">const</span> <span class="t">uint</span> y = blockIdx.y * blockDim.y + threadIdx.y;  <span class="c">// col of C</span>
+
+  <span class="k">if</span> (x &lt; M &amp;&amp; y &lt; N) {
+    <span class="t">float</span> acc = <span class="n">0.0f</span>;
+    <span class="k">for</span> (<span class="t">int</span> k = <span class="n">0</span>; k &lt; K; ++k)
+      acc += A[x * K + k] * B[k * N + y];   <span class="c">// dot product</span>
+    C[x * N + y] = acc;
+  }
+}
+<span class="c">// launch: dim3 block(32, 32);  dim3 grid(M/32, N/32);</span></pre>
+  </details>
+
+  <div class="viz card" style="max-width:840px">
+    <canvas id="vizNaive" width="820" height="400" aria-label="Animation showing each thread independently fetching an entire row of A and column of B from global memory, with a byte counter racking up"></canvas>
+    <div class="caption">Each thread drags its whole row + column across town from DRAM. Watch the "bytes requested" meter. Keep watching. Oh no.</div>
+    <div class="controls">
+      <button class="btn" id="vizNaivePlay">▶ play</button>
+      <input type="range" class="seek" id="vizNaiveSeek" min="0" max="1000" value="0" aria-label="Scrub naive kernel animation">
+      <span class="readout" id="vizNaiveReadout"></span>
+    </div>
+  </div>
+
+  <div class="prose">
+    <h3>The autopsy</h3>
+    <p>Each thread does 2K = 8192 FLOPs but requests 2K·4 = <strong>32 KB</strong> from global memory. That's the reuse game lost 0–100:</p>
+    <div class="mathnote">
+      <span class="eq">AI<sub>naive</sub> = <span class="frac"><span class="top">2K FLOPs</span><span class="bot">2K × 4 bytes</span></span> = <b>0.25 FLOPs/byte</b> &nbsp;&nbsp;(the machine wants ≈ 50)</span>
+      Summed over all 16.7M threads, the kernel <em>requests</em> ≈ 2·4096³·4 B ≈ <b>550 GB</b> of reads for a job whose inputs total 201 MB — every element of A re-fetched up to 4096 times.
+    </div>
+    <p>The L2 cache heroically absorbs a lot of that (which is why we're 75× slower than cuBLAS instead of 2700×), but the arithmetic units still spend almost all their time <em>waiting</em>. And it's actually worse than that — the way these threads ask for memory offends Warpy personally. Which brings us to the fastest 6× you will ever earn.</p>
+  </div>
+  <div class="speedline prose" data-gflops="309">
+    <div class="lane"><div class="fill"></div><div class="cublas-mark"></div><div class="runner">🐌</div></div>
+    <div class="labels"><span>0</span><span>this kernel: 309 GFLOP/s · 445 ms per matmul</span><span>cuBLAS 23,250</span></div>
+  </div>
+</section>
+
+<!-- ================= KERNEL 2 : COALESCING ================= -->
+<section class="chapter page" id="k2">
+  <div class="prose">
+    <div class="kplate">
+      <div class="knum">K2</div>
+      <div class="ktitle">
+        <span class="eyebrow">kernel two</span>
+        <h2>Coalescing: carpool or perish</h2>
+        <div class="ktag">the 6.4× speedup that costs two swapped letters</div>
+      </div>
+      <div class="kstamp"><span class="stamp meh"><span class="big">1,987 GFLOP/s</span>8.5% · 6.4× faster</span></div>
+    </div>
+    <p>Remember Warpy's warning: <strong>memory requests happen per-warp, not per-thread</strong>. When 32 threads of a warp load a float each, the hardware looks at the 32 addresses and groups them into as few 32-byte transactions as possible. If the addresses are <em>consecutive</em>, all 32 floats (128 bytes) arrive in a handful of transactions — one bus, everyone rides together. If they're scattered, it's up to 32 separate trips carrying mostly air.</p>
+    <p>Now look at kernel 1's indexing. Threads that are neighbors in <span class="mono">threadIdx.x</span> got <em>consecutive rows</em> — their addresses in A and C are a full 16 KB apart. Same warp, 32 wildly scattered addresses, worst case every single load. The fix is almost insultingly small: remap the indices so that consecutive threads own <em>consecutive columns</em> — neighboring addresses in memory.</p>
+  </div>
+
+  <details class="codefold prose" open>
+    <summary>sgemm_coalesced.cu <span class="hint">the diff is 2 lines</span></summary>
+<pre class="code"><span class="c">// each 32-thread stripe of the block now walks ALONG a row of C,</span>
+<span class="c">// so warp-neighbors touch neighboring memory. that's the whole trick.</span>
+<span class="hl"><span class="k">const</span> <span class="t">uint</span> x = blockIdx.x * <span class="n">32</span> + (threadIdx.x / <span class="n">32</span>);  <span class="c">// row  (changes every 32 threads)</span></span>
+<span class="hl"><span class="k">const</span> <span class="t">uint</span> y = blockIdx.y * <span class="n">32</span> + (threadIdx.x % <span class="n">32</span>);  <span class="c">// col  (changes every thread)  ★</span></span>
+
+<span class="k">if</span> (x &lt; M &amp;&amp; y &lt; N) {
+  <span class="t">float</span> acc = <span class="n">0.0f</span>;
+  <span class="k">for</span> (<span class="t">int</span> k = <span class="n">0</span>; k &lt; K; ++k)
+    acc += A[x * K + k] * B[k * N + y];  <span class="c">// B &amp; C now coalesce beautifully</span>
+  C[x * N + y] = acc;
+}</pre>
+  </details>
+
+  <div class="viz card" style="max-width:840px">
+    <canvas id="vizCoalesce" width="820" height="410" aria-label="Warp of 32 threads shown twice: scattered addresses needing 32 memory transactions versus consecutive addresses served by a few wide transactions"></canvas>
+    <div class="caption">Same caterpillar, same 32 floats. Top: everyone drives alone (32 transactions). Bottom: the carpool (consecutive addresses → a few wide loads).</div>
+    <div class="controls">
+      <button class="btn" id="vizCoalescePlay">▶ play</button>
+      <input type="range" class="seek" id="vizCoalesceSeek" min="0" max="1000" value="0" aria-label="Scrub coalescing animation">
+      <span class="readout" id="vizCoalesceReadout"></span>
+    </div>
+  </div>
+
+  <div class="prose">
+    <p>Nothing about the math changed. Nothing about <em>how much</em> data we touch changed. We only changed the <em>shape</em> of each warp's requests, and throughput jumped from 309 → 1,987 GFLOP/s. This is the recurring theme of GPU work: <mark>the hardware rewards you for asking politely</mark>.</p>
+  </div>
+  <div class="margin-note blue">interview tip: "what's memory coalescing?" is the "tell me about yourself" of GPU interviews. you now have a caterpillar-based answer.</div>
+  <div class="speedline prose" data-gflops="1986.5">
+    <div class="lane"><div class="fill"></div><div class="cublas-mark"></div><div class="runner">🚶</div></div>
+    <div class="labels"><span>0</span><span>this kernel: 1,987 GFLOP/s · 69 ms per matmul</span><span>cuBLAS 23,250</span></div>
+  </div>
+</section>
+
+<!-- ================= KERNEL 3 : SHARED MEMORY ================= -->
+<section class="chapter page" id="k3">
+  <div class="prose">
+    <div class="kplate">
+      <div class="knum">K3</div>
+      <div class="ktitle">
+        <span class="eyebrow">kernel three</span>
+        <h2>Shared memory: stop commuting, stock the counter</h2>
+        <div class="ktag">in which the block finally discovers teamwork</div>
+      </div>
+      <div class="kstamp"><span class="stamp meh"><span class="big">2,980 GFLOP/s</span>12.8% · 1.5× faster</span></div>
+    </div>
+    <p>We're still going to the DRAM warehouse for every ingredient. But notice: the 1024 threads of one block all compute cells in the <em>same</em> 32×32 patch of C — and their dot products read the <em>same</em> 32 rows of A and 32 columns of B. A thousand workers making a thousand separate trips for overlapping shopping lists. The fix: <strong>tile the K dimension</strong>.</p>
+    <p>Chop A's rows and B's columns into 32-wide chunks. Each round, the block <em>cooperatively</em> hauls one 32×32 tile of A and one of B from DRAM into <strong>shared memory</strong> — the fast on-SM counter from chapter 1 — everyone grabbing one element (coalesced, obviously; we learned that lesson). Then <span class="mono">__syncthreads()</span>, and everybody computes their partial dot product from the counter at ~20-cycle latency instead of ~500. Slide the tiles along K, repeat, done.</p>
+  </div>
+
+  <div class="viz card" style="max-width:860px">
+    <canvas id="vizSmem" width="840" height="430" aria-label="Animation of 32 by 32 tiles of A and B sliding into shared memory, being consumed, then advancing along the K dimension"></canvas>
+    <div class="caption">Tiles of A and B slide onto the shared-memory counter, get squeezed for every FLOP they contain, then the window advances along K.</div>
+    <div class="controls">
+      <button class="btn" id="vizSmemPlay">▶ play</button>
+      <input type="range" class="seek" id="vizSmemSeek" min="0" max="1000" value="0" aria-label="Scrub shared memory tiling animation">
+      <span class="readout" id="vizSmemReadout"></span>
+    </div>
+  </div>
+
+  <details class="codefold prose">
+    <summary>sgemm_smem.cu <span class="hint">the inner loop</span></summary>
+<pre class="code"><span class="k">__shared__</span> <span class="t">float</span> As[<span class="n">32</span> * <span class="n">32</span>];   <span class="c">// the counter: 4 KB each</span>
+<span class="k">__shared__</span> <span class="t">float</span> Bs[<span class="n">32</span> * <span class="n">32</span>];
+
+<span class="t">float</span> acc = <span class="n">0.0f</span>;
+<span class="k">for</span> (<span class="t">int</span> tile = <span class="n">0</span>; tile &lt; K; tile += <span class="n">32</span>) {
+  <span class="c">// whole block hauls one tile of A and B in together (coalesced)</span>
+  As[row * <span class="n">32</span> + col] = A[x * K + (tile + col)];
+  Bs[row * <span class="n">32</span> + col] = B[(tile + row) * N + y];
+  <span class="f">__syncthreads</span>();                <span class="c">// wait till the counter is stocked</span>
+
+  <span class="k">for</span> (<span class="t">int</span> k = <span class="n">0</span>; k &lt; <span class="n">32</span>; ++k)     <span class="c">// shop from the counter, not the warehouse</span>
+    acc += As[row * <span class="n">32</span> + k] * Bs[k * <span class="n">32</span> + col];
+  <span class="f">__syncthreads</span>();                <span class="c">// don't restock while people are shopping</span>
+}
+C[x * N + y] = acc;</pre>
+  </details>
+
+  <div class="prose">
+    <div class="mathnote">
+      Every float now hauled from DRAM gets used by <b>32 threads</b> instead of 1, so global traffic drops ~32× for the inner loop: <span class="eq">550 GB → ≈ 17 GB per matmul</span> Per-thread arithmetic on shared memory: 2 loads + 2 FLOPs per k-step → AI against <em>shared</em> memory is still a sad <b>0.25</b>… foreshadowing.
+    </div>
+    <p>And the payoff for all that engineering is… 1.5×. <em>One point five.</em> We built the beautiful tile choreography and barely moved.</p>
+  </div>
+
+  <div class="cast prose">
+    <div class="who"><div class="face">🐛</div><div class="name">Warpy</div></div>
+    <div class="bubble">Don't sulk. The warehouse trips are gone — DRAM isn't the bottleneck anymore. The problem is <em>me</em>: each of my segments still computes one measly cell, so I'm doing two shared-memory loads for every two FLOPs. The counter is fast, but it's not <em>free</em>. Your kernel is now latency-bound on shared memory. Give each of us <em>more work per trip to the counter</em>.</div>
+  </div>
+  <div class="speedline prose" data-gflops="2980.3">
+    <div class="lane"><div class="fill"></div><div class="cublas-mark"></div><div class="runner">🚲</div></div>
+    <div class="labels"><span>0</span><span>this kernel: 2,980 GFLOP/s · 46 ms per matmul</span><span>cuBLAS 23,250</span></div>
+  </div>
+</section>
+<!-- ================= KERNEL 4 : 1D BLOCKTILING ================= -->
+<section class="chapter page" id="k4">
+  <div class="prose">
+    <div class="kplate">
+      <div class="knum">K4</div>
+      <div class="ktitle">
+        <span class="eyebrow">kernel four</span>
+        <h2>1D tiling: give every thread a column to raise</h2>
+        <div class="ktag">one number per thread was a rookie ratio</div>
+      </div>
+      <div class="kstamp"><span class="stamp meh"><span class="big">8,475 GFLOP/s</span>36.5% · 2.8× faster</span></div>
+    </div>
+    <p>Warpy's diagnosis: too many loads per FLOP. The cure is the same trick as chapter 3, one level down. We tiled DRAM→shared; now we tile shared→<strong>registers</strong>, the only memory that's actually free. Instead of one output cell, each thread now owns a little <strong>column of TM = 8 cells</strong> of C, kept in registers the whole time.</p>
+    <p>Watch what that does to the inner loop. For each k-step, the thread loads <em>one</em> value of B into a register — and reuses it against 8 values of A to update all 8 accumulators:</p>
+  </div>
+
+  <details class="codefold prose" open>
+    <summary>sgemm_1d_tile.cu <span class="hint">the money loop</span></summary>
+<pre class="code"><span class="t">float</span> acc[<span class="n">8</span>] = {<span class="n">0.0f</span>};                <span class="c">// 8 cells of C live in registers now</span>
+
+<span class="k">for</span> (<span class="t">int</span> k = <span class="n">0</span>; k &lt; BK; ++k) {
+<span class="hl">  <span class="t">float</span> bTmp = Bs[k * BN + col];     <span class="c">// ONE shared-mem load…</span></span>
+  <span class="k">for</span> (<span class="t">int</span> t = <span class="n">0</span>; t &lt; <span class="n">8</span>; ++t)
+<span class="hl">    acc[t] += As[(row*<span class="n">8</span> + t) * BK + k] * bTmp;   <span class="c">// …amortized over 8 FMAs</span></span>
+}</pre>
+  </details>
+
+  <div class="viz card" style="max-width:840px">
+    <canvas id="viz1d" width="820" height="410" aria-label="One thread shown computing eight vertically stacked cells of C, reusing a single loaded B value across eight A values each step"></canvas>
+    <div class="caption">One thread, eight plates spinning. Each B value is fetched once and billed to eight different dot products.</div>
+    <div class="controls">
+      <button class="btn" id="viz1dPlay">▶ play</button>
+      <input type="range" class="seek" id="viz1dSeek" min="0" max="1000" value="0" aria-label="Scrub 1D tiling animation">
+      <span class="readout" id="viz1dReadout"></span>
+    </div>
+  </div>
+
+  <div class="prose">
+    <div class="mathnote">
+      Per k-step, per thread: 8 loads of A + 1 load of B buy 8 FMAs = 16 FLOPs.
+      <span class="eq">loads per FLOP: &nbsp;<span class="frac"><span class="top">2</span><span class="bot">2</span></span> → <span class="frac"><span class="top">9</span><span class="bot">16</span></span> &nbsp;&nbsp;— nearly 2× more math per shared-memory visit</span>
+      Result: 2,980 → 8,475 GFLOP/s. The largest single jump on the whole ladder, and it came from a <b>register</b>.
+    </div>
+    <p>An asymmetry should be bugging you: B values get reused 8× but A values are still loaded fresh every FMA. If reusing along <em>one</em> axis is this good…</p>
+  </div>
+  <div class="speedline prose" data-gflops="8474.7">
+    <div class="lane"><div class="fill"></div><div class="cublas-mark"></div><div class="runner">🛵</div></div>
+    <div class="labels"><span>0</span><span>this kernel: 8,475 GFLOP/s · 16 ms per matmul</span><span>cuBLAS 23,250</span></div>
+  </div>
+</section>
+
+<!-- ================= KERNEL 5 : 2D BLOCKTILING ================= -->
+<section class="chapter page" id="k5">
+  <div class="prose">
+    <div class="kplate">
+      <div class="knum">K5</div>
+      <div class="ktitle">
+        <span class="eyebrow">kernel five</span>
+        <h2>2D tiling: the outer product awakens</h2>
+        <div class="ktag">8×8 per thread — now we're farming</div>
+      </div>
+      <div class="kstamp"><span class="stamp good"><span class="big">15,972 GFLOP/s</span>68.7% · 1.9× faster</span></div>
+    </div>
+    <p>…then reuse along <em>both</em>. Each thread now owns an <strong>8×8 patch of C</strong> — 64 accumulators living in registers. Per k-step it loads a length-8 sliver of A and a length-8 sliver of B into registers, then computes their <strong>outer product</strong>: all 64 pairwise products, each feeding its own accumulator. 16 loads buy 128 FLOPs.</p>
+    <p>This is the moment GEMM's deep structure surfaces: <mark>a matmul is just a sum of outer products</mark> — for each k, (column k of A) ⊗ (row k of B), all stacked up. Every serious GEMM implementation on earth, cuBLAS and CUTLASS included, is arranged around exactly this shape. You've now derived it from first principles by being annoyed at load counters.</p>
+  </div>
+
+  <div class="viz card" style="max-width:840px">
+    <canvas id="viz2d" width="820" height="430" aria-label="Outer product animation: an 8-value column from A and an 8-value row from B combine to update an 8 by 8 grid of accumulators in one step"></canvas>
+    <div class="caption">One sliver of A × one sliver of B = 64 updates, every k-step. The 8×8 grid fills like a bingo card that always wins.</div>
+    <div class="controls">
+      <button class="btn" id="viz2dPlay">▶ play</button>
+      <input type="range" class="seek" id="viz2dSeek" min="0" max="1000" value="0" aria-label="Scrub outer product animation">
+      <span class="readout" id="viz2dReadout"></span>
+    </div>
+  </div>
+
+  <details class="codefold prose">
+    <summary>sgemm_2d_tile.cu <span class="hint">the outer product loop</span></summary>
+<pre class="code"><span class="t">float</span> acc[<span class="n">8</span>][<span class="n">8</span>] = {{<span class="n">0.0f</span>}};   <span class="c">// 64 registers of pure ambition</span>
+<span class="t">float</span> regA[<span class="n">8</span>], regB[<span class="n">8</span>];
+
+<span class="k">for</span> (<span class="t">int</span> k = <span class="n">0</span>; k &lt; BK; ++k) {
+  <span class="k">for</span> (<span class="t">int</span> i = <span class="n">0</span>; i &lt; <span class="n">8</span>; ++i) regA[i] = As[(tRow*<span class="n">8</span>+i) * BK + k];  <span class="c">// sliver of A</span>
+  <span class="k">for</span> (<span class="t">int</span> j = <span class="n">0</span>; j &lt; <span class="n">8</span>; ++j) regB[j] = Bs[k * BN + tCol*<span class="n">8</span>+j];  <span class="c">// sliver of B</span>
+  <span class="k">for</span> (<span class="t">int</span> i = <span class="n">0</span>; i &lt; <span class="n">8</span>; ++i)
+    <span class="k">for</span> (<span class="t">int</span> j = <span class="n">0</span>; j &lt; <span class="n">8</span>; ++j)
+      acc[i][j] += regA[i] * regB[j];   <span class="c">// 64 FMAs, zero memory ops</span>
+}</pre>
+  </details>
+
+  <div class="prose">
+    <div class="mathnote">
+      <span class="eq">loads per k-step: 8 + 8 = 16 &nbsp;·&nbsp; FLOPs: 2·64 = 128 &nbsp;→&nbsp; <b>8 FLOPs per load</b> (vs 1.78 in K4, 1 in K3)</span>
+      Register pressure is the tax: 64 accumulators + slivers ≈ 80+ registers/thread, which caps how many warps fit per SM. Tiling is always this trade — <b>reuse up, occupancy down</b> — and 8×8 is near the sweet spot for fp32 on Ampere.
+    </div>
+    <p>68.7% of cuBLAS. The remaining gap isn't about <em>what</em> we compute anymore — it's about the pipes and the paperwork. Time for two chapters of pure logistics.</p>
+  </div>
+  <div class="margin-note">we went from "1 cell per thread" to "64 cells per thread" and got 5.4× overall. the lesson is not subtle: FLOPs are cheap, <u>trips are expensive</u>, and registers are the only free lunch on the menu.</div>
+  <div class="speedline prose" data-gflops="15971.7">
+    <div class="lane"><div class="fill"></div><div class="cublas-mark"></div><div class="runner">🚗</div></div>
+    <div class="labels"><span>0</span><span>this kernel: 15,972 GFLOP/s · 8.6 ms per matmul</span><span>cuBLAS 23,250</span></div>
+  </div>
+</section>
+
+<!-- ================= KERNEL 6 : VECTORIZED ================= -->
+<section class="chapter page" id="k6">
+  <div class="prose">
+    <div class="kplate">
+      <div class="knum">K6</div>
+      <div class="ktitle">
+        <span class="eyebrow">kernel six</span>
+        <h2>float4: ship pallets, not envelopes</h2>
+        <div class="ktag">same groceries, one dolly</div>
+      </div>
+      <div class="kstamp"><span class="stamp good"><span class="big">18,237 GFLOP/s</span>78.4% · 1.14× faster</span></div>
+    </div>
+    <p>Every load instruction has fixed overhead: issue it, track it, retire it. Loading one 4-byte float per instruction means paying that overhead 4× more often than necessary, because the hardware has 128-bit wide load instructions (<span class="mono">LDG.128</span> from global, <span class="mono">LDS.128</span> from shared) that move <strong>four floats in one go</strong>. In CUDA you unlock them by loading <span class="mono">float4</span>:</p>
+  </div>
+
+  <details class="codefold prose" open>
+    <summary>sgemm_vectorized.cu <span class="hint">the cast of the century</span></summary>
+<pre class="code"><span class="c">// four floats, one instruction. compiler emits LDG.128 / LDS.128</span>
+<span class="t">float4</span> tmp = <span class="k">reinterpret_cast</span>&lt;<span class="k">const</span> <span class="t">float4</span>*&gt;(&amp;A[x * K + k])[<span class="n">0</span>];
+
+<span class="c">// while loading, store A's tile TRANSPOSED into shared memory,</span>
+<span class="c">// so the inner loop can later read slivers of A with LDS.128 too:</span>
+As[(k+<span class="n">0</span>) * BM + row] = tmp.x;
+As[(k+<span class="n">1</span>) * BM + row] = tmp.y;
+As[(k+<span class="n">2</span>) * BM + row] = tmp.z;
+As[(k+<span class="n">3</span>) * BM + row] = tmp.w;</pre>
+  </details>
+
+  <div class="viz card" style="max-width:840px">
+    <canvas id="vizVec" width="820" height="380" aria-label="Comparison of four separate single-float load instructions versus one 128-bit vectorized load carrying four floats"></canvas>
+    <div class="caption">Top: four envelopes, four trips, four receipts. Bottom: one pallet, one receipt. The warehouse guys love kernel 6.</div>
+    <div class="controls">
+      <button class="btn" id="vizVecPlay">▶ play</button>
+      <input type="range" class="seek" id="vizVecSeek" min="0" max="1000" value="0" aria-label="Scrub vectorized load animation">
+      <span class="readout" id="vizVecReadout"></span>
+    </div>
+  </div>
+
+  <div class="prose">
+    <p>Two details hiding in that snippet, both classic senior-engineer moves. First, the <strong>transpose</strong>: storing A's tile column-major in shared memory costs nothing extra during the load phase, but lets the hot inner loop read A-slivers as contiguous 128-bit chunks. Arrange your data <em>at write time</em> so it's cheap at read time — you'll use this trick your whole career. Second, <span class="mono">float4</span> requires 16-byte alignment; feed it a misaligned pointer and it's an instant trip to <span class="mono">cudaErrorMisalignedAddress</span> town.</p>
+  </div>
+  <div class="speedline prose" data-gflops="18237.3">
+    <div class="lane"><div class="fill"></div><div class="cublas-mark"></div><div class="runner">🏎️</div></div>
+    <div class="labels"><span>0</span><span>this kernel: 18,237 GFLOP/s · 7.5 ms per matmul</span><span>cuBLAS 23,250</span></div>
+  </div>
+</section>
+
+<!-- ================= KERNEL 7 : WARPTILING ================= -->
+<section class="chapter page" id="k7">
+  <div class="prose">
+    <div class="kplate">
+      <div class="knum">K7</div>
+      <div class="ktitle">
+        <span class="eyebrow">kernel seven</span>
+        <h2>Warptiling: a tile for every tier</h2>
+        <div class="ktag">blocks tile the matrix, warps tile the block, threads tile the warp</div>
+      </div>
+      <div class="kstamp"><span class="stamp good"><span class="big">21,779 GFLOP/s</span>93.7% · 1.19× faster</span></div>
+    </div>
+    <p>Count our tiling levels: the <strong>block</strong> owns a big patch of C (tiled from DRAM into shared), and each <strong>thread</strong> owns an 8×8 patch (tiled from shared into registers). But there's a tier of the hardware we never gave its own tile: <strong>Warpy</strong>. Kernel 7 fixes the org chart — each warp gets an explicit <em>warp tile</em>, subdivided among its 32 threads.</p>
+  </div>
+
+  <div class="viz card" style="max-width:860px">
+    <canvas id="vizWarp" width="840" height="440" aria-label="Zooming diagram of the tiling hierarchy: matrix C divided into block tiles, one block tile divided into warp tiles, one warp tile divided into per-thread 8 by 8 tiles"></canvas>
+    <div class="caption">The full org chart: matrix → block tile (shared mem) → warp tile → thread tile (registers). Use the slider to zoom through the tiers.</div>
+    <div class="controls">
+      <button class="btn" id="vizWarpPlay">▶ zoom through</button>
+      <input type="range" class="seek" id="vizWarpSeek" min="0" max="1000" value="0" aria-label="Scrub tiling hierarchy zoom">
+      <span class="readout" id="vizWarpReadout"></span>
+    </div>
+  </div>
+
+  <div class="prose">
+    <p>Why does adding a <em>middle manager</em> make anything faster? Three unglamorous, very real reasons:</p>
+    <p><strong>1 · Register-cache locality.</strong> The warp's fragments of A and B get reused across the warp tile in a tight, predictable pattern, so the compiler schedules loads and FMAs into a smooth pipeline instead of a traffic jam.</p>
+    <p><strong>2 · Bank-conflict dodging.</strong> Shared memory is 32 banks wide; if two threads of a warp hit the same bank, they queue. Warp-aware layouts let you arrange accesses so all 32 segments hit 32 different banks.</p>
+    <p><strong>3 · It's the shape of the future.</strong> A warp computing a small matrix patch together is <em>exactly</em> the contract of tensor-core instructions (<span class="mono">mma</span>, <span class="mono">wgmma</span>). Warptiling is the fp32 dress rehearsal for how all modern GEMM libraries are built.</p>
+    <p>One more trick rides along in the fast kernels: <strong>double buffering</strong>. While the math units chew tile <em>t</em>, the next tile <em>t+1</em> is already being fetched into a second buffer — compute and delivery overlap, and nobody waits:</p>
+  </div>
+
+  <div class="viz card" style="max-width:840px">
+    <canvas id="vizDouble" width="820" height="300" aria-label="Timeline comparing serial load-then-compute against double buffering where loading the next tile overlaps computing the current one"></canvas>
+    <div class="caption">Top timeline: load, compute, load, compute (everyone naps). Bottom: double buffering — the next tile is in flight while this one is being eaten.</div>
+    <div class="controls">
+      <button class="btn" id="vizDoublePlay">▶ play</button>
+      <input type="range" class="seek" id="vizDoubleSeek" min="0" max="1000" value="0" aria-label="Scrub double buffering timeline">
+      <span class="readout" id="vizDoubleReadout"></span>
+    </div>
+  </div>
+
+  <div class="speedline prose" data-gflops="21779.3">
+    <div class="lane"><div class="fill"></div><div class="cublas-mark"></div><div class="runner">🚀</div></div>
+    <div class="labels"><span>0</span><span>this kernel: 21,779 GFLOP/s · 6.3 ms per matmul</span><span>cuBLAS 23,250</span></div>
+  </div>
+</section>
+
+<!-- ================= FINALE ================= -->
+<section class="chapter page" id="finale">
+  <div class="prose">
+    <span class="eyebrow">the finish line</span>
+    <h2>445 ms → 6.3 ms: the whole trip on one page</h2>
+    <p>Seven kernels, a 70× speedup, and not one line of assembly. Here's the ladder in full — press the button and watch the race we just ran:</p>
+  </div>
+
+  <div class="card taped" id="chartLadderCard" style="max-width:860px;margin-left:auto;margin-right:auto;padding-top:30px">
+    <div id="chartLadder" role="img" aria-label="Bar chart of GFLOP per second for all seven kernels plus cuBLAS: naive 309, coalesced 1987, shared memory 2980, 1D tiling 8475, 2D tiling 15972, vectorized 18237, warptiling 21779, cuBLAS 23250"></div>
+    <div class="controls" style="border-top:1px dashed rgba(30,36,48,.15);margin-top:14px;padding-top:12px">
+      <button class="btn" id="chartReplay">↻ replay the race</button>
+      <span class="readout">RTX A6000 · 4096³ · fp32 · GFLOP/s</span>
+    </div>
+  </div>
+
+  <div class="tablewrap prose">
+    <table class="ledger">
+      <thead><tr><th>#</th><th>Kernel</th><th>The one idea</th><th>GFLOP/s</th><th>ms/matmul</th><th>vs cuBLAS</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>Naive</td><td>1 thread = 1 cell</td><td class="num">309</td><td class="num">444.8</td><td class="num">1.3%</td></tr>
+        <tr><td>2</td><td>Coalescing</td><td>warps read neighbors</td><td class="num">1,987</td><td class="num">69.2</td><td class="num">8.5%</td></tr>
+        <tr><td>3</td><td>Smem tiling</td><td>block shares tiles</td><td class="num">2,980</td><td class="num">46.1</td><td class="num">12.8%</td></tr>
+        <tr><td>4</td><td>1D tiling</td><td>8 cells per thread</td><td class="num">8,475</td><td class="num">16.2</td><td class="num">36.5%</td></tr>
+        <tr><td>5</td><td>2D tiling</td><td>outer products, 64 cells</td><td class="num">15,972</td><td class="num">8.6</td><td class="num">68.7%</td></tr>
+        <tr><td>6</td><td>float4</td><td>128-bit loads</td><td class="num">18,237</td><td class="num">7.5</td><td class="num">78.4%</td></tr>
+        <tr><td>7</td><td>Warptiling</td><td>a tile per hardware tier</td><td class="num">21,779</td><td class="num">6.3</td><td class="num">93.7%</td></tr>
+        <tr><td>—</td><td><strong>cuBLAS</strong></td><td>several careers of tuning</td><td class="num"><strong>23,250</strong></td><td class="num"><strong>5.9</strong></td><td class="num">100%</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="prose">
+    <h3>The whole scrapbook in three sentences</h3>
+    <p><strong>1.</strong> GEMM has enormous intrinsic data reuse (~680 FLOPs/byte available); a kernel is fast exactly in proportion to how much of that reuse it captures in fast memory. <strong>2.</strong> So you tile at every level the hardware has — DRAM→shared (blocks), shared→registers (threads), and warps in between — and you make every remaining transfer wide, coalesced, and overlapped with compute. <strong>3.</strong> Everything else is bookkeeping.</p>
+
+    <h3>What's still on the mountain</h3>
+    <p>The honest fine print: the real ladder has two rungs we hand-waved — <em>resolving shared-memory bank conflicts</em> and <em>autotuning</em> tile sizes per GPU (that's how you squeeze out 84.8% before warptiling's 93.7%). And above all of this sits a different vehicle entirely: <strong>tensor cores</strong> — dedicated matmul hardware driven by <span class="mono">mma</span>/<span class="mono">wgmma</span> instructions, where the A6000 does not do 39 but ~77 TFLOP/s of tf32 (and ~155 of fp16), and libraries like <strong>CUTLASS</strong>, <strong>Triton</strong> and <strong>DeepGEMM</strong> live. The beautiful part: it's all still tiles — the same hierarchy you just learned, with the thread-tile FMA swapped for a warp-wide matrix instruction. You now speak the language; the tensor-core chapter is a vocabulary lesson.</p>
+  </div>
+
+  <div class="sticky" style="max-width:340px">
+    next trip: tensor cores + CUTLASS. same mountain, bigger engine. bring the caterpillar.
+    <span class="from">— the sequel, probably</span>
+  </div>
+
+  <div class="prose">
+    <h3>Take it with you</h3>
+    <p>This scrapbook ships with a <strong>benchmark harness</strong> — all seven kernels as runnable CUDA files with timing, cuBLAS verification, and a Makefile — so every number here can be re-measured on whatever GPU you get your hands on. The reference numbers and route follow <a href="https://siboehm.com/articles/22/CUDA-MMM">Simon Boehm's worklog</a>; for the visual-explanation genre this page lives in, see <a href="https://bbycroft.net/llm">bbycroft's LLM visualization</a> and <a href="https://wattenberger.com/thoughts/code-is-a-medium-for-thought/">Wattenberger's essays</a>; for what lies above kernel 7, start with <a href="https://github.com/NVIDIA/cutlass">CUTLASS</a> and the <a href="https://docs.nvidia.com/cuda/cuda-c-programming-guide/">CUDA C++ Programming Guide</a>.</p>
+  </div>
+</section>
+
+<footer class="page">
+  <div class="sig">— fin. now go make the caterpillar proud. 🐛</div>
+  <div>The GEMM Scrapbook · benchmarks: RTX A6000, 4096×4096×4096 fp32, numbers from siboehm.com · drawings by a very patient canvas element</div>
+</footer>
+<!-- APPEND_HTML -->
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+/* ============================================================
+   Core animation engine
+   ============================================================ */
+const PAL = {
+  ink:'#1e2430', inkSoft:'#4d5566', inkFaint:'#8a90a0',
+  red:'#d03b3b', blue:'#2a78d6', blueDeep:'#1c5cab',
+  orange:'#eb6834', green:'#0ca30c', greenInk:'#006300',
+  aqua:'#1baf7a', violet:'#4a3aa7', hi:'#ffe66b',
+  paper:'#fcfcf8', blueWash:'rgba(42,120,214,.12)', orangeWash:'rgba(235,104,52,.14)'
+};
+const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const lerp=(a,b,t)=>a+(b-a)*t;
+const ease=t=>t<0.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
+const TAU=Math.PI*2;
+
+function setupCanvas(cv){
+  const w=cv.width, h=cv.height;
+  const dpr=Math.min(window.devicePixelRatio||1,2);
+  cv.width=w*dpr; cv.height=h*dpr;
+  cv.style.aspectRatio=w+'/'+h;
+  const ctx=cv.getContext('2d');
+  ctx.scale(dpr,dpr);
+  return {ctx,w,h};
+}
+
+const VIZES=[];
+class Viz{
+  constructor(id,opts){
+    this.cv=document.getElementById(id);
+    if(!this.cv) return;
+    VIZES.push(this);
+    const s=setupCanvas(this.cv);
+    this.ctx=s.ctx; this.w=s.w; this.h=s.h;
+    this.dur=opts.dur||8000;
+    this.drawFn=opts.draw;
+    this.readoutFn=opts.readout||null;
+    this.initP=opts.initP||0;
+    this.p=this.initP;
+    this.playing=false; this.rafId=null; this.lastTs=0;
+    this.btn=document.getElementById(id+'Play');
+    this.seek=document.getElementById(id+'Seek');
+    this.readout=document.getElementById(id+'Readout');
+    this.playLabel=this.btn?this.btn.textContent:'▶ play';
+    if(this.btn) this.btn.addEventListener('click',()=>this.toggle());
+    if(this.seek) this.seek.addEventListener('input',()=>{
+      this.pause();
+      this.p=this.seek.value/1000;
+      this.frame();
+    });
+    // pause when offscreen
+    this.io=new IntersectionObserver(es=>{
+      es.forEach(e=>{ this.visible=e.isIntersecting; if(!e.isIntersecting) this.pause(); });
+    },{threshold:.05});
+    this.io.observe(this.cv);
+    this.frame();
+  }
+  frame(){
+    const c=this.ctx;
+    c.clearRect(0,0,this.w,this.h);
+    this.drawFn(c,this.w,this.h,this.p);
+    if(this.seek) this.seek.value=Math.round(this.p*1000);
+    if(this.readout&&this.readoutFn) this.readout.textContent=this.readoutFn(this.p);
+  }
+  toggle(){ this.playing?this.pause():this.play(); }
+  play(){
+    if(this.playing) return;
+    this.playing=true; this.lastTs=0;
+    if(this.btn) this.btn.textContent='⏸ pause';
+    if(this.p>=0.999) this.p=0;
+    const step=ts=>{
+      if(!this.playing) return;
+      if(this.lastTs) this.p=(this.p+(ts-this.lastTs)/this.dur)%1;
+      this.lastTs=ts;
+      this.frame();
+      this.rafId=requestAnimationFrame(step);
+    };
+    this.rafId=requestAnimationFrame(step);
+  }
+  pause(){
+    this.playing=false;
+    if(this.rafId) cancelAnimationFrame(this.rafId);
+    if(this.btn) this.btn.textContent=this.playLabel;
+  }
+}
+
+/* drawing helpers */
+function roundRect(c,x,y,w,h,r){
+  c.beginPath();
+  c.moveTo(x+r,y); c.arcTo(x+w,y,x+w,y+h,r); c.arcTo(x+w,y+h,x,y+h,r);
+  c.arcTo(x,y+h,x,y,r); c.arcTo(x,y,x+w,y,r); c.closePath();
+}
+function label(c,txt,x,y,{size=13,font='mono',color=PAL.inkSoft,align='center',weight=''}={}){
+  c.fillStyle=color;
+  c.textAlign=align; c.textBaseline='middle';
+  const fam=font==='hand'?'Caveat, cursive':font==='head'?'"Shantell Sans", cursive':'"JetBrains Mono", monospace';
+  c.font=`${weight?weight+' ':''}${size}px ${fam}`;
+  c.fillText(txt,x,y);
+}
+function cellGrid(c,x,y,cols,rows,cs,{stroke='rgba(30,36,48,.25)',fill=null}={}){
+  if(fill){ c.fillStyle=fill; c.fillRect(x,y,cols*cs,rows*cs); }
+  c.strokeStyle=stroke; c.lineWidth=1;
+  for(let i=0;i<=rows;i++){ c.beginPath(); c.moveTo(x,y+i*cs); c.lineTo(x+cols*cs,y+i*cs); c.stroke(); }
+  for(let j=0;j<=cols;j++){ c.beginPath(); c.moveTo(x+j*cs,y); c.lineTo(x+j*cs,y+rows*cs); c.stroke(); }
+}
+function arrow(c,x1,y1,x2,y2,color,width=2){
+  const a=Math.atan2(y2-y1,x2-x1);
+  c.strokeStyle=color; c.fillStyle=color; c.lineWidth=width;
+  c.beginPath(); c.moveTo(x1,y1); c.lineTo(x2,y2); c.stroke();
+  c.beginPath();
+  c.moveTo(x2,y2);
+  c.lineTo(x2-9*Math.cos(a-0.44),y2-9*Math.sin(a-0.44));
+  c.lineTo(x2-9*Math.cos(a+0.44),y2-9*Math.sin(a+0.44));
+  c.closePath(); c.fill();
+}
+/* a caterpillar of n segments along a path of points */
+function caterpillar(c,x,y,n,seg,color,phase=0,scale=1){
+  for(let i=n-1;i>=0;i--){
+    const wob=Math.sin(phase*3+i*0.6)*2*scale;
+    const cx=x+i*seg, cy=y+wob;
+    c.beginPath(); c.arc(cx,cy,5.4*scale,0,TAU);
+    c.fillStyle=i===0?PAL.ink:color; c.fill();
+    if(i===0){ /* face */
+      c.fillStyle='#fff';
+      c.beginPath(); c.arc(cx-2*scale,cy-1.5*scale,1.4*scale,0,TAU); c.arc(cx+2*scale,cy-1.5*scale,1.4*scale,0,TAU); c.fill();
+    }
+  }
+}
+
+/* ============================================================
+   HERO — three.js: the computation in 3D
+   ============================================================ */
+(function(){
+  const cv=document.getElementById('hero3d');
+  if(!cv||typeof THREE==='undefined') return;
+  const W=cv.width,H=cv.height;
+  const renderer=new THREE.WebGLRenderer({canvas:cv,antialias:true});
+  renderer.setPixelRatio(Math.min(devicePixelRatio||1,2));
+  renderer.setSize(W,H,false);
+  cv.style.aspectRatio=W+'/'+H; cv.style.width='100%'; cv.style.height='auto';
+  const scene=new THREE.Scene();
+  scene.background=new THREE.Color(0xfcfcf8);
+  const cam=new THREE.PerspectiveCamera(38,W/H,0.1,100);
+  cam.position.set(0,7,17);
+  scene.add(new THREE.AmbientLight(0xffffff,0.75));
+  const dl=new THREE.DirectionalLight(0xffffff,0.55); dl.position.set(6,12,8); scene.add(dl);
+
+  const M=8,N=8,K=8,S=0.58,G=0.12;   // cube size + gap
+  const group=new THREE.Group(); scene.add(group);
+  const geo=new THREE.BoxGeometry(S,S,S);
+  const mkMat=hex=>new THREE.MeshLambertMaterial({color:hex});
+  const cA=0x2a78d6,cB=0xeb6834,cC=0xd8dbe2,cCdone=0x1baf7a,hiA=0x9ec5f4,hiB=0xf5b394;
+
+  /* layout: the classic diagram, in 3D —
+     C bottom-right, A to its left (rows shared), B above it (cols shared) */
+  const step=S+G, gap=1.1;
+  const half=(8*step-G)/2;
+  const cX=j=>(j-3.5)*step + half + gap/2;      // C/B columns, right side
+  const cY=i=>(3.5-i)*step - half - gap/2;      // C/A rows, bottom side
+  const aX=k=>(k-3.5)*step - half - gap/2;      // A columns (k), left side
+  const bY=k=>(3.5-k)*step + half + gap/2;      // B rows (k), top side
+  const cubesA=[],cubesB=[],cubesC=[];
+  for(let i=0;i<M;i++)for(let k=0;k<K;k++){
+    const m=new THREE.Mesh(geo,mkMat(cA));
+    m.position.set(aX(k),cY(i),0);
+    cubesA.push(m); group.add(m);
+  }
+  for(let k=0;k<K;k++)for(let j=0;j<N;j++){
+    const m=new THREE.Mesh(geo,mkMat(cB));
+    m.position.set(cX(j),bY(k),0);
+    cubesB.push(m); group.add(m);
+  }
+  for(let i=0;i<M;i++)for(let j=0;j<N;j++){
+    const m=new THREE.Mesh(geo,mkMat(cC));
+    m.position.set(cX(j),cY(i),0.05);
+    cubesC.push(m); group.add(m);
+  }
+  // two sparks: one walks A's row, one walks B's column, meeting in C
+  const sparkGeo=new THREE.SphereGeometry(0.24,16,16);
+  const sparkA=new THREE.Mesh(sparkGeo,new THREE.MeshBasicMaterial({color:0xd03b3b}));
+  const sparkB=new THREE.Mesh(sparkGeo,new THREE.MeshBasicMaterial({color:0xd03b3b}));
+  group.add(sparkA); group.add(sparkB);
+  group.rotation.y=0.32; group.rotation.x=-0.18;
+  cam.position.set(0,-1.5,19); cam.lookAt(0,-0.5,0);
+
+  // manual drag-orbit
+  let dragging=false,px=0,py=0,userSpun=false;
+  const onDown=e=>{dragging=true;userSpun=true;px=e.clientX;py=e.clientY;};
+  const onMove=e=>{
+    if(!dragging)return;
+    group.rotation.y+=(e.clientX-px)*0.006;
+    group.rotation.x=clamp(group.rotation.x+(e.clientY-py)*0.004,-0.5,0.7);
+    px=e.clientX;py=e.clientY;
+  };
+  cv.addEventListener('pointerdown',e=>{onDown(e);cv.setPointerCapture(e.pointerId);});
+  cv.addEventListener('pointermove',onMove);
+  cv.addEventListener('pointerup',()=>dragging=false);
+  cv.style.cursor='grab'; cv.style.touchAction='pan-y';
+
+  let playing=!REDUCED, t=0, visible=true;
+  const btn=document.getElementById('hero3dPlay');
+  const readout=document.getElementById('hero3dReadout');
+  if(REDUCED&&btn) btn.textContent='▶ play';
+  btn&&btn.addEventListener('click',()=>{
+    playing=!playing;
+    btn.textContent=playing?'⏸ pause':'▶ play';
+    if(playing) loop();
+  });
+  new IntersectionObserver(es=>{
+    es.forEach(e=>{visible=e.isIntersecting; if(visible&&playing) loop();});
+  },{threshold:.05}).observe(cv);
+
+  const CELL_MS=560;
+  let raf=null;
+  function loop(){
+    if(raf) cancelAnimationFrame(raf);
+    const step_=ts=>{
+      if(!playing||!visible){raf=null;return;}
+      t+=16.7;
+      render();
+      raf=requestAnimationFrame(step_);
+    };
+    raf=requestAnimationFrame(step_);
+  }
+  function render(){
+    const total=M*N;
+    const cellIdx=Math.floor(t/CELL_MS)%total;
+    const inCell=(t%CELL_MS)/CELL_MS;
+    const ci=Math.floor(cellIdx/N), cj=cellIdx%N;
+    const kPos=inCell*(K-1);
+    // reset colors
+    cubesA.forEach((m,idx)=>m.material.color.setHex(Math.floor(idx/K)===ci?hiA:cA));
+    cubesB.forEach((m,idx)=>m.material.color.setHex(idx%N===cj?hiB:cB));
+    cubesC.forEach((m,idx)=>{
+      const done=idx<cellIdx;
+      m.material.color.setHex(done?cCdone:cC);
+    });
+    const cur=cubesC[cellIdx];
+    cur.material.color.setHex(0xffd83d);
+    const sc=1+0.25*Math.sin(inCell*Math.PI);
+    cubesC.forEach(m=>m.scale.setScalar(1));
+    cur.scale.setScalar(sc);
+    // sparks walk along A's row (left→right) and B's column (top→bottom)
+    sparkA.position.set(aX(kPos),cY(ci),0.55);
+    sparkB.position.set(cX(cj),bY(kPos),0.55);
+    // pulse the k-th cube of the row/col
+    const kInt=Math.floor(kPos);
+    cubesA[ci*K+kInt].material.color.setHex(0xffd83d);
+    cubesB[kInt*N+cj].material.color.setHex(0xffd83d);
+    if(!userSpun) group.rotation.y=0.32+0.16*Math.sin(t*0.00035);
+    renderer.render(scene,cam);
+    if(readout) readout.textContent=`computing C[${ci},${cj}] · k = ${Math.floor(kPos)} / ${K-1} · ${cellIdx}/${total} cells done`;
+  }
+  render();
+  if(playing) loop();
+  document.fonts&&document.fonts.ready.then(render);
+})();
+
+/* ============================================================
+   CH0 — interactive matmul (hover + dot product accumulation)
+   ============================================================ */
+(function(){
+  const Mm=6,Nn=6,Kk=8,cs=24;
+  const A=[],B=[];
+  let seed=7;
+  const rnd=()=>{seed=(seed*16807)%2147483647;return seed%9+1;};
+  for(let i=0;i<Mm;i++){A.push([]);for(let k=0;k<Kk;k++)A[i].push(rnd());}
+  for(let k=0;k<Kk;k++){B.push([]);for(let j=0;j<Nn;j++)B[k].push(rnd());}
+  const ax=84,ay=214, bx=356,by=14, cx=356,cy=214;
+  let sel={i:2,j:3};
+  const viz=new Viz('vizMatmul',{
+    dur:6000,
+    draw(c,w,h,p){
+      const kProg=p*Kk;                 // 0..K
+      const kIdx=clamp(Math.floor(kProg),0,Kk-1);
+      // labels
+      label(c,'A  (M×K)',ax+Kk*cs/2,ay-14,{font:'head',size:15,weight:'700',color:PAL.blueDeep});
+      label(c,'B  (K×N)',bx+Nn*cs+46,by+Kk*cs/2,{font:'head',size:15,weight:'700',color:PAL.orange});
+      label(c,'C = A·B',cx+Nn*cs+52,cy+Mm*cs/2,{font:'head',size:15,weight:'700',color:PAL.greenInk});
+      // A
+      for(let i=0;i<Mm;i++)for(let k=0;k<Kk;k++){
+        const hot=i===sel.i, cur=hot&&k===kIdx&&p>0;
+        c.fillStyle=cur?PAL.hi:hot?'rgba(42,120,214,.28)':PAL.blueWash;
+        c.fillRect(ax+k*cs,ay+i*cs,cs,cs);
+        label(c,A[i][k],ax+k*cs+cs/2,ay+i*cs+cs/2,{size:11.5,color:hot?PAL.ink:PAL.inkFaint});
+      }
+      cellGrid(c,ax,ay,Kk,Mm,cs);
+      // B
+      for(let k=0;k<Kk;k++)for(let j=0;j<Nn;j++){
+        const hot=j===sel.j, cur=hot&&k===kIdx&&p>0;
+        c.fillStyle=cur?PAL.hi:hot?'rgba(235,104,52,.32)':PAL.orangeWash;
+        c.fillRect(bx+j*cs,by+k*cs,cs,cs);
+        label(c,B[k][j],bx+j*cs+cs/2,by+k*cs+cs/2,{size:11.5,color:hot?PAL.ink:PAL.inkFaint});
+      }
+      cellGrid(c,bx,by,Nn,Kk,cs);
+      // C
+      for(let i=0;i<Mm;i++)for(let j=0;j<Nn;j++){
+        const isSel=i===sel.i&&j===sel.j;
+        c.fillStyle=isSel?'rgba(27,175,122,.35)':'rgba(27,175,122,.10)';
+        c.fillRect(cx+j*cs,cy+i*cs,cs,cs);
+        if(!isSel){
+          let v=0;for(let k=0;k<Kk;k++)v+=A[i][k]*B[k][j];
+          label(c,v,cx+j*cs+cs/2,cy+i*cs+cs/2,{size:10,color:'rgba(30,36,48,.28)'});
+        }
+      }
+      cellGrid(c,cx,cy,Nn,Mm,cs);
+      // selected cell accumulation
+      let acc=0;for(let k=0;k<=kIdx&&p>0;k++)acc+=A[sel.i][k]*B[k][sel.j];
+      const sx=cx+sel.j*cs, sy=cy+sel.i*cs;
+      c.strokeStyle=PAL.greenInk;c.lineWidth=2.5;c.strokeRect(sx-1,sy-1,cs+2,cs+2);
+      label(c,p>0?acc:'?',sx+cs/2,sy+cs/2,{size:12.5,weight:'800',color:PAL.greenInk});
+      // guide arrows
+      arrow(c,ax+Kk*cs+6,ay+sel.i*cs+cs/2,cx-8,cy+sel.i*cs+cs/2,'rgba(42,120,214,.55)',2);
+      arrow(c,bx+sel.j*cs+cs/2,by+Kk*cs+6,cx+sel.j*cs+cs/2,cy-8,'rgba(235,104,52,.6)',2);
+      // running sum sentence
+      if(p>0){
+        const aV=A[sel.i][kIdx],bV=B[kIdx][sel.j];
+        label(c,`step k=${kIdx}:  ${aV} × ${bV} = ${aV*bV}   →  acc = ${acc}`,ax+2,ay+Mm*cs+26,{size:14,align:'left',color:PAL.ink,font:'mono'});
+      }else{
+        label(c,'press play, or hover any cell of C →',ax+2,ay+Mm*cs+26,{size:18,align:'left',color:PAL.inkSoft,font:'hand'});
+      }
+      label(c,'each C cell = row ⋅ column,',186,by+34,{size:19,font:'hand',color:PAL.inkSoft});
+      label(c,'K multiply-adds',186,by+58,{size:19,font:'hand',color:PAL.inkSoft});
+      label(c,'M='+Mm+', N='+Nn+', K='+Kk+' here — 4096 in the benchmarks',186,by+86,{size:11.5,font:'mono',color:PAL.inkFaint});
+    },
+    readout(p){
+      const kIdx=clamp(Math.floor(p*Kk),0,Kk-1);
+      return p===0?'k = 0 / '+Kk:`k = ${kIdx+1} / ${Kk}`;
+    }
+  });
+  // hover picks a C cell
+  const cvEl=document.getElementById('vizMatmul');
+  cvEl.addEventListener('pointermove',e=>{
+    const r=cvEl.getBoundingClientRect();
+    const x=(e.clientX-r.left)*(800/r.width), y=(e.clientY-r.top)*(420/r.height);
+    const j=Math.floor((x-cx)/cs), i=Math.floor((y-cy)/cs);
+    if(i>=0&&i<Mm&&j>=0&&j<Nn&&(i!==sel.i||j!==sel.j)){ sel={i,j}; viz.frame(); }
+  });
+})();
+
+/* ============================================================
+   CH1 — memory hierarchy courier race
+   ============================================================ */
+(function(){
+  const stops=[
+    {name:'registers', x:190, lat:1,   color:PAL.green,  note:'~1 cycle'},
+    {name:'shared mem',x:300, lat:25,  color:PAL.aqua,   note:'~25 cycles'},
+    {name:'L2 cache',  x:520, lat:200, color:PAL.orange, note:'~200 cycles'},
+    {name:'DRAM',      x:770, lat:500, color:PAL.red,    note:'~500 cycles'}
+  ];
+  const HOME=86, TMAX=560;
+  new Viz('vizMem',{
+    dur:9000,
+    draw(c,w,h,p){
+      const t=p*TMAX;
+      // home: the SM
+      roundRect(c,26,60,110,290,10);
+      c.fillStyle='rgba(42,120,214,.10)';c.fill();
+      c.strokeStyle=PAL.blueDeep;c.lineWidth=2;c.stroke();
+      label(c,'SM',81,84,{font:'head',size:18,weight:'800',color:PAL.blueDeep});
+      label(c,'(math units,',81,104,{size:10.5,color:PAL.inkSoft});
+      label(c,'very hungry)',81,118,{size:10.5,color:PAL.inkSoft});
+      // road
+      c.strokeStyle='rgba(30,36,48,.18)';c.lineWidth=14;
+      c.beginPath();c.moveTo(HOME+40,0);c.stroke();
+      stops.forEach((s,i)=>{
+        const y=105+i*72;
+        // road line
+        c.strokeStyle='rgba(30,36,48,.12)';c.lineWidth=10;
+        c.beginPath();c.moveTo(HOME+52,y);c.lineTo(s.x,y);c.stroke();
+        c.setLineDash([2,6]);c.strokeStyle='rgba(255,255,255,.9)';c.lineWidth=1.5;
+        c.beginPath();c.moveTo(HOME+52,y);c.lineTo(s.x,y);c.stroke();c.setLineDash([]);
+        // the shelf/building
+        const bw=i===3?66:52,bh=i===3?54:42;
+        roundRect(c,s.x,y-bh/2,bw,bh,6);
+        c.fillStyle=s.color;c.globalAlpha=.16;c.fill();c.globalAlpha=1;
+        c.strokeStyle=s.color;c.lineWidth=2;c.stroke();
+        if(i===3){ // warehouse roof
+          c.beginPath();c.moveTo(s.x-6,y-bh/2);c.lineTo(s.x+bw/2,y-bh/2-16);c.lineTo(s.x+bw+6,y-bh/2);c.closePath();
+          c.fillStyle=s.color;c.globalAlpha=.25;c.fill();c.globalAlpha=1;c.strokeStyle=s.color;c.stroke();
+        }
+        label(c,s.name,s.x+bw/2,y+bh/2+14,{size:11.5,weight:'600',color:PAL.ink});
+        label(c,s.note,s.x+bw/2,y+bh/2+29,{size:10.5,color:s.color,weight:'600'});
+        // courier: out to shelf at lat/2, back at lat
+        const prog=clamp(t/s.lat,0,1);
+        const out=prog<0.5?prog*2:1-(prog-0.5)*2;
+        const cxp=lerp(HOME+52,s.x-8,out);
+        const done=t>=s.lat;
+        // body
+        c.beginPath();c.arc(cxp,y-2,8,0,TAU);
+        c.fillStyle=done?s.color:PAL.ink;c.fill();
+        // eyes + legs scurry
+        c.fillStyle='#fff';
+        c.beginPath();c.arc(cxp+2.6,y-4,1.6,0,TAU);c.arc(cxp-1.4,y-4,1.6,0,TAU);c.fill();
+        if(!done){
+          const lp=Math.sin(t*0.9+i)*3;
+          c.strokeStyle=PAL.ink;c.lineWidth=1.6;
+          c.beginPath();c.moveTo(cxp-3,y+5);c.lineTo(cxp-3+lp,y+10);c.moveTo(cxp+3,y+5);c.lineTo(cxp+3-lp,y+10);c.stroke();
+        }
+        if(prog>=0.5&&!done){ // carrying the box back
+          c.fillStyle=s.color;c.fillRect(cxp+7,y-8,9,9);
+          c.strokeStyle='rgba(0,0,0,.25)';c.strokeRect(cxp+7,y-8,9,9);
+        }
+        if(done){
+          label(c,'✓ '+s.lat+' cyc',s.x+bw/2,y-bh/2-(i===3?24:10),{size:10.5,color:s.color,weight:'800'});
+        }
+      });
+      label(c,'one number, please!',81,336,{font:'hand',size:17,color:PAL.inkSoft});
+      label(c,'t = '+Math.floor(t)+' cycles',w-20,26,{size:14,align:'right',weight:'600',color:PAL.ink});
+      if(t>=500) label(c,'…and the DRAM courier finally arrives. 500 cycles. the register courier has retired.',w/2,h-14,{font:'hand',size:17,color:PAL.red});
+    },
+    readout(p){return 't = '+Math.floor(p*TMAX)+' cycles';}
+  });
+})();
+</script>
+<script>
+/* ============================================================
+   K1 — naive kernel: the 550 GB shopping trip
+   ============================================================ */
+(function(){
+  const gx=470,gy=60,gcs=26,GN=8;      // C grid
+  new Viz('vizNaive',{
+    dur:9000,
+    draw(c,w,h,p){
+      const K=16, kProg=p*K, kIdx=clamp(Math.floor(kProg),0,K-1);
+      // DRAM warehouse on the left
+      roundRect(c,30,50,150,210,10);
+      c.fillStyle='rgba(208,59,59,.07)';c.fill();
+      c.strokeStyle=PAL.red;c.lineWidth=2;c.stroke();
+      c.beginPath();c.moveTo(22,50);c.lineTo(105,16);c.lineTo(188,50);c.closePath();
+      c.fillStyle='rgba(208,59,59,.15)';c.fill();c.strokeStyle=PAL.red;c.stroke();
+      label(c,'DRAM',105,42,{font:'head',size:15,weight:'800',color:PAL.red});
+      // row of A and col of B inside warehouse
+      label(c,'row of A',72,78,{size:10.5,color:PAL.blueDeep});
+      for(let k=0;k<K;k++){
+        c.fillStyle=k<=kIdx&&p>0?PAL.blue:'rgba(42,120,214,.18)';
+        c.fillRect(44+ (k%8)*14, 88+Math.floor(k/8)*16, 12, 12);
+      }
+      label(c,'col of B',72,140,{size:10.5,color:PAL.orange});
+      for(let k=0;k<K;k++){
+        c.fillStyle=k<=kIdx&&p>0?PAL.orange:'rgba(235,104,52,.2)';
+        c.fillRect(44+(k%8)*14, 150+Math.floor(k/8)*16, 12, 12);
+      }
+      label(c,'…×4096 each, per thread',105,208,{size:10,color:PAL.inkFaint});
+      label(c,'"you again?"',105,236,{font:'hand',size:16,color:PAL.red});
+
+      // C grid with threads; one hot thread
+      label(c,'C — one thread per cell',gx+GN*gcs/2,gy-16,{font:'head',size:14,weight:'700',color:PAL.greenInk});
+      for(let i=0;i<GN;i++)for(let j=0;j<GN;j++){
+        const hot=i===2&&j===3;
+        c.fillStyle=hot?'rgba(255,216,61,.85)':'rgba(27,175,122,.10)';
+        c.fillRect(gx+j*gcs,gy+i*gcs,gcs,gcs);
+      }
+      cellGrid(c,gx,gy,GN,GN,gcs);
+      const tx=gx+3*gcs+gcs/2, ty=gy+2*gcs+gcs/2;
+      // ghost trips for other threads
+      c.globalAlpha=.12;
+      for(let n=0;n<5;n++){
+        const gi=(n*17)%GN, gj=(n*11)%GN;
+        arrow(c,188,155,gx+gj*gcs+gcs/2,gy+gi*gcs+gcs/2,PAL.inkFaint,1.5);
+      }
+      c.globalAlpha=1;
+      // the hot thread's delivery
+      if(p>0){
+        const hop=(kProg%1);
+        const mx=lerp(190,tx-8,hop), my=lerp(120,ty,hop);
+        arrow(c,188,120,tx-10,ty-4,'rgba(42,120,214,.5)',2);
+        arrow(c,188,168,tx-10,ty+6,'rgba(235,104,52,.55)',2);
+        c.beginPath();c.arc(mx,my,6,0,TAU);c.fillStyle=PAL.blue;c.fill();
+        c.beginPath();c.arc(mx,my+16,6,0,TAU);c.fillStyle=PAL.orange;c.fill();
+      }
+      // little thread face
+      c.beginPath();c.arc(tx,ty,8,0,TAU);c.fillStyle=PAL.ink;c.fill();
+      c.fillStyle='#fff';
+      c.beginPath();c.arc(tx-2.5,ty-2,1.7,0,TAU);c.arc(tx+2.5,ty-2,1.7,0,TAU);c.fill();
+
+      // meters
+      const meterY=310, mw=w-320;
+      const bytes=p*550;
+      label(c,'global memory requested (whole kernel):',30,meterY-14,{size:12.5,align:'left',weight:'600',color:PAL.ink});
+      roundRect(c,30,meterY,mw,22,11);
+      c.fillStyle='rgba(30,36,48,.07)';c.fill();
+      c.strokeStyle='rgba(30,36,48,.2)';c.lineWidth=1;c.stroke();
+      roundRect(c,30,meterY,Math.max(10,mw*p),22,11);
+      c.fillStyle=PAL.red;c.globalAlpha=.8;c.fill();c.globalAlpha=1;
+      label(c,bytes.toFixed(0)+' GB',30+mw+56,meterY+11,{size:14,weight:'800',color:PAL.red});
+      // the tiny tick of what's needed
+      const needX=30+mw*(0.201/550)*300; // exaggerate 300x so it's visible at all
+      c.strokeStyle=PAL.greenInk;c.lineWidth=2;
+      c.beginPath();c.moveTo(needX,meterY-6);c.lineTo(needX,meterY+28);c.stroke();
+      label(c,'← inputs actually total 0.2 GB (drawn 300× too wide so you can see it)',needX+8,meterY+42,{size:11.5,align:'left',color:PAL.greenInk});
+      label(c,'per thread: 2K FLOPs for 32 KB hauled → 0.25 FLOPs/byte. the machine wanted 50.',30,meterY+68,{font:'hand',size:18,align:'left',color:PAL.inkSoft});
+    },
+    readout(p){return (p*550).toFixed(0)+' / 550 GB requested';}
+  });
+})();
+
+/* ============================================================
+   K2 — coalescing: 32 lonely trips vs the carpool
+   ============================================================ */
+(function(){
+  const NT=16; // draw 16 of the 32 segments for space
+  new Viz('vizCoalesce',{
+    dur:8000,
+    draw(c,w,h,p){
+      const half=p<0.5, lp=half?p*2:(p-0.5)*2;
+      const panel=(y0,scattered,prog,title,verdict,vcolor)=>{
+        label(c,title,30,y0+2,{size:13,weight:'600',align:'left',color:PAL.ink});
+        // memory strip
+        const msY=y0+94, msX=30, mcs=(w-60)/64;
+        for(let a=0;a<64;a++){
+          c.fillStyle='rgba(30,36,48,.06)';
+          c.fillRect(msX+a*mcs,msY,mcs-1.5,20);
+        }
+        label(c,'global memory (addresses →)',msX,msY+36,{size:10.5,align:'left',color:PAL.inkFaint});
+        // caterpillar
+        const catY=y0+40;
+        caterpillar(c,60,catY,NT,(w-140)/NT,scattered?PAL.violet:PAL.aqua,prog*6,1);
+        // requests
+        let transactions=0;
+        for(let i=0;i<NT;i++){
+          const segX=60+i*(w-140)/NT;
+          const addr=scattered? (i*4+ (i%2? 32:3))%64 : 24+i;
+          const tX=msX+addr*mcs+mcs/2;
+          const vis=prog> i/(NT*1.4);
+          if(vis){
+            c.globalAlpha=.5;
+            arrow(c,segX,catY+8,tX,msY-2,scattered?PAL.violet:PAL.aqua,1.4);
+            c.globalAlpha=1;
+            c.fillStyle=scattered?PAL.violet:PAL.aqua;
+            c.fillRect(msX+addr*mcs,msY,mcs-1.5,20);
+          }
+        }
+        if(scattered){ transactions=Math.floor(prog*32);
+          // little lonely trucks
+          for(let tr=0;tr<Math.min(6,Math.floor(prog*7));tr++){
+            const tx2=80+tr*40, ty2=msY+52;
+            roundRect(c,tx2,ty2,26,14,3);c.fillStyle='rgba(74,58,167,.25)';c.fill();c.strokeStyle=PAL.violet;c.lineWidth=1.4;c.stroke();
+            c.beginPath();c.arc(tx2+6,ty2+16,3.4,0,TAU);c.arc(tx2+20,ty2+16,3.4,0,TAU);c.fillStyle=PAL.ink;c.fill();
+          }
+          if(prog>0.85)label(c,'…27 more trucks omitted (they carpooled zero)',330,msY+62,{font:'hand',size:15.5,align:'left',color:PAL.violet});
+        } else { transactions=Math.min(4,Math.ceil(prog*4));
+          const span=24*mcs;
+          if(prog>0.3){
+            roundRect(c,msX+24*mcs,msY+30,NT*mcs,16,4);
+            c.fillStyle='rgba(27,175,122,.2)';c.fill();c.strokeStyle=PAL.aqua;c.lineWidth=1.6;c.stroke();
+            label(c,'one 128-byte burst 🚌',msX+24*mcs+NT*mcs/2,msY+38,{size:11.5,color:PAL.greenInk,weight:'600'});
+          }
+        }
+        label(c,verdict+' '+transactions+(scattered?' / 32':' / 4')+' transactions',w-30,y0+2,{size:13,weight:'800',align:'right',color:vcolor});
+      };
+      panel(20,true, half?lp:1,'kernel 1: warp-neighbors own neighboring ROWS — addresses 16 KB apart','😱',PAL.violet);
+      c.strokeStyle='rgba(30,36,48,.15)';c.setLineDash([6,6]);
+      c.beginPath();c.moveTo(20,205);c.lineTo(w-20,205);c.stroke();c.setLineDash([]);
+      panel(220,false,half?0:lp,'kernel 2: warp-neighbors own neighboring COLUMNS — addresses 4 bytes apart','😌',PAL.greenInk);
+    },
+    readout(p){return p<0.5?'top: scattered · 32 transactions':'bottom: coalesced · 4 transactions';}
+  });
+})();
+
+/* ============================================================
+   K3 — shared memory tiling
+   ============================================================ */
+(function(){
+  const T=4, cs=13, BM=4;  // matrices are 4x4 tiles of tiles
+  new Viz('vizSmem',{
+    dur:10000,
+    draw(c,w,h,p){
+      const steps=T, prog=p*steps, tile=clamp(Math.floor(prog),0,steps-1), ph=prog%1;
+      const aX=40,aY=120, bX=330,bY=14, size=T*4*cs;
+      // A and B with band highlight
+      label(c,'A',aX+size/2,aY-12,{font:'head',size:14,weight:'700',color:PAL.blueDeep});
+      label(c,'B',bX+size/2,bY+size+14,{font:'head',size:14,weight:'700',color:PAL.orange});
+      c.fillStyle=PAL.blueWash;c.fillRect(aX,aY,size,size);
+      c.fillStyle='rgba(42,120,214,.3)';c.fillRect(aX,aY+1*4*cs,size,4*cs); // block's row band
+      c.fillStyle=PAL.orangeWash;c.fillRect(bX,bY,size,size);
+      c.fillStyle='rgba(235,104,52,.32)';c.fillRect(bX+2*4*cs,bY,4*cs,size);
+      cellGrid(c,aX,aY,T*4,T*4,cs,{stroke:'rgba(30,36,48,.10)'});
+      cellGrid(c,bX,bY,T*4,T*4,cs,{stroke:'rgba(30,36,48,.10)'});
+      // current K-tiles
+      const atX=aX+tile*4*cs, atY=aY+4*cs, btX=bX+2*4*cs, btY=bY+tile*4*cs;
+      c.strokeStyle=PAL.ink;c.lineWidth=2.5;
+      c.strokeRect(atX,atY,4*cs,4*cs);
+      c.strokeRect(btX,btY,4*cs,4*cs);
+      // shared memory counter
+      const sX=560,sY=120;
+      roundRect(c,sX-14,sY-40,240,200,12);
+      c.fillStyle='rgba(27,175,122,.08)';c.fill();
+      c.strokeStyle=PAL.aqua;c.lineWidth=2;c.stroke();
+      label(c,'shared memory (the counter)',sX+106,sY-24,{size:12,weight:'600',color:PAL.aqua});
+      // fly tiles in during first 40% of each step
+      const flyP=clamp(ph/0.4,0,1), eat=clamp((ph-0.4)/0.6,0,1);
+      const fx=lerp(atX,sX,ease(flyP)), fy=lerp(atY,sY,ease(flyP));
+      const gx2=lerp(btX,sX+120,ease(flyP)), gy2=lerp(btY,sY,ease(flyP));
+      c.fillStyle='rgba(42,120,214,.55)';c.fillRect(fx,fy,4*cs,4*cs);
+      cellGrid(c,fx,fy,4,4,cs,{stroke:'rgba(255,255,255,.5)'});
+      label(c,'As',fx+2*cs,fy-9,{size:11,color:PAL.blueDeep,weight:'600'});
+      c.fillStyle='rgba(235,104,52,.55)';c.fillRect(gx2,gy2,4*cs,4*cs);
+      cellGrid(c,gx2,gy2,4,4,cs,{stroke:'rgba(255,255,255,.5)'});
+      label(c,'Bs',gx2+2*cs,gy2-9,{size:11,color:PAL.orange,weight:'600'});
+      if(flyP>=1){
+        // compute sparkle
+        const spk=Math.floor(eat*16);
+        for(let s=0;s<spk;s++){
+          const si=(s*7)%4, sj=(s*5)%4;
+          c.fillStyle='rgba(255,216,61,.9)';
+          c.beginPath();c.arc(sX+si*cs+cs/2,sY+64+ (s%3)*8, 2.4,0,TAU);c.fill();
+        }
+        label(c,'__syncthreads(); everyone shops locally',sX+106,sY+96,{size:11,color:PAL.inkSoft});
+        label(c,'each float reused by 32 threads',sX+106,sY+118,{size:12.5,weight:'600',color:PAL.greenInk});
+      } else {
+        label(c,'block cooperatively loads (coalesced!)',sX+106,sY+96,{size:11,color:PAL.inkSoft});
+      }
+      // traffic meter
+      const done=(tile+eat)/steps;
+      label(c,'DRAM traffic this matmul:',40,h-52,{size:12.5,align:'left',weight:'600'});
+      label(c,'550 GB',260,h-52,{size:13,align:'left',color:PAL.red});
+      c.strokeStyle=PAL.red;c.lineWidth=2;
+      c.beginPath();c.moveTo(238,h-56);c.lineTo(322,h-48);c.stroke(); // strikethrough
+      label(c,'→ ~17 GB (÷32)',336,h-52,{size:14,align:'left',weight:'800',color:PAL.greenInk});
+      label(c,'tile '+(tile+1)+' / '+steps+' sliding along K →',40,h-24,{font:'hand',size:18,align:'left',color:PAL.inkSoft});
+      arrow(c,aX+tile*4*cs+2*cs,aY+size+16,aX+Math.min(steps-1,tile+1)*4*cs+2*cs,aY+size+16,PAL.inkSoft,1.6);
+    },
+    readout(p){const s=clamp(Math.floor(p*T),0,T-1);return 'K-tile '+(s+1)+' / '+T;}
+  });
+})();
+
+/* ============================================================
+   K4 — 1D register tiling: one B value, eight plates
+   ============================================================ */
+(function(){
+  new Viz('viz1d',{
+    dur:8000,
+    draw(c,w,h,p){
+      const K=8, kProg=p*K, k=clamp(Math.floor(kProg),0,K-1), ph=kProg%1;
+      const asX=140,asY=60,cs=30;
+      // As column strip (8 tall) and Bs row strip
+      label(c,'As sliver (8 values)',asX-20,asY-20,{size:12,weight:'600',color:PAL.blueDeep,align:'left'});
+      for(let i=0;i<8;i++){
+        c.fillStyle=ph>i/8?'rgba(42,120,214,.5)':PAL.blueWash;
+        c.fillRect(asX,asY+i*cs,cs,cs);
+      }
+      cellGrid(c,asX,asY,1,8,cs);
+      const bsX=330,bsY=60;
+      label(c,'Bs (one value per k-step)',bsX+90,asY-20,{size:12,weight:'600',color:PAL.orange});
+      for(let kk=0;kk<K;kk++){
+        c.fillStyle=kk===k?PAL.hi:kk<k?'rgba(235,104,52,.45)':PAL.orangeWash;
+        c.fillRect(bsX+kk*cs,bsY,cs,cs);
+      }
+      cellGrid(c,bsX,bsY,K,1,cs);
+      // register slot
+      const regX=bsX+k*cs+cs/2;
+      arrow(c,regX,bsY+cs+4,regX,bsY+cs+34,PAL.orange,2);
+      roundRect(c,regX-24,bsY+cs+38,48,26,6);
+      c.fillStyle='rgba(255,216,61,.5)';c.fill();c.strokeStyle=PAL.ink;c.lineWidth=1.6;c.stroke();
+      label(c,'reg',regX,bsY+cs+51,{size:11,weight:'600'});
+      label(c,'1 smem load…',regX+94,bsY+cs+51,{font:'hand',size:16,color:PAL.inkSoft});
+      // accumulators
+      const accX=560,accY=60;
+      label(c,'acc[8] — C cells in registers',accX+15,asY-20,{size:12,weight:'600',color:PAL.greenInk,align:'left'});
+      for(let i=0;i<8;i++){
+        const flash=ph>i/8&&ph<(i+2.5)/8;
+        c.fillStyle=flash?'rgba(255,216,61,.85)':'rgba(27,175,122,'+(0.08+0.05*Math.min(k+(ph>i/8?1:0),8)/2)+')';
+        c.fillRect(accX,accY+i*cs,cs*1.6,cs);
+        label(c,'+= a'+i+'·b',accX+cs*0.8,accY+i*cs+cs/2,{size:10,color:flash?PAL.ink:PAL.inkFaint});
+        if(ph>i/8){
+          c.globalAlpha=.5;
+          arrow(c,asX+cs+4,asY+i*cs+cs/2,accX-6,accY+i*cs+cs/2,PAL.blue,1.5);
+          c.globalAlpha=1;
+        }
+      }
+      cellGrid(c,accX,accY,1,8,cs); // borders approx (1 col wide visually)
+      c.strokeStyle='rgba(30,36,48,.25)';
+      for(let i=0;i<=8;i++){c.beginPath();c.moveTo(accX,accY+i*cs);c.lineTo(accX+cs*1.6,accY+i*cs);c.stroke();}
+      c.beginPath();c.moveTo(accX+cs*1.6,accY);c.lineTo(accX+cs*1.6,accY+8*cs);c.stroke();
+      arrow(c,regX,bsY+cs+64,accX+cs*0.8,accY+8*cs+18,PAL.orange,1.6);
+      label(c,'…billed to 8 FMAs',accX+cs*0.8,accY+8*cs+34,{font:'hand',size:16,color:PAL.inkSoft});
+      // scoreboard
+      const loads=9, flops=16;
+      label(c,'per k-step:  '+loads+' loads → '+flops+' FLOPs   ('+ (flops/loads).toFixed(1)+' FLOPs/load, was 1.0)',w/2,h-22,{size:13.5,weight:'600',color:PAL.ink});
+    },
+    readout(p){const k=clamp(Math.floor(p*8),0,7);return 'k-step '+(k+1)+' / 8';}
+  });
+})();
+
+/* ============================================================
+   K5 — 2D tiling: the outer product bingo card
+   ============================================================ */
+(function(){
+  new Viz('viz2d',{
+    dur:9000,
+    draw(c,w,h,p){
+      const K=4, kProg=p*K, k=clamp(Math.floor(kProg),0,K-1), ph=kProg%1;
+      const cs=30, gX=330, gY=90;
+      // regA vertical, regB horizontal
+      label(c,'regA[8]',gX-70,gY-30,{size:12,weight:'600',color:PAL.blueDeep});
+      label(c,'regB[8]',gX+4*cs,gY-64,{size:12,weight:'600',color:PAL.orange});
+      label(c,'k-step '+(k+1)+'/'+K,120,60,{font:'head',size:16,weight:'700',color:PAL.ink});
+      label(c,'16 loads →',120,92,{font:'hand',size:19,color:PAL.inkSoft});
+      label(c,'64 FMAs',120,116,{font:'hand',size:19,color:PAL.greenInk});
+      label(c,'= 8 FLOPs/load',120,140,{font:'hand',size:19,color:PAL.inkSoft});
+      const cells=Math.floor(ph*64);
+      for(let i=0;i<8;i++){
+        c.fillStyle=(cells>=(i+1)*8||cells>i*8)?'rgba(42,120,214,.55)':PAL.blueWash;
+        c.fillRect(gX-42,gY+i*cs,cs,cs);
+      }
+      cellGrid(c,gX-42,gY,1,8,cs);
+      for(let j=0;j<8;j++){
+        c.fillStyle=(cells%8>j||cells>=64)?'rgba(235,104,52,.55)':PAL.orangeWash;
+        c.fillRect(gX+j*cs,gY-42,cs,cs);
+      }
+      cellGrid(c,gX,gY-42,8,1,cs);
+      // 8x8 acc grid
+      for(let i=0;i<8;i++)for(let j=0;j<8;j++){
+        const idx=i*8+j;
+        const donePrev=k/K + (idx<cells?1/K:0);
+        const heat=clamp((k+(idx<cells?1:0))/K,0,1);
+        c.fillStyle='rgba(27,175,122,'+(0.06+heat*0.4)+')';
+        c.fillRect(gX+j*cs,gY+i*cs,cs,cs);
+        if(idx===cells&&ph>0&&ph<1){
+          c.fillStyle='rgba(255,216,61,.95)';c.fillRect(gX+j*cs,gY+i*cs,cs,cs);
+        }
+      }
+      cellGrid(c,gX,gY,8,8,cs);
+      label(c,'acc[8][8] — 64 registers',gX+4*cs,gY+8*cs+20,{size:12,weight:'600',color:PAL.greenInk});
+      // sparkline of the running total
+      label(c,'this is an outer product: every aᵢ meets every bⱼ',gX+4*cs,gY+8*cs+46,{font:'hand',size:18,color:PAL.inkSoft});
+      // right margin: totals
+      label(c,'after '+K+' k-steps:',660,120,{size:12,align:'left',weight:'600'});
+      label(c,'64 loads',660,144,{size:12.5,align:'left',color:PAL.inkSoft});
+      label(c,'512 FLOPs',660,166,{size:12.5,align:'left',color:PAL.greenInk});
+      label(c,'0 DRAM trips',660,188,{size:12.5,align:'left',color:PAL.inkSoft});
+      label(c,'(registers are free ♥)',660,216,{font:'hand',size:16,align:'left',color:PAL.red});
+    },
+    readout(p){const k=clamp(Math.floor(p*4),0,3);const cells=Math.floor((p*4%1)*64);return 'k-step '+(k+1)+'/4 · '+cells+'/64 FMAs';}
+  });
+})();
+
+/* ============================================================
+   K6 — float4: envelopes vs the pallet
+   ============================================================ */
+(function(){
+  new Viz('vizVec',{
+    dur:7000,
+    draw(c,w,h,p){
+      const half=p<0.5, lp=half?p*2:(p-0.5)*2;
+      const lane=(y0,vec,prog,title)=>{
+        label(c,title,30,y0,{size:13,weight:'600',align:'left',color:PAL.ink});
+        const srcX=60,dstX=w-180,laneY=y0+62;
+        // source shelf: 4 floats
+        for(let i=0;i<4;i++){
+          c.fillStyle='rgba(42,120,214,.25)';
+          c.fillRect(srcX+i*30,laneY-16,26,26);
+          c.strokeStyle=PAL.blueDeep;c.lineWidth=1.4;c.strokeRect(srcX+i*30,laneY-16,26,26);
+          label(c,'f'+i,srcX+i*30+13,laneY-3,{size:10.5,color:PAL.blueDeep});
+        }
+        // destination register file
+        roundRect(c,dstX,laneY-22,120,40,8);
+        c.fillStyle='rgba(255,216,61,.3)';c.fill();c.strokeStyle=PAL.ink;c.stroke();
+        label(c,'registers',dstX+60,laneY-2,{size:11,weight:'600'});
+        if(vec){
+          // one pallet with 4 boxes
+          const t=clamp(prog*1.15,0,1);
+          const x=lerp(srcX+130,dstX-30,ease(t));
+          roundRect(c,x-8,laneY-14,124,26,5);
+          c.fillStyle='rgba(27,175,122,.2)';c.fill();c.strokeStyle=PAL.aqua;c.lineWidth=2;c.stroke();
+          for(let i=0;i<4;i++){
+            c.fillStyle=PAL.blue;c.fillRect(x+i*30,laneY-10,24,18);
+          }
+          c.beginPath();c.arc(x+18,laneY+18,5,0,TAU);c.arc(x+94,laneY+18,5,0,TAU);
+          c.fillStyle=PAL.ink;c.fill();
+          label(c,'LDS.128 — one instruction, 16 bytes',srcX+130,laneY+40,{size:11.5,align:'left',color:PAL.greenInk,weight:'600'});
+          label(c,(t>=1?'1':'0')+' / 1 instruction',w-40,y0,{size:13,weight:'800',align:'right',color:PAL.greenInk});
+        }else{
+          // four envelopes, staggered
+          let arrived=0;
+          for(let i=0;i<4;i++){
+            const t=clamp(prog*4-i,0,1);
+            if(t>=1)arrived++;
+            if(t>0&&t<1){
+              const x=lerp(srcX+i*30,dstX-14,ease(t));
+              const y=laneY-4+Math.sin(t*Math.PI)* -14;
+              c.fillStyle=PAL.blue;c.fillRect(x,y,24,18);
+              c.strokeStyle='rgba(0,0,0,.3)';c.strokeRect(x,y,24,18);
+            }
+          }
+          label(c,arrived+' / 4 instructions',w-40,y0,{size:13,weight:'800',align:'right',color:PAL.violet});
+          label(c,'4× the issue overhead, 4× the queue slots',srcX+130,laneY+40,{size:11.5,align:'left',color:PAL.violet});
+        }
+      };
+      lane(34,false,half?lp:1,'scalar loads: LDS.32 × 4 — four separate deliveries');
+      c.strokeStyle='rgba(30,36,48,.15)';c.setLineDash([6,6]);
+      c.beginPath();c.moveTo(20,190);c.lineTo(w-20,190);c.stroke();c.setLineDash([]);
+      lane(224,true,half?0:lp,'vectorized: reinterpret_cast<float4*> — one 128-bit pallet');
+    },
+    readout(p){return p<0.5?'scalar: 4 instructions':'float4: 1 instruction';}
+  });
+})();
+
+/* ============================================================
+   K7 — warptiling: zoom through the org chart
+   ============================================================ */
+(function(){
+  new Viz('vizWarp',{
+    dur:12000, initP:0,
+    draw(c,w,h,p){
+      // stages: 0 matrix->blocks, 1 block->warps, 2 warp->threads, 3 thread tile 8x8
+      const stage=p*3.999;
+      const cxm=w/2, cym=(h-74)/2;
+      const base=300; // full matrix pixel size at zoom 1
+      const bs=base/8, ws=bs/2, hs=bs/4, ts=ws/8, th=hs/4;
+      // camera keyframes: zoom level + focus point (world coords, matrix centered at 0,0)
+      const keys=[
+        {z:1,   x:0,                y:0},
+        {z:5.5, x:-base/2+bs/2,     y:-base/2+bs/2},
+        {z:19,  x:-base/2+ws/2,     y:-base/2+hs/2},
+        {z:140, x:-base/2+ts/2,     y:-base/2+th/2}
+      ];
+      const s0=Math.min(2,Math.floor(stage)), f=ease(Math.min(1,stage-s0));
+      const k0=keys[s0], k1=keys[Math.min(3,s0+1)];
+      const sc=Math.exp(lerp(Math.log(k0.z),Math.log(k1.z),f));
+      const fx=lerp(k0.x,k1.x,f), fy=lerp(k0.y,k1.y,f);
+      c.save();
+      c.translate(cxm,cym);
+      c.scale(sc,sc);
+      c.translate(-fx,-fy);
+      // full matrix C
+      c.fillStyle='rgba(27,175,122,.07)';
+      c.fillRect(-base/2,-base/2,base,base);
+      // block grid 8x8
+      c.strokeStyle='rgba(30,36,48,.5)';c.lineWidth=1.4/sc;
+      for(let i=0;i<=8;i++){
+        c.beginPath();c.moveTo(-base/2,-base/2+i*bs);c.lineTo(base/2,-base/2+i*bs);c.stroke();
+        c.beginPath();c.moveTo(-base/2+i*bs,-base/2);c.lineTo(-base/2+i*bs,base/2);c.stroke();
+      }
+      // highlight top-left block; draw warp tiles inside (2 cols x 4 rows)
+      const b0x=-base/2, b0y=-base/2;
+      if(stage>0.3){
+        c.fillStyle='rgba(42,120,214,.15)';c.fillRect(b0x,b0y,bs,bs);
+        c.strokeStyle=PAL.blueDeep;c.lineWidth=2.2/sc;c.strokeRect(b0x,b0y,bs,bs);
+        c.strokeStyle='rgba(74,58,167,.8)';c.lineWidth=1.2/sc;
+        for(let i=0;i<=4;i++){c.beginPath();c.moveTo(b0x,b0y+i*hs);c.lineTo(b0x+bs,b0y+i*hs);c.stroke();}
+        c.beginPath();c.moveTo(b0x+ws,b0y);c.lineTo(b0x+ws,b0y+bs);c.stroke();
+        if(stage>1.3){
+          // highlight top-left warp tile; threads inside 8x4
+          c.fillStyle='rgba(74,58,167,.18)';c.fillRect(b0x,b0y,ws,hs);
+          c.strokeStyle=PAL.violet;c.lineWidth=1.6/sc;c.strokeRect(b0x,b0y,ws,hs);
+          c.strokeStyle='rgba(235,104,52,.9)';c.lineWidth=0.7/sc;
+          for(let i=0;i<=4;i++){c.beginPath();c.moveTo(b0x,b0y+i*th);c.lineTo(b0x+ws,b0y+i*th);c.stroke();}
+          for(let j=0;j<=8;j++){c.beginPath();c.moveTo(b0x+j*ts,b0y);c.lineTo(b0x+j*ts,b0y+hs);c.stroke();}
+          if(stage>2.3){
+            // one thread tile: 8x8 mini cells
+            c.fillStyle='rgba(235,104,52,.25)';c.fillRect(b0x,b0y,ts,th);
+            c.strokeStyle=PAL.orange;c.lineWidth=0.9/sc;c.strokeRect(b0x,b0y,ts,th);
+            const ms=ts/8, mh=th/8;
+            c.strokeStyle='rgba(30,36,48,.55)';c.lineWidth=0.25/sc;
+            for(let i=0;i<=8;i++){
+              c.beginPath();c.moveTo(b0x,b0y+i*mh);c.lineTo(b0x+ts,b0y+i*mh);c.stroke();
+              c.beginPath();c.moveTo(b0x+i*ms,b0y);c.lineTo(b0x+i*ms,b0y+th);c.stroke();
+            }
+          }
+        }
+      }
+      c.restore();
+      // captions per stage
+      const caps=[
+        ['matrix C (4096×4096)','each square = one BLOCK tile → lives in shared memory'],
+        ['one block tile (128×128)','divided among 8 WARPS → warp tiles'],
+        ['one warp tile (64×32)','divided among 32 threads — Warpy\'s segments'],
+        ['one thread tile (8×8)','the outer-product bingo card from K5, in registers']
+      ];
+      const ci=Math.min(3,Math.round(stage-0.15));
+      const cap=caps[clamp(ci,0,3)];
+      c.fillStyle='rgba(253,253,251,.92)';
+      c.fillRect(0,h-74,w,74);
+      label(c,cap[0],w/2,h-50,{font:'head',size:17,weight:'800',color:PAL.ink});
+      label(c,cap[1],w/2,h-24,{size:13,color:PAL.inkSoft});
+      label(c,'zoom '+['1×','4×','14×','44×'][clamp(ci,0,3)],w-30,26,{size:12,align:'right',color:PAL.inkFaint});
+    },
+    readout(p){return ['matrix → blocks','block → warps','warp → threads','thread → registers'][clamp(Math.floor(p*4),0,3)];}
+  });
+})();
+
+/* ============================================================
+   K7b — double buffering timeline
+   ============================================================ */
+(function(){
+  new Viz('vizDouble',{
+    dur:8000,
+    draw(c,w,h,p){
+      const x0=120,bw=(w-190)/8;
+      const drawLane=(y,rows,title,total)=>{
+        label(c,title,30,y-20,{size:12.5,weight:'600',align:'left',color:PAL.ink});
+        rows.forEach(r=>{
+          label(c,r.name,x0-12,y+r.y+11,{size:10.5,align:'right',color:PAL.inkSoft});
+          r.blocks.forEach(b=>{
+            const bx=x0+b.t*bw, bwid=b.d*bw;
+            const t=p*8;
+            const fill=clamp((t-b.t)/b.d,0,1);
+            roundRect(c,bx,y+r.y,bwid-3,20,4);
+            c.fillStyle=b.c+'22';c.fill();
+            c.strokeStyle=b.c;c.lineWidth=1.4;c.stroke();
+            if(fill>0){
+              roundRect(c,bx,y+r.y,(bwid-3)*fill,20,4);
+              c.fillStyle=b.c;c.globalAlpha=.55;c.fill();c.globalAlpha=1;
+            }
+            if(bwid>40)label(c,b.l,bx+bwid/2,y+r.y+11,{size:9.5,color:PAL.ink});
+          });
+        });
+        label(c,total,w-30,y-20,{size:12,align:'right',weight:'800',color:PAL.inkSoft});
+      };
+      const L='#4a3aa7',C='#0ca30c';
+      drawLane(58,[
+        {name:'',y:0,blocks:[
+          {t:0,d:1,c:L,l:'load t0'},{t:1,d:1,c:C,l:'compute t0'},
+          {t:2,d:1,c:L,l:'load t1'},{t:3,d:1,c:C,l:'compute t1'},
+          {t:4,d:1,c:L,l:'load t2'},{t:5,d:1,c:C,l:'compute t2'},
+          {t:6,d:1,c:L,l:'load t3'},{t:7,d:1,c:C,l:'compute t3'}
+        ]}
+      ],'serial: everyone waits for the truck','8 time units');
+      drawLane(150,[
+        {name:'loads',y:0,blocks:[
+          {t:0,d:1,c:L,l:'load t0'},{t:1,d:1,c:L,l:'load t1'},{t:2,d:1,c:L,l:'load t2'},{t:3,d:1,c:L,l:'load t3'}
+        ]},
+        {name:'math',y:28,blocks:[
+          {t:1,d:1,c:C,l:'compute t0'},{t:2,d:1,c:C,l:'compute t1'},{t:3,d:1,c:C,l:'compute t2'},{t:4,d:1,c:C,l:'compute t3'}
+        ]}
+      ],'double buffered: next tile in flight while chewing this one','5 time units — ~40% saved');
+      // playhead
+      const px=x0+p*8*bw;
+      c.strokeStyle=PAL.red;c.lineWidth=2;
+      c.beginPath();c.moveTo(px,30);c.lineTo(px,h-30);c.stroke();
+      c.fillStyle=PAL.red;
+      c.beginPath();c.moveTo(px-5,30);c.lineTo(px+5,30);c.lineTo(px,40);c.closePath();c.fill();
+      label(c,'the math units never nap again',w/2,h-14,{font:'hand',size:17,color:PAL.inkSoft});
+    },
+    readout(p){return 't = '+(p*8).toFixed(1)+' units';}
+  });
+})();
+
+/* ============================================================
+   Speedlines + final chart
+   ============================================================ */
+(function(){
+  const CUBLAS=23249.6;
+  document.querySelectorAll('.speedline').forEach(el=>{
+    const g=parseFloat(el.dataset.gflops);
+    const pct=g/CUBLAS*100;
+    const io=new IntersectionObserver(es=>{
+      es.forEach(e=>{
+        if(e.isIntersecting){
+          el.querySelector('.fill').style.width=pct+'%';
+          el.querySelector('.runner').style.left=pct+'%';
+          io.disconnect();
+        }
+      });
+    },{threshold:.4});
+    io.observe(el);
+  });
+
+  const DATA=[
+    ['K1','naive',309.0,'--ramp-1','🐌'],
+    ['K2','coalesced',1986.5,'--ramp-2','🚶'],
+    ['K3','smem tiling',2980.3,'--ramp-3','🚲'],
+    ['K4','1D tiling',8474.7,'--ramp-4','🛵'],
+    ['K5','2D tiling',15971.7,'--ramp-5','🚗'],
+    ['K6','float4',18237.3,'--ramp-6','🏎️'],
+    ['K7','warptiling',21779.3,'--ramp-7','🚀'],
+    ['—','cuBLAS',23249.6,null,'🏁']
+  ];
+  const holder=document.getElementById('chartLadder');
+  if(!holder)return;
+  DATA.forEach(d=>{
+    const row=document.createElement('div');row.className='row';
+    const isRef=d[3]===null;
+    row.innerHTML=`<div class="rname">${d[4]} ${d[1]}<small>${d[0]==='—'?'the target':d[0]}</small></div>
+      <div class="rtrack">${isRef?'<div class="cublas-line" style="left:100%"></div>':''}
+        <div class="rbar" style="background:${isRef?'transparent':'var('+d[3]+')'};${isRef?'border:2px dashed var(--redpen);':''}"></div>
+      </div>
+      <div class="rval">0</div>`;
+    holder.appendChild(row);
+    d.push(row);
+  });
+  let played=false;
+  function race(){
+    DATA.forEach((d,i)=>{
+      const row=d[5], bar=row.querySelector('.rbar'), val=row.querySelector('.rval');
+      bar.style.transitionDelay=(i*0.12)+'s';
+      bar.style.width=(d[2]/CUBLAS*100)+'%';
+      // count up
+      const t0=performance.now()+i*120, dur=1200;
+      const tick=()=>{
+        const f=clamp((performance.now()-t0)/dur,0,1);
+        val.textContent=Math.round(d[2]*ease(f)).toLocaleString();
+        if(f<1)requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+    });
+  }
+  function reset(){
+    DATA.forEach(d=>{
+      const bar=d[5].querySelector('.rbar');
+      bar.style.transitionDelay='0s'; bar.style.width='0%';
+      d[5].querySelector('.rval').textContent='0';
+    });
+  }
+  new IntersectionObserver(es=>{
+    es.forEach(e=>{ if(e.isIntersecting&&!played){played=true;race();} });
+  },{threshold:.3}).observe(holder);
+  const replay=document.getElementById('chartReplay');
+  replay&&replay.addEventListener('click',()=>{reset();setTimeout(race,60);});
+})();
+
+/* redraw static frames once fonts arrive */
+if(document.fonts) document.fonts.ready.then(()=>{ VIZES.forEach(v=>{ if(!v.playing) v.frame(); }); });
+</script>
+
+
+<!-- added when this page was published on iamartyaa.github.io: a way back -->
+<a href="/writings/" id="back-to-writings" aria-label="Back to all writing">&#8592;&nbsp; more writing</a>
+<style>
+#back-to-writings{
+  position:fixed; left:18px; bottom:18px; z-index:9999;
+  display:inline-flex; align-items:center; gap:2px;
+  padding:9px 16px; border-radius:999px;
+  background:var(--paper-card,#fdfdfb); color:var(--ink,#1e2430);
+  font-family:var(--font-hand,cursive); font-size:19px; line-height:1;
+  text-decoration:none; border:1.5px solid var(--ink,#1e2430);
+  box-shadow:var(--shadow,0 6px 18px rgba(30,36,48,.09));
+  transition:transform .18s ease, box-shadow .18s ease;
+}
+#back-to-writings:hover{ transform:translateY(-2px) rotate(-1.5deg); box-shadow:var(--shadow-lift,0 14px 34px rgba(30,36,48,.13)); }
+@media print{ #back-to-writings{display:none} }
+</style>
+</body>
+</html>

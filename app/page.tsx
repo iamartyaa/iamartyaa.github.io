@@ -26,7 +26,7 @@ const DESK_OBJECTS = [
     title: "Things I wrote",
     body: "Long notes on how something works — each one built in its own design system.",
     art: <Notebook size={120} />,
-    href: "/writing",
+    href: "/writings",
   },
   {
     label: "The plant",

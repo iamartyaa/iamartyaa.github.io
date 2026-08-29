@@ -2,6 +2,7 @@ import { Monitor, Notebook, PaperPlane, Rocket, Sparkle, SmileyDot, XMark } from
 import { ScrollReveal } from "@/components/motion/scroll-reveal";
 import { TextReveal } from "@/components/motion/text-reveal";
 import { TiltCard } from "@/components/motion/tilt-card";
+import { Guestbook } from "@/components/site/guestbook";
 import { HandNote, Stamp } from "@/components/site/hand-note";
 import { HowIWork } from "@/components/site/how-i-work";
 import { PilotPortrait } from "@/components/site/pilot-portrait";
@@ -195,6 +196,13 @@ export default function AboutPage() {
           }
         />
         <HowIWork />
+      </Section>
+
+      {/* ────────────────────────── GUESTBOOK ────────────────────────── */}
+      <Section className="pt-[10rem]">
+        <ScrollReveal y={24}>
+          <Guestbook />
+        </ScrollReveal>
       </Section>
 
       {/* ─────────────────────────── SAY HI ─────────────────────────── */}

@@ -7,6 +7,8 @@ import { ScrollProgress } from "@/components/motion/scroll-progress";
 import { SmoothScroll } from "@/components/motion/smooth-scroll";
 import { SiteNav } from "@/components/site/site-nav";
 
+import { GOATCOUNTER_ENDPOINT, GOATCOUNTER_SCRIPT } from "@/lib/analytics";
+
 import "./globals.css";
 
 /**
@@ -97,6 +99,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             <main>{children}</main>
           </SmoothScroll>
         </ThemeProvider>
+        {/* GoatCounter: 0.8 KB, no cookies, no personal data, so there is
+            nothing on this site that needs a consent banner. */}
+        <script data-goatcounter={GOATCOUNTER_ENDPOINT} async src={GOATCOUNTER_SCRIPT} />
       </body>
     </html>
   );

@@ -83,6 +83,10 @@ That's it — the workflow does the rest, and every later push redeploys.
 - [x] The cat's eyes follow the cursor on /about, and he is the mascot that
       follows it around /things (`components/site/cursor-cat.tsx`)
 - [x] The say-hi card is signed by hand (`components/site/signature.tsx`)
+- [x] /writing — the index, plus the GEMM Scrapbook in a design system of
+      its own (see below)
+- [x] Traffic plumbing: sitemap.xml, robots.txt, RSS at /feed.xml,
+      per-article canonical + OpenGraph + TechArticle JSON-LD
 - [ ] Push to GitHub and turn Pages on — the two steps that need your login
 - [ ] Drop a `resume.pdf` into `public/` — the "résumé" sticker links to it
 
@@ -98,6 +102,32 @@ That's it — the workflow does the rest, and every later push redeploys.
 | /about, the cat | pupils track the pointer; click him for a hop |
 | /about, the mug | click for a sip — it keeps count |
 | Anywhere but Home | the cord top-right: drag it down or click it |
+
+## Writing: one design system per article
+
+`lib/articles.ts` is the registry — the index, the sitemap, the feed, the
+JSON-LD and the share links all read from it. Publishing is two steps:
+
+1. `app/writing/<slug>/` — `page.tsx`, `theme.css` (the article's own design
+   system, scoped under `[data-article="<slug>"]`), `parts.tsx` (its own
+   components), and any fonts it needs via `next/font/local`.
+2. An entry in `ARTICLES`, including `accent` — the index card is painted in
+   those colours, so the index shows the range of systems at a glance.
+
+Two rules keep the systems from bleeding into each other:
+
+- **Scope everything.** Article CSS lives under `[data-article="<slug>"]`, and
+  the page surface is claimed with `html[data-surface="<slug>"]` (see
+  `SurfaceLock` in the GEMM article) so overscroll and the paper grain agree
+  with the article rather than the site.
+- **No site chrome inside an article.** `components/site/site-chrome.tsx`
+  hides the sticker nav and the blue progress bar on `/writing/<slug>`; the
+  article brings its own header, its own progress indicator, and its own way
+  back to the site.
+
+Numbers in an article are either derived in-page or attributed to whoever
+measured them — the GEMM ladder is Simon Boehm's A6000 run and says so in
+§03 and in the colophon.
 
 ## The route
 

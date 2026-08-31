@@ -30,6 +30,17 @@ export type Writing = {
 
 export const WRITINGS: Writing[] = [
   {
+    slug: "the-serving-network",
+    title: "The Serving Network",
+    dek: "A production LLM server, drawn as a transit map — four endpoints, eleven Python files, and a scheduler you can rewire and re-run in the page.",
+    date: "2026-08-31",
+    readTime: "~45 min",
+    tags: ["LLM serving", "batching", "vLLM"],
+    previewAlt:
+      "The Serving Network: signage type on off-white paper, four coloured routes threading through the stations of an inference server",
+    system: "transit map · signage type, roundels, coloured lines",
+  },
+  {
     slug: "the-gemm-scrapbook",
     title: "The GEMM Scrapbook",
     dek: "One matrix multiply, seven CUDA kernels, and a 70× speedup — documented like a road trip, with the wrong turns left in.",

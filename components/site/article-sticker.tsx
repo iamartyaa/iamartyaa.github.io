@@ -114,9 +114,12 @@ export function ArticleSticker({ writing, index = 0 }: { writing: Writing; index
             }}
           />
 
-          <div className="absolute right-4 top-4">
-            <Stamp tone="green">new</Stamp>
-          </div>
+          {/* only the piece at the top of the shelf is new */}
+          {index === 0 ? (
+            <div className="absolute right-4 top-4">
+              <Stamp tone="green">new</Stamp>
+            </div>
+          ) : null}
         </div>
 
         {/* the label on the sticker */}

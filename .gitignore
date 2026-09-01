@@ -5,3 +5,6 @@ node_modules
 *.tsbuildinfo
 next-env.d.ts
 .env*.local
+
+# scratch — safe to delete
+_to_delete/

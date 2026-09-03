@@ -96,7 +96,8 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           <SmoothScroll lerp={0.09} duration={1.25}>
             <ScrollProgress className="bg-blue" height={3} />
             <SiteNav />
-            <main>{children}</main>
+            {/* the phone dock sits over the last 5rem of every page */}
+          <main className="pb-24 md:pb-0">{children}</main>
           </SmoothScroll>
         </ThemeProvider>
         {/* GoatCounter: 0.8 KB, no cookies, no personal data, so there is

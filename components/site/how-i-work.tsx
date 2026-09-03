@@ -132,13 +132,13 @@ export function HowIWork() {
         </svg>
       </motion.div>
 
-      <div className="relative grid gap-7 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="relative grid gap-5 sm:grid-cols-2 sm:gap-7 lg:grid-cols-4">
         {STEPS.map((s, i) => (
           <ScrollReveal key={s.n} delay={i * 0.09} y={26}>
             <motion.div
               whileHover={reduce ? undefined : { y: -10, rotate: i % 2 ? 0.8 : -0.8 }}
               transition={{ duration: 0.35, ease: EASE_OUT }}
-              className="relative flex h-full min-h-[22rem] flex-col rounded-[1.75rem] bg-card p-8 shadow-[var(--shadow-card)]"
+              className="relative flex h-full flex-col rounded-[1.5rem] bg-card p-6 shadow-[var(--shadow-card)] sm:rounded-[1.75rem] sm:p-8 lg:min-h-[22rem]"
             >
               <div className="flex items-start justify-between">
                 <div>
@@ -158,7 +158,7 @@ export function HowIWork() {
 
       {/* the short version, in his own hand */}
       <ScrollReveal y={20} delay={0.15}>
-        <div className="mt-9 flex flex-wrap items-center justify-between gap-6 rounded-[1.5rem] bg-panel px-9 py-7 text-on-panel ring-1 ring-[var(--panel-edge)]">
+        <div className="mt-7 flex flex-wrap items-center justify-between gap-5 rounded-[1.5rem] bg-panel px-6 py-6 text-on-panel ring-1 ring-[var(--panel-edge)] sm:mt-9 sm:gap-6 sm:px-9 sm:py-7">
           <p className="max-w-[46rem] font-display text-[clamp(1.3rem,2.1vw,1.75rem)] font-extrabold leading-tight tracking-[-0.035em]">
             The short version: you&apos;ll see something working before you see a status update.
           </p>

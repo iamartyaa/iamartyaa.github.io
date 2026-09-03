@@ -15,6 +15,10 @@ import { SPRING_PANEL } from "@/lib/ease";
  * Everything else on /about describes habits that outlive a job title; this is
  * the part that gets rewritten, and it looks like a shelf so that reads as a
  * feature rather than an omission.
+ *
+ * Each item is one column — the object, its bit of plank, its label — so the
+ * plank is under every object on every width. On a desktop the four segments
+ * butt together into one shelf; on a phone they make two short shelves of two.
  */
 
 type Item = {
@@ -65,13 +69,12 @@ export function Shelf() {
   const reduce = useReducedMotion();
 
   return (
-    <div className="relative">
-      {/* the objects, standing on one plank */}
-      <div className="grid grid-cols-2 items-end gap-x-8 gap-y-10 sm:grid-cols-4">
-        {ITEMS.map((item, i) => (
-          <ScrollReveal key={item.title} delay={i * 0.09} y={26} className="flex justify-center">
+    <div className="grid grid-cols-2 gap-x-4 gap-y-12 sm:grid-cols-4 sm:gap-x-0 sm:gap-y-0">
+      {ITEMS.map((item, i) => (
+        <div key={item.title} className="group flex flex-col items-center">
+          <ScrollReveal delay={i * 0.09} y={26} className="flex justify-center">
             <motion.div
-              className={`flex size-[9.5rem] items-center justify-center rounded-[2rem] ${item.bg} shadow-[0_0_0_5px_var(--paper),0_0_0_6.5px_var(--hairline),0_18px_26px_-18px_rgba(40,30,20,0.5)]`}
+              className={`flex size-[7.5rem] items-center justify-center rounded-[1.6rem] sm:size-[9.5rem] sm:rounded-[2rem] ${item.bg} shadow-[0_0_0_5px_var(--paper),0_0_0_6.5px_var(--hairline),0_18px_26px_-18px_rgba(40,30,20,0.5)] [&_svg]:h-auto [&_svg]:w-[5.25rem] sm:[&_svg]:w-auto`}
               style={{ rotate: item.tilt }}
               whileHover={reduce ? undefined : { rotate: item.tilt * -1.4, y: -18, scale: 1.05 }}
               transition={SPRING_PANEL}
@@ -79,30 +82,25 @@ export function Shelf() {
               {item.art}
             </motion.div>
           </ScrollReveal>
-        ))}
-      </div>
 
-      {/* the shelf itself: one plank, two brackets */}
-      <div aria-hidden className="relative mt-4">
-        <div className="h-[16px] rounded-[7px] bg-[#d8a86a] shadow-[inset_0_-5px_0_rgba(0,0,0,0.15),0_16px_24px_-16px_rgba(40,30,20,0.75)] ring-[2.5px] ring-ink/85" />
-        <div className="absolute left-[7%] top-[15px] h-[16px] w-[74px] origin-top-left -skew-x-[38deg] rounded-b-[6px] bg-[#b98548] ring-[2.5px] ring-ink/85" />
-        <div className="absolute right-[7%] top-[15px] h-[16px] w-[74px] origin-top-right skew-x-[38deg] rounded-b-[6px] bg-[#b98548] ring-[2.5px] ring-ink/85" />
-      </div>
+          {/* this item's stretch of the plank, and the bracket holding it up */}
+          <div aria-hidden className="relative mt-4 w-full">
+            <div className="h-[14px] rounded-[7px] bg-[#d8a86a] shadow-[inset_0_-5px_0_rgba(0,0,0,0.15),0_16px_24px_-16px_rgba(40,30,20,0.75)] ring-[2.5px] ring-ink/85 sm:h-[16px] sm:rounded-none sm:group-first:rounded-l-[7px] sm:group-last:rounded-r-[7px]" />
+            <div className="absolute left-1/2 top-[13px] h-[14px] w-[58px] origin-top-left -translate-x-1/2 -skew-x-[38deg] rounded-b-[6px] bg-[#b98548] ring-[2.5px] ring-ink/85 sm:top-[15px] sm:h-[16px] sm:w-[70px]" />
+          </div>
 
-      {/* what each one is, hanging under the shelf like a label */}
-      <div className="mt-9 grid grid-cols-2 gap-x-8 gap-y-10 sm:grid-cols-4">
-        {ITEMS.map((item, i) => (
-          <ScrollReveal key={item.label} delay={0.1 + i * 0.09} y={18}>
+          {/* what it is, hanging under the shelf like a label */}
+          <ScrollReveal delay={0.1 + i * 0.09} y={18} className="mt-8 px-1 sm:mt-9 sm:px-3">
             <div className="text-center">
               <p className="label">{item.label}</p>
-              <h3 className="mt-1.5 font-display text-[21px] font-extrabold leading-tight tracking-[-0.03em]">
+              <h3 className="mt-1.5 font-display text-[19px] font-extrabold leading-tight tracking-[-0.03em] sm:text-[21px]">
                 {item.title}
               </h3>
               <p className="mx-auto mt-2 max-w-[15rem] text-[14.5px] leading-[1.55] text-ink-soft">{item.body}</p>
             </div>
           </ScrollReveal>
-        ))}
-      </div>
+        </div>
+      ))}
     </div>
   );
 }

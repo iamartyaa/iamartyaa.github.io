@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import { AvatarWaving, Cat, Mug } from "@/components/art/cast";
 import { HandNote } from "@/components/site/hand-note";
 import { EASE_OUT, SPRING_PRESS } from "@/lib/ease";
+import { useMedia } from "@/lib/hooks/use-media";
 
 /**
  * THE PILOT — the portrait cluster on /about, and the interactive corner of
@@ -22,6 +23,10 @@ import { EASE_OUT, SPRING_PRESS } from "@/lib/ease";
  */
 export function PilotPortrait() {
   const reduce = useReducedMotion();
+  // On a phone the whole cluster is drawn at two-thirds. It stays: the eyes
+  // follow the last tap instead of a cursor, and everyone is still pokeable.
+  const wide = useMedia("(min-width: 1024px)");
+  const S = wide ? { avatar: 360, mug: 132, cat: 190 } : { avatar: 232, mug: 86, cat: 124 };
   const catRef = useRef<HTMLButtonElement>(null);
   const [look, setLook] = useState({ x: 0, y: 0 });
   const [catMood, setCatMood] = useState<"rest" | "happy" | "startled">("rest");
@@ -60,6 +65,7 @@ export function PilotPortrait() {
   useEffect(() => {
     if (reduce) return;
     let frame = 0;
+    // pointermove for a mouse; pointerdown so a tap on a phone turns their heads too
     const onMove = (e: PointerEvent) => {
       if (frame) return;
       frame = requestAnimationFrame(() => {
@@ -77,8 +83,10 @@ export function PilotPortrait() {
       });
     };
     window.addEventListener("pointermove", onMove, { passive: true });
+    window.addEventListener("pointerdown", onMove, { passive: true });
     return () => {
       window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("pointerdown", onMove);
       if (frame) cancelAnimationFrame(frame);
     };
   }, [reduce]);
@@ -114,7 +122,7 @@ export function PilotPortrait() {
   };
 
   return (
-    <div className="relative hidden justify-self-center lg:block">
+    <div className="relative mx-auto mt-2 w-fit pl-8 pr-6 lg:mt-0 lg:px-0 lg:justify-self-center">
       <motion.button
         type="button"
         onClick={() => play()}
@@ -124,7 +132,7 @@ export function PilotPortrait() {
         whileTap={reduce ? undefined : { scale: 0.98 }}
         transition={SPRING_PRESS}
       >
-        <AvatarWaving size={360} act={act} look={look} />
+        <AvatarWaving size={S.avatar} act={act} look={look} />
       </motion.button>
 
       <AnimatePresence>
@@ -135,7 +143,7 @@ export function PilotPortrait() {
             animate={{ opacity: 1, y: 0, scale: 1, rotate: -3 }}
             exit={{ opacity: 0, y: -10, scale: 0.9 }}
             transition={SPRING_PRESS}
-            className="pointer-events-none absolute right-2 top-6 rounded-full bg-card px-4 py-2 font-hand text-[17px] font-semibold text-ink shadow-[var(--shadow-sticker-sm)]"
+            className="pointer-events-none absolute right-2 top-2 rounded-full bg-card px-3.5 py-1.5 font-hand text-[15px] font-semibold text-ink shadow-[var(--shadow-sticker-sm)] lg:top-6 lg:px-4 lg:py-2 lg:text-[17px]"
           >
             {says}
           </motion.span>
@@ -147,14 +155,14 @@ export function PilotPortrait() {
         type="button"
         onClick={drinkMug}
         aria-label="Take a sip of chai"
-        className="absolute -left-16 bottom-6 cursor-pointer"
+        className="absolute -left-2 bottom-4 cursor-pointer lg:-left-16 lg:bottom-6"
         style={{ transformOrigin: "80% 90%" }}
-        animate={sipping ? { rotate: -26, y: -54, x: 26 } : { rotate: 0, y: 0, x: 0 }}
+        animate={sipping ? { rotate: -26, y: wide ? -54 : -34, x: wide ? 26 : 16 } : { rotate: 0, y: 0, x: 0 }}
         transition={sipping ? { duration: 0.32, ease: EASE_OUT } : SPRING_PRESS}
         whileHover={{ y: -6 }}
         whileTap={{ scale: 0.96 }}
       >
-        <Mug size={132} mood={sipping ? "sip" : "rest"} />
+        <Mug size={S.mug} mood={sipping ? "sip" : "rest"} />
       </motion.button>
 
       <AnimatePresence>
@@ -165,7 +173,7 @@ export function PilotPortrait() {
             animate={{ opacity: 1, y: -6, scale: 1 }}
             exit={{ opacity: 0, y: -20 }}
             transition={SPRING_PRESS}
-            className="pointer-events-none absolute -left-6 bottom-[10rem] -rotate-6 rounded-full bg-card px-3.5 py-1.5 font-hand text-[15px] font-semibold text-ink shadow-[var(--shadow-sticker-sm)]"
+            className="pointer-events-none absolute left-0 bottom-[7rem] -rotate-6 rounded-full bg-card px-3.5 py-1.5 font-hand text-[15px] font-semibold text-ink shadow-[var(--shadow-sticker-sm)] lg:-left-6 lg:bottom-[10rem]"
           >
             chai #{sips}
           </motion.span>
@@ -179,12 +187,12 @@ export function PilotPortrait() {
         key={hop}
         onClick={pokeCat}
         aria-label="Poke the cat"
-        className="absolute -right-10 bottom-0 cursor-pointer"
+        className="absolute -right-4 bottom-0 cursor-pointer lg:-right-10"
         animate={hop ? { y: [0, -34, 0, -10, 0] } : undefined}
         transition={{ duration: 0.72, ease: EASE_OUT, times: [0, 0.32, 0.6, 0.8, 1] }}
         whileHover={{ scale: 1.03 }}
       >
-        <Cat size={190} look={look} mood={catMood} />
+        <Cat size={S.cat} look={look} mood={catMood} />
       </motion.button>
 
       <AnimatePresence>
@@ -193,15 +201,16 @@ export function PilotPortrait() {
             initial={{ opacity: 0, scale: 0.7, rotate: -14 }}
             animate={{ opacity: 1, scale: 1, rotate: -8 }}
             exit={{ opacity: 0, scale: 0.8 }}
-            className="pointer-events-none absolute -right-2 bottom-[10.5rem] rounded-full bg-ink px-3.5 py-1.5 font-hand text-[15px] font-semibold text-paper shadow-[var(--shadow-sticker-sm)]"
+            className="pointer-events-none absolute right-0 bottom-[7rem] rounded-full bg-ink px-3.5 py-1.5 font-hand text-[15px] font-semibold text-paper shadow-[var(--shadow-sticker-sm)] lg:-right-2 lg:bottom-[10.5rem]"
           >
             mrrp!
           </motion.span>
         ) : null}
       </AnimatePresence>
 
-      <HandNote tilt={-3} className="absolute -bottom-16 left-0 w-[15.5rem] leading-tight">
-        everyone here watches your cursor · poke any of them
+      <HandNote tilt={-3} className="absolute -bottom-12 left-4 w-[17rem] text-[16px] leading-tight lg:-bottom-16 lg:left-0 lg:w-[15.5rem] lg:text-[19px]">
+        <span className="lg:hidden">everyone here watches where you tap · poke any of them</span>
+        <span className="hidden lg:inline">everyone here watches your cursor · poke any of them</span>
       </HandNote>
     </div>
   );

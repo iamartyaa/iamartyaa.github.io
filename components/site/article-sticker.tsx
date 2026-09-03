@@ -46,7 +46,7 @@ export function ArticleSticker({ writing, index = 0 }: { writing: Writing; index
     <motion.a
       href={href(writing)}
       className={cn(
-        "group relative block rounded-[2.25rem] bg-card p-4 no-underline",
+        "group relative block rounded-[1.75rem] bg-card p-3 no-underline sm:rounded-[2.25rem] sm:p-4",
         "shadow-[0_0_0_6px_var(--paper),0_0_0_7.5px_var(--hairline),0_28px_46px_-30px_rgba(40,30,20,0.6)]",
       )}
       style={{ rotate: tilt }}
@@ -123,21 +123,21 @@ export function ArticleSticker({ writing, index = 0 }: { writing: Writing; index
         </div>
 
         {/* the label on the sticker */}
-        <div className="px-4 pb-2 pt-6">
+        <div className="px-2 pb-2 pt-5 sm:px-4 sm:pt-6">
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
             <span className="label">{readableDate(writing.date)}</span>
             <span className="label text-ink-ghost">·</span>
             <span className="label">{writing.readTime}</span>
           </div>
 
-          <h2 className="mt-2.5 font-display text-[clamp(1.9rem,3vw,2.6rem)] font-extrabold leading-[0.98] tracking-[-0.04em]">
+          <h2 className="mt-2.5 font-display text-[clamp(1.7rem,3vw,2.6rem)] font-extrabold leading-[0.98] tracking-[-0.04em]">
             {writing.title}
           </h2>
           <p className="mt-3 max-w-[34rem] text-[16px] leading-[1.6] text-ink-soft">{writing.dek}</p>
 
           <p className="mt-4 font-hand text-[16px] text-ink-faint">its own design system — {writing.system}</p>
 
-          <div className="mt-5 flex flex-wrap items-center gap-2.5">
+          <div className="mt-5 flex flex-wrap items-center gap-2.5 gap-y-3">
             {writing.tags.map((t) => (
               <Sticker key={t} tone="white" size="sm" className="shadow-[0_0_0_3px_var(--card)]">
                 {t}

@@ -43,7 +43,7 @@ export function SectionHead({
   className?: string;
 }) {
   return (
-    <div className={cn("mb-9 flex flex-wrap items-end justify-between gap-6", className)}>
+    <div className={cn("mb-7 flex flex-wrap items-end justify-between gap-x-6 gap-y-4 sm:mb-9", className)}>
       <div>
         <ScrollReveal y={10} blur={4} amount={0.6}>
           <p className="label">{label}</p>
@@ -53,10 +53,10 @@ export function SectionHead({
           as="h2"
           whileInView
           stagger={0.06}
-          className="mt-2.5 font-display text-[clamp(2.25rem,4vw,3.5rem)] font-extrabold leading-none tracking-[-0.035em]"
+          className="mt-2.5 font-display text-[clamp(2.1rem,4vw,3.5rem)] font-extrabold leading-none tracking-[-0.035em]"
         />
       </div>
-      {aside ? <div className="max-w-[22rem]">{aside}</div> : null}
+      {aside ? <div className="max-w-[22rem] max-sm:[&_p]:text-left max-sm:[&_p]:text-[17px]">{aside}</div> : null}
     </div>
   );
 }

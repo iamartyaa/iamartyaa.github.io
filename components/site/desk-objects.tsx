@@ -76,7 +76,7 @@ export function DeskObjects() {
   const [hot, setHot] = useState<string | null>(null);
 
   return (
-    <div className="grid gap-7 sm:grid-cols-2 xl:grid-cols-4">
+    <div className="grid gap-5 sm:grid-cols-2 sm:gap-7 xl:grid-cols-4">
       {OBJECTS.map((o, i) => {
         const on = hot === o.title;
         return (
@@ -90,7 +90,7 @@ export function DeskObjects() {
                   rotate: on && !reduce ? o.tilt * 0.25 : o.tilt,
                 }}
                 transition={SPRING_PANEL}
-                className="relative flex h-full min-h-[19.5rem] flex-col overflow-hidden rounded-[2rem] bg-card p-7 shadow-[0_0_0_5px_var(--paper),0_0_0_6.5px_var(--hairline),0_20px_34px_-26px_rgba(40,30,20,0.55)]"
+                className="relative flex h-full flex-col overflow-hidden rounded-[1.6rem] bg-card p-6 shadow-[0_0_0_5px_var(--paper),0_0_0_6.5px_var(--hairline),0_20px_34px_-26px_rgba(40,30,20,0.55)] sm:min-h-[19.5rem] sm:rounded-[2rem] sm:p-7"
               >
                 <p className="label">{o.kicker}</p>
                 <h3 className="mt-2 font-display text-[26px] font-extrabold leading-tight tracking-[-0.035em]">
@@ -98,13 +98,13 @@ export function DeskObjects() {
                 </h3>
                 <p className="mt-2.5 text-[14.5px] leading-[1.55] text-ink-soft">{o.body}</p>
 
-                <div className="mt-auto flex items-end justify-between pt-6">
+                <div className="mt-auto flex items-end justify-between pt-5 sm:pt-6">
                   <span className="inline-flex items-center gap-1.5 font-hand text-[16px] text-ink-faint transition-transform duration-200 group-hover:translate-x-0.5">
                     open
                     <ArrowRight size={16} />
                   </span>
                   <motion.div
-                    className={`grid size-[7.5rem] place-items-center ${o.shape} ${o.tile} shadow-[0_0_0_4px_var(--card),0_0_0_5.5px_var(--hairline)]`}
+                    className={`grid size-[6rem] place-items-center sm:size-[7.5rem] ${o.shape} ${o.tile} shadow-[0_0_0_4px_var(--card),0_0_0_5.5px_var(--hairline)] [&_svg]:h-auto [&_svg]:w-[4.5rem] sm:[&_svg]:w-auto`}
                     animate={{ rotate: on && !reduce ? -o.tilt * 2.4 : o.tilt * 1.6, scale: on && !reduce ? 1.06 : 1 }}
                     transition={SPRING_PANEL}
                   >

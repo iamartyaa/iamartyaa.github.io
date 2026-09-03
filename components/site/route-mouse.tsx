@@ -147,11 +147,14 @@ export function RouteMouse({
       </svg>
       {/* Same reason as the cat: portalled to <body>, because the route
           transition's own transform would otherwise become this element's
-          containing block and the mouse would scroll away with the page. */}
+          containing block and the mouse would scroll away with the page.
+          On a phone the line runs behind the full-width cards, so the mouse
+          does too: a negative z-index puts it under the cards and it pops out
+          in the gaps between them, which is where the line is visible anyway. */}
       {ready && typeof document !== "undefined"
         ? createPortal(
-            <div ref={box} className="pointer-events-none fixed left-0 top-0 z-30 hidden opacity-0 md:block" aria-hidden>
-              <Mouse size={size} scared={hiding} />
+            <div ref={box} className="pointer-events-none fixed left-0 top-0 opacity-0 max-sm:-z-[1] sm:z-30" aria-hidden>
+              <Mouse size={size} scared={hiding} className="max-sm:h-auto max-sm:w-[2.6rem]" />
             </div>,
             document.body,
           )

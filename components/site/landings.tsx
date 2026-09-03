@@ -10,8 +10,9 @@ import { ProjectFilters } from "@/components/site/project-filters";
 import { Route } from "@/components/site/route";
 import { RouteMouse } from "@/components/site/route-mouse";
 import { Sticker } from "@/components/site/sticker";
-import { buildRoute, waypoints } from "@/lib/route-path";
 import { EASE_OUT } from "@/lib/ease";
+import { useMedia } from "@/lib/hooks/use-media";
+import { buildRoute, waypoints } from "@/lib/route-path";
 
 /**
  * THE LANDINGS — the four projects, the line through them, and the mouse.
@@ -40,6 +41,7 @@ const LANDING_H = 600;
 
 export function Landings({ projects }: { projects: Project[] }) {
   const reduce = useReducedMotion();
+  const narrow = useMedia("(max-width: 639px)");
   const section = useRef<HTMLDivElement>(null);
   const [filter, setFilter] = useState("everything");
 
@@ -55,15 +57,15 @@ export function Landings({ projects }: { projects: Project[] }) {
   const { d, stops, height } = useMemo(() => {
     const sides = visible.map((p, i) => (p.featured ? ("full" as const) : i % 2 === 0 ? ("left" as const) : ("right" as const)));
     const h = Math.max(1, visible.length) * LANDING_H;
-    const { path, stops } = waypoints(sides, h);
+    const { path, stops } = waypoints(sides, h, narrow);
     return { d: buildRoute(path), stops, height: h };
-  }, [visible]);
+  }, [visible, narrow]);
 
   return (
     <>
-      <div className="relative z-10 mt-14">
+      <div className="relative z-10 mt-10 sm:mt-14">
         <ProjectFilters options={options} value={filter} onChange={setFilter} />
-        <p className="mt-5 font-hand text-[17px] text-ink-faint">
+        <p className="mt-5 font-hand text-[16px] text-ink-faint sm:text-[17px]">
           {filter === "everything"
             ? "filtering re-draws the line and the mouse runs the new one ↴"
             : `${visible.length} landing${visible.length === 1 ? "" : "s"} — the line was re-drawn through ${
@@ -72,7 +74,7 @@ export function Landings({ projects }: { projects: Project[] }) {
         </p>
       </div>
 
-      <div ref={section} className="relative mt-[6rem] pb-[7rem]">
+      <div ref={section} className="relative mt-[clamp(3rem,6vw,6rem)] pb-[clamp(4rem,7vw,7rem)]">
         {/* the line behind the cards, and the mouse running it over them */}
         <div className="pointer-events-none absolute inset-x-[-2vw] inset-y-0 z-0">
           <div className="relative mx-auto h-full max-w-[1440px]">
@@ -81,7 +83,7 @@ export function Landings({ projects }: { projects: Project[] }) {
         </div>
         <RouteMouse d={d} height={height} section={section} />
 
-        <div className="relative z-10 space-y-[12rem]">
+        <div className="relative z-10 space-y-[clamp(4.5rem,10vw,12rem)]">
           <AnimatePresence mode="popLayout" initial={false}>
             {visible.map((p, i) => (
               <motion.div
@@ -102,20 +104,25 @@ export function Landings({ projects }: { projects: Project[] }) {
                     p.featured ? "w-full rounded-[2rem]" : "w-full max-w-[43rem] rounded-[1.75rem]"
                   }`}
                 >
-                  <div className={`relative grid gap-8 p-9 ${p.featured ? "lg:grid-cols-[1.15fr_1fr] lg:p-12" : "sm:grid-cols-[1fr_auto]"}`}>
+                  <div className={`relative grid gap-6 p-6 sm:gap-8 sm:p-9 ${p.featured ? "lg:grid-cols-[1.15fr_1fr] lg:p-12" : "sm:grid-cols-[1fr_auto]"}`}>
                     <div>
-                      <div className="flex items-center gap-3">
+                      {/* the stamp lives in the meta row on a phone, where it
+                          cannot land on the title; on wider cards it sits in the corner */}
+                      <div className="flex flex-wrap items-center gap-x-3 gap-y-2 pr-0 sm:pr-28">
                         <span className={`font-display text-[15px] ${p.tone}`}>{p.n}</span>
                         <span className="label">{p.meta}</span>
+                        <span className="sm:hidden">
+                          <Stamp tone="green" className="scale-[0.8] origin-left">landed</Stamp>
+                        </span>
                       </div>
                       <h2
                         className={`mt-3 font-display font-extrabold leading-[0.95] tracking-[-0.04em] ${
-                          p.featured ? "text-[clamp(2.5rem,4.4vw,3.9rem)]" : "text-[clamp(1.9rem,3vw,2.6rem)]"
+                          p.featured ? "text-[clamp(2.1rem,4.4vw,3.9rem)]" : "text-[clamp(1.75rem,3vw,2.6rem)]"
                         }`}
                       >
                         {p.title}
                       </h2>
-                      <p className="mt-4 max-w-[34rem] text-[16px] leading-[1.65] text-ink-soft">{p.body}</p>
+                      <p className="mt-4 max-w-[34rem] text-[15.5px] leading-[1.6] text-ink-soft sm:text-[16px] sm:leading-[1.65]">{p.body}</p>
                       <div className="mt-5 flex flex-wrap gap-2">
                         {p.tags.map((t, k) => (
                           <Sticker key={`${p.n}-${k}`} tone="white" size="sm" className="shadow-[0_0_0_3px_var(--card)]">
@@ -133,10 +140,11 @@ export function Landings({ projects }: { projects: Project[] }) {
                       ) : null}
                     </div>
                     <div className="flex items-end justify-end gap-4">
-                      <div className="hidden sm:block">{p.art}</div>
+                      {/* the drawing stays on a phone, a size down, so the card is not a wall of text */}
+                      <div className="[&_svg]:h-auto [&_svg]:w-[6.5rem] sm:[&_svg]:w-auto">{p.art}</div>
                     </div>
                   </div>
-                  <div className="absolute right-6 top-6">
+                  <div className="absolute right-6 top-6 hidden sm:block">
                     <Stamp tone="green">landed</Stamp>
                   </div>
                 </TiltCard>

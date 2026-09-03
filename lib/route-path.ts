@@ -35,9 +35,35 @@ export function buildRoute(points: Point[]): string {
  * OPPOSITE side to its card, so the dot is always on paper rather than hidden
  * under a card; a full-width landing gets its waypoint in the gap below it.
  * The entry point is off-canvas, so the line arrives from somewhere.
+ *
+ * `narrow` is the phone: every card is full width, so the line snakes down
+ * behind them and each waypoint sits in the gap under its card, where it can
+ * be seen.
  */
-export function waypoints(sides: ("left" | "right" | "full")[], height: number): { path: Point[]; stops: Point[] } {
+export function waypoints(
+  sides: ("left" | "right" | "full")[],
+  height: number,
+  narrow = false,
+): { path: Point[]; stops: Point[] } {
   const n = Math.max(1, sides.length);
+
+  if (narrow) {
+    const path: Point[] = [{ x: -80, y: 40 }];
+    const stops: Point[] = [];
+    sides.forEach((_, i) => {
+      const top = height * (i / n);
+      const bottom = height * ((i + 1) / n);
+      // behind the card, on alternating sides…
+      path.push({ x: i % 2 === 0 ? 1330 : 110, y: top + (bottom - top) * 0.45 });
+      // …then out into the gap below it
+      const stop = { x: 720, y: bottom - height * 0.055 };
+      path.push(stop);
+      stops.push(stop);
+    });
+    path.push({ x: 720, y: height - 16 });
+    return { path, stops };
+  }
+
   const stops: Point[] = sides.map((side, i) => {
     if (side === "full") return { x: 980, y: height * ((i + 0.93) / n) };
     return { x: side === "left" ? 1120 : 330, y: height * ((i + 0.5) / n) };

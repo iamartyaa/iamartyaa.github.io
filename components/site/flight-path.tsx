@@ -151,18 +151,18 @@ export function FlightPath({ flights }: { flights: Flight[] }) {
   const costume = COSTUMES[flights[stage]?.costume ?? 0];
 
   return (
-    <div className="relative grid gap-8 sm:grid-cols-[7.5rem_minmax(0,1fr)]">
-      {/* the rail: the dashed line, and the walker who never leaves the screen */}
-      <div ref={rail} className="relative hidden sm:block">
-        <div aria-hidden className="absolute bottom-6 left-[3.4rem] top-4 w-px border-l-[3px] border-dashed border-blue/55" />
+    <div className="relative grid grid-cols-[3.25rem_minmax(0,1fr)] gap-4 sm:grid-cols-[7.5rem_minmax(0,1fr)] sm:gap-8">
+      {/* the rail: the dashed line, and the walker who never leaves the screen.
+          A phone gets a slimmer rail and a smaller walker, not no walker. */}
+      <div ref={rail} className="relative">
+        <div aria-hidden className="absolute bottom-6 left-[1.4rem] top-4 w-px border-l-[3px] border-dashed border-blue/55 sm:left-[3.4rem]" />
         {!reduce ? (
           <motion.div className="sticky top-[38vh] z-10 h-0" style={{ paddingTop: top }}>
-            <div className="relative -ml-2 w-[7rem]">
+            <div className="relative -ml-[0.9rem] w-[4.5rem] sm:-ml-2 sm:w-[7rem]">
               <AnimatePresence mode="wait">
                 <motion.svg
                   key={costume.key}
-                  width="112"
-                  height="112"
+                  className="h-[72px] w-[72px] sm:h-[112px] sm:w-[112px]"
                   viewBox="0 0 120 120"
                   initial={{ opacity: 0, scale: 0.82, rotate: -8 }}
                   animate={{ opacity: 1, scale: 1, rotate: 0 }}
@@ -178,7 +178,7 @@ export function FlightPath({ flights }: { flights: Flight[] }) {
                 key={costume.label}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="mt-1 text-center font-hand text-[15px] leading-none text-ink-faint"
+                className="mt-1 text-center font-hand text-[13px] leading-none text-ink-faint sm:text-[15px]"
               >
                 {costume.label}
               </motion.p>
@@ -192,14 +192,15 @@ export function FlightPath({ flights }: { flights: Flight[] }) {
         {flights.map((f, i) => (
           <ScrollReveal key={`${f.year}-${i}`} y={18} amount={0.35} delay={i * 0.04}>
             <div className="relative">
+              {/* the waypoint dot, centred on the rail's line: rail width + gap back, line offset forward */}
               <span
                 aria-hidden
-                className={`absolute -left-[calc(4.6rem+1px)] top-7 hidden size-[15px] rounded-full border-[3px] bg-card sm:block ${
+                className={`absolute -left-[44px] top-7 size-[15px] -translate-x-1/2 rounded-full border-[3px] bg-card sm:-left-[96px] ${
                   f.now ? "border-dashed border-ink-ghost" : "border-blue"
                 }`}
               />
               <div
-                className={`grid gap-x-6 gap-y-3 rounded-[1.35rem] px-7 py-6 sm:grid-cols-[4.5rem_minmax(0,1fr)] ${
+                className={`grid gap-x-6 gap-y-2 rounded-[1.35rem] px-5 py-5 sm:gap-y-3 sm:px-7 sm:py-6 sm:grid-cols-[4.5rem_minmax(0,1fr)] ${
                   f.now
                     ? "border-[3px] border-dashed border-hairline"
                     : "bg-card shadow-[var(--shadow-card)]"

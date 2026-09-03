@@ -85,7 +85,7 @@ export function Guestbook() {
   });
 
   return (
-    <div className="relative overflow-hidden rounded-[2rem] bg-card px-8 py-10 shadow-[var(--shadow-card)] sm:px-12">
+    <div className="relative overflow-hidden rounded-[1.5rem] bg-card px-6 py-8 shadow-[var(--shadow-card)] sm:rounded-[2rem] sm:px-12 sm:py-10">
       {/* the register's ruled lines */}
       <div
         aria-hidden
@@ -94,7 +94,7 @@ export function Guestbook() {
           backgroundImage: "repeating-linear-gradient(var(--card) 0 39px, var(--hairline) 39px 40px)",
         }}
       />
-      <div aria-hidden className="pointer-events-none absolute inset-y-0 left-12 w-px bg-orange/25 sm:left-16" />
+      <div aria-hidden className="pointer-events-none absolute inset-y-0 left-10 w-px bg-orange/25 sm:left-16" />
 
       <div className="relative grid items-center gap-10 lg:grid-cols-[1fr_auto]">
         <div>
@@ -149,7 +149,7 @@ export function Guestbook() {
         </div>
 
         {/* the stamp itself */}
-        <div className="relative flex h-[13.5rem] w-full items-center justify-center lg:w-[17rem]">
+        <div className="relative flex h-[12rem] w-full items-center justify-center sm:h-[13.5rem] lg:w-[17rem]">
           {!stamped ? (
             <motion.button
               type="button"

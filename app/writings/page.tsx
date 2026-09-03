@@ -36,14 +36,14 @@ export default function WritingsPage() {
   return (
     <>
       {/* ─────────────────────────── HEADER ─────────────────────────── */}
-      <Section className="relative pt-[9.5rem]">
+      <Section className="relative pt-page">
         <div className="relative z-10 max-w-[46rem]">
           <p className="label">The shelf · stop 03</p>
-          <h1 className="mt-4 font-display text-[clamp(3.6rem,8.4vw,7rem)] font-extrabold leading-[0.9] tracking-[-0.045em]">
+          <h1 className="mt-4 font-display text-[clamp(3.1rem,8.4vw,7rem)] font-extrabold leading-[0.9] tracking-[-0.045em]">
             <TextReveal text={["Things I", "wrote down"]} split="char" stagger={0.024} blur={10} />
           </h1>
           <ScrollReveal y={14} blur={6} delay={0.5} amount={0.2}>
-            <p className="mt-7 max-w-[33rem] text-[17px] leading-[1.7] text-ink-soft sm:text-[19px]">
+            <p className="mt-6 max-w-[33rem] text-[16.5px] leading-[1.65] text-ink-soft sm:mt-7 sm:text-[19px] sm:leading-[1.7]">
               Long, illustrated notes about how something actually works — written while I was working
               it out. Each one is built as its own page, in its own design system, because a piece
               about GPU kernels should not look like a piece about anything else.
@@ -57,8 +57,8 @@ export default function WritingsPage() {
       </Section>
 
       {/* ────────────────────────── THE STICKERS ────────────────────────── */}
-      <Section className="relative mt-[4.5rem]">
-        <div className="grid gap-x-10 gap-y-[6.5rem] xl:grid-cols-2">
+      <Section className="relative mt-[clamp(2.5rem,5vw,4.5rem)]">
+        <div className="grid gap-x-10 gap-y-[clamp(3rem,6vw,6.5rem)] xl:grid-cols-2">
           {WRITINGS.map((w, i) => (
             <ScrollReveal key={w.slug} delay={i * 0.08} y={30}>
               <ArticleSticker writing={w} index={i} />
@@ -67,7 +67,7 @@ export default function WritingsPage() {
 
           {/* the empty slot, same as the drawer on /things */}
           <ScrollReveal delay={0.14} y={30}>
-            <div className="flex h-full min-h-[26rem] flex-col items-center justify-center rounded-[2.25rem] border-[3px] border-dashed border-hairline p-10 text-center">
+            <div className="flex h-full min-h-[18rem] flex-col items-center justify-center rounded-[2.25rem] border-[3px] border-dashed border-hairline p-8 text-center sm:min-h-[26rem] sm:p-10">
               <PaperPlane size={128} />
               <p className="mt-6 font-display text-[26px] font-extrabold tracking-[-0.03em] text-ink-ghost">
                 The next one
@@ -81,7 +81,7 @@ export default function WritingsPage() {
       </Section>
 
       {/* ───────────────────────── THE ONE RULE ───────────────────────── */}
-      <Section className="pt-[9rem]">
+      <Section className="pt-section">
         <ScrollReveal y={22}>
           <div className="relative overflow-hidden rounded-[2rem] bg-panel px-9 py-12 text-on-panel ring-1 ring-[var(--panel-edge)] sm:px-14 sm:py-14">
             <p className="label text-on-panel-soft">The only rule</p>
@@ -99,11 +99,11 @@ export default function WritingsPage() {
       </Section>
 
       {/* ─────────────────────────── FOOTER ─────────────────────────── */}
-      <Section className="relative pb-[7rem] pt-[6rem]">
+      <Section className="relative pb-section-sm pt-section-sm">
         <ScrollReveal y={18}>
           <div className="flex flex-wrap items-center justify-between gap-6 border-t-[2.5px] border-dashed border-hairline pt-8">
             <p className="label">© 2026 Amartya · written at the desk</p>
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center gap-3">
               <HandNote tilt={-2}>tell me what to write next</HandNote>
               <Sticker tone="ink" size="md" tilt={-1.5} display magnetic href="/about#say-hi">
                 say hi

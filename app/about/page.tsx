@@ -59,27 +59,27 @@ export default function AboutPage() {
   return (
     <>
       {/* ─────────────────────────── HERO ─────────────────────────── */}
-      <Section className="relative pt-[9.5rem]">
-        <div className="grid items-center gap-10 lg:grid-cols-[minmax(0,36rem)_minmax(0,1fr)]">
+      <Section className="relative pt-page">
+        <div className="grid items-center gap-8 lg:grid-cols-[minmax(0,36rem)_minmax(0,1fr)] lg:gap-10">
           <div>
             <p className="label">Final stop · the pilot</p>
-            <h1 className="mt-4 font-display text-[clamp(3rem,6.4vw,6rem)] font-extrabold leading-[0.94] tracking-[-0.04em]">
+            <h1 className="mt-4 font-display text-[clamp(2.7rem,6.4vw,6rem)] font-extrabold leading-[0.94] tracking-[-0.04em]">
               <TextReveal text={["A person who", "likes making"]} split="char" stagger={0.02} blur={10} />
               <TextReveal text="things work." split="char" stagger={0.02} delay={0.55} blur={10} className="text-orange" />
             </h1>
             <ScrollReveal y={14} blur={6} delay={0.8} amount={0.2}>
-              <p className="mt-8 max-w-[31rem] text-[17px] leading-[1.75] text-ink-soft sm:text-[19px]">
+              <p className="mt-6 max-w-[31rem] text-[16.5px] leading-[1.65] text-ink-soft sm:mt-8 sm:text-[19px] sm:leading-[1.75]">
                 I&apos;m Amartya — from Kanpur, living in Bengaluru. Right now I build the tools Walmart
                 store teams run their day on, and lead the AI work on my team. Before that I taught a
                 phone to read lab reports at Samsung. The title on the badge keeps changing — the habits
                 underneath it don&apos;t.
               </p>
-              <div className="mt-8 flex flex-wrap items-center gap-5">
+              <div className="mt-7 flex flex-wrap items-center gap-x-6 gap-y-4 sm:mt-8">
                 <Sticker tone="mint" size="sm" tilt={-1.5} wrap className="font-mono text-[12px] font-medium sm:text-[13px]">
                   <span className="size-2.5 rounded-full bg-green shadow-[0_0_0_3px_rgba(111,174,123,0.3)]" />
                   currently: learning CUDA, and how inference actually gets fast
                 </Sticker>
-                <Stamp>arrived</Stamp>
+                <Stamp className="ml-1">arrived</Stamp>
               </div>
             </ScrollReveal>
           </div>
@@ -87,7 +87,7 @@ export default function AboutPage() {
           <PilotPortrait />
         </div>
 
-        <div className="mt-14 flex flex-wrap gap-7">
+        <div className="mt-24 flex flex-wrap gap-5 sm:gap-7 lg:mt-14">
           <FloatingSticker tone="sky" rotate={-6} size="md">
             <Sparkle size={20} />
             learns in public
@@ -100,7 +100,7 @@ export default function AboutPage() {
       </Section>
 
       {/* ─────────────────────── ON THE SHELF ─────────────────────── */}
-      <Section className="pt-[9rem]">
+      <Section className="pt-section">
         <SectionHead
           label="Right now"
           title="On the shelf"
@@ -114,7 +114,7 @@ export default function AboutPage() {
       </Section>
 
       {/* ───────────────────── WHERE I'VE FLOWN ───────────────────── */}
-      <Section className="pt-[10rem]">
+      <Section className="pt-section">
         <SectionHead
           label="The route so far"
           title="Where I've flown"
@@ -130,7 +130,7 @@ export default function AboutPage() {
       </Section>
 
       {/* ───────────────────────── HOW I WORK ───────────────────────── */}
-      <Section className="pt-[11rem]">
+      <Section className="pt-section">
         <SectionHead
           label="Regardless of the job"
           title="How I work"
@@ -144,20 +144,20 @@ export default function AboutPage() {
       </Section>
 
       {/* ────────────────────────── GUESTBOOK ────────────────────────── */}
-      <Section className="pt-[10rem]">
+      <Section className="pt-section">
         <ScrollReveal y={24}>
           <Guestbook />
         </ScrollReveal>
       </Section>
 
       {/* ─────────────────────────── SAY HI ─────────────────────────── */}
-      <Section id="say-hi" className="scroll-mt-32 py-[11rem]">
+      <Section id="say-hi" className="scroll-mt-32 py-section">
         <ScrollReveal y={26}>
-          <div className="relative overflow-hidden rounded-[2rem] bg-panel px-[3.75rem] py-[3.6rem] text-on-panel ring-1 ring-[var(--panel-edge)]">
-            <div className="grid items-center gap-10 lg:grid-cols-[1fr_21rem]">
+          <div className="relative overflow-hidden rounded-[1.5rem] bg-panel px-6 py-9 text-on-panel ring-1 ring-[var(--panel-edge)] sm:rounded-[2rem] sm:px-10 sm:py-12 lg:px-[3.75rem] lg:py-[3.6rem]">
+            <div className="grid items-center gap-8 lg:grid-cols-[1fr_21rem] lg:gap-10">
               <div>
                 <p className="label text-on-panel-soft">Say hi</p>
-                <h2 className="mt-3 font-display text-[clamp(2.4rem,4.4vw,3.6rem)] font-extrabold leading-[0.98] tracking-[-0.04em]">
+                <h2 className="mt-3 font-display text-[clamp(2.1rem,4.4vw,3.6rem)] font-extrabold leading-[0.98] tracking-[-0.04em]">
                   Tell me what
                   <br />
                   you&apos;re making.
@@ -188,8 +188,8 @@ export default function AboutPage() {
                 </div>
               </div>
               {/* signed, rather than stamped with another plane */}
-              <div className="hidden justify-self-end lg:block">
-                <Signature className="w-[21rem]" />
+              <div className="justify-self-start lg:justify-self-end">
+                <Signature className="w-[13rem] sm:w-[17rem] lg:w-[21rem]" />
               </div>
             </div>
           </div>

@@ -45,6 +45,11 @@ components/
   site/         compositions built from beUI + the design system
   art/          the SVG cast (avatar, cat, mug, plant, plane…)
   desk/         the R3F hero scene (code geometry, no model pipeline)
+    config.ts     WHAT is on the desk: props, positions, doors, cat spots, camera
+    rig.tsx       renders a layout; nothing in it names a specific object
+    lamp.tsx      the lamp and the physics of switching it (see below)
+    lights.tsx    the room's light, crossfading with the lamp
+    objects.tsx   the props; cat.tsx the cat; primitives.tsx ink + labels
 lib/            cn(), motion tokens, hooks
 ```
 
@@ -90,6 +95,45 @@ That's it — the workflow does the rest, and every later push redeploys.
 - [ ] Push to GitHub and turn Pages on — the two steps that need your login
 - [ ] Drop a `resume.pdf` into `public/` — the "résumé" sticker links to it
 
+## The desk is data
+
+`components/desk/config.ts` is the only file that knows what stands on the desk.
+`HOME_LAYOUT.props` is a list of `{ kind, position, hotspot? }`; add a line and
+the rig draws it, wraps it in a hover-and-click door if it has a `hotspot`,
+and the cat's landing spots are the same layout's `catSpots`. A second desk
+for another page is a second layout passed to `<Desk layout={…} />`.
+
+`CAMERA.fit` is the size the canvas has to hold; the rig scales the scene so
+that fits both the visible width and height, which is what keeps a phone's
+short landscape canvas and a desktop's tall column showing the same
+composition. As the hero scrolls away the desk tips toward top-down
+(`CAMERA.scrollTilt`).
+
+## The lamp
+
+Pull the chain and the lamp does what a lamp does (`lamp.tsx`): the filament
+warms up over ~0.4s with three dips as the contact settles, the shade and bulb
+glow, the pool of light spreads on the wood, the shade rocks from the tug,
+and the lamp becomes the only shadow-caster — the sun's shadows fade out as
+the lamp's fade in, so every shadow on the desk swings round. Off is a fast
+decay with one after-glow blink. It is one curve driven by time-since-pull,
+not keyframes, so hammering the chain looks right too. At night the monitor
+also spills onto the keycaps.
+
+The island (`desk.tsx`) stops rendering while it is off-screen and, on a
+touch device, drops the shadow maps, the contact-shadow pass and the 2×
+pixel ratio.
+
+## On a phone
+
+Below `md` the route stickers live in a dock at the bottom of the screen
+(thumb reach; it tucks away while you scroll down and comes back on the way
+up) and the pull cord sits in the dock. Nothing from the cast is removed on
+touch: the portrait, the trait stickers, the pilot cluster (eyes follow the
+last tap), the timeline walker and the route mouse all stay, a size down.
+Section rhythm comes from `--spacing-section` / `-sm` / `--spacing-page`
+(clamps in `globals.css`), never a fixed rem.
+
 ## Interaction map
 
 | Where | What it does |
@@ -97,7 +141,9 @@ That's it — the workflow does the rest, and every later push redeploys.
 | Home, the desk | drag to spin 360°, hover an object for its label, click to go there |
 | Home, the keyboard | a wave of keycaps depresses and the monitor types a line |
 | Home, the cat | hops between three spots on the desk, and says so |
-| Home, the lamp chain | pulls night mode on and off; the wipe starts at the lamp |
+| Home, the lamp chain | pulls night mode on and off; the lamp warms up, the shadows swing, the wipe starts at the lamp |
+| Home, the drawer | click to slide it open (the small things are in it); click again to go to them |
+| Home, the mug | tips toward you when you reach for it; click for say-hi |
 | Home, the portrait | peel it off, drop it anywhere in the band, double-click to put it back |
 | Home, the trait stickers | pick up and throw (drag momentum) |
 | /things, the filters | really filter, and the dashed line is re-generated through what's left |
@@ -125,6 +171,8 @@ and claims no number rather than showing a zero.
   sticker flipping to paper is right at 40px and a floodlight at 400px.
 - `:focus-visible` is the route's blue at 3px with an offset, because the
   browser default vanishes inside a sticker's 5px paper ring.
+- Labels (`.label`) are 11.5px — 10px failed the legibility floor on phones.
+  Orange stickers carry ink text (5.3:1); white on that orange was 3.6:1.
 - Known gap: the 3D desk's hotspots are not in the tab order. Every
   destination they open is also a text link in the nav and in "What's on it",
   so nothing is only reachable by pointer — but the objects themselves are

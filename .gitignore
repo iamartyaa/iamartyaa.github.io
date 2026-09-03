@@ -8,3 +8,6 @@ next-env.d.ts
 
 # scratch — safe to delete
 _to_delete/
+
+# the Claude desktop app drops delivered files here
+Claude outputs/

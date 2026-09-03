@@ -36,7 +36,7 @@ export type StickerSize = "sm" | "md" | "lg";
 const TONE: Record<StickerTone, string> = {
   white: "bg-card text-ink",
   ink: "bg-ink text-paper",
-  orange: "bg-orange text-white",
+  orange: "bg-orange text-panel", // ink on orange is 5.3:1; white on it was 3.6:1
   yellow: "bg-yellow text-ink",
   mint: "bg-mint text-ink",
   sky: "bg-sky text-ink",

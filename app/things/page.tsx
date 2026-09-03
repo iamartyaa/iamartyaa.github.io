@@ -1,7 +1,6 @@
 import { ArrowRight, Monitor, Notebook, PaperPlane, Plant, Rocket } from "@/components/art/cast";
 import { ScrollReveal } from "@/components/motion/scroll-reveal";
 import { TextReveal } from "@/components/motion/text-reveal";
-import { TiltCard } from "@/components/motion/tilt-card";
 import { HandNote, Stamp } from "@/components/site/hand-note";
 import { CursorCat } from "@/components/site/cursor-cat";
 import { HideSpot } from "@/components/site/hide-spot";
@@ -105,14 +104,14 @@ export default function ThingsPage() {
       <CursorCat />
 
       {/* ─────────────────────────── HEADER ─────────────────────────── */}
-      <Section className="relative pt-[9.5rem]">
+      <Section className="relative pt-page">
         <div className="relative z-10 max-w-[44rem]">
           <p className="label">The route · stop 02</p>
-          <h1 className="mt-4 font-display text-[clamp(4rem,9vw,7.4rem)] font-extrabold leading-[0.9] tracking-[-0.045em]">
+          <h1 className="mt-4 font-display text-[clamp(3.4rem,9vw,7.4rem)] font-extrabold leading-[0.9] tracking-[-0.045em]">
             <TextReveal text={["Things", "I made"]} split="char" stagger={0.024} blur={10} />
           </h1>
           <ScrollReveal y={14} blur={6} delay={0.5} amount={0.2}>
-            <p className="mt-7 max-w-[30rem] text-[17px] leading-[1.7] text-ink-soft sm:text-[19px]">
+            <p className="mt-6 max-w-[30rem] text-[16.5px] leading-[1.65] text-ink-soft sm:mt-7 sm:text-[19px] sm:leading-[1.7]">
               Four that mattered: an agent that files my paperwork, a rewrite against a labour-law
               deadline, a scanner that reads lab reports, and eleven services that stay up. Something small runs the line as you
               scroll — each landing is a thing.
@@ -127,7 +126,7 @@ export default function ThingsPage() {
       </Section>
 
       {/* ──────────────────────── THE DRAWER ──────────────────────── */}
-      <Section className="relative pt-[4rem]">
+      <Section id="drawer" className="relative scroll-mt-28 pt-section-sm">
         <div className="mb-8 flex flex-wrap items-end justify-between gap-6">
           <div>
             <p className="label">The drawer</p>
@@ -143,13 +142,13 @@ export default function ThingsPage() {
         </div>
 
         <ScrollReveal y={24}>
-          <HideSpot className="relative rounded-[1.75rem] bg-card p-12 shadow-[var(--shadow-card)]">
-            <div className="pointer-events-none absolute inset-3.5 rounded-[1.35rem] border-[2.5px] border-dashed border-hairline" />
-            <div className="relative grid grid-cols-2 gap-9 sm:grid-cols-4">
+          <HideSpot className="relative rounded-[1.75rem] bg-card p-7 shadow-[var(--shadow-card)] sm:p-12">
+            <div className="pointer-events-none absolute inset-3 rounded-[1.35rem] border-[2.5px] border-dashed border-hairline sm:inset-3.5" />
+            <div className="relative grid grid-cols-2 gap-x-5 gap-y-9 sm:grid-cols-4 sm:gap-9">
               {SMALL.map((s, i) => (
                 <div key={i} className="text-center">
                   <div
-                    className={`mx-auto flex size-40 items-center justify-center ${s.shape} ${s.bg} shadow-[0_0_0_5px_var(--card),0_0_0_6.5px_var(--hairline)]`}
+                    className={`mx-auto flex size-28 items-center justify-center sm:size-40 ${s.shape} ${s.bg} shadow-[0_0_0_5px_var(--card),0_0_0_6.5px_var(--hairline)] [&_svg]:h-auto [&_svg]:w-[4.25rem] sm:[&_svg]:w-auto`}
                     style={{ transform: `rotate(${[-4, 3, -2, 4][i % 4]}deg)` }}
                   >
                     {s.art}
@@ -160,8 +159,8 @@ export default function ThingsPage() {
                 </div>
               ))}
               <div className="text-center">
-                <div className="mx-auto flex size-40 rotate-[-3deg] items-center justify-center rounded-full border-[3px] border-dashed border-hairline">
-                  <span className="font-hand text-[21px] font-semibold leading-tight text-ink-ghost">
+                <div className="mx-auto flex size-28 rotate-[-3deg] items-center justify-center rounded-full border-[3px] border-dashed border-hairline sm:size-40">
+                  <span className="font-hand text-[17px] font-semibold leading-tight text-ink-ghost sm:text-[21px]">
                     next one
                     <br />
                     goes here
@@ -176,11 +175,11 @@ export default function ThingsPage() {
       </Section>
 
       {/* ─────────────────────────── FOOTER ─────────────────────────── */}
-      <Section className="relative pb-[7rem] pt-[5rem]">
+      <Section className="relative pb-section-sm pt-section-sm">
         <ScrollReveal y={18}>
           <div className="flex flex-wrap items-center justify-between gap-6 border-t-[2.5px] border-dashed border-hairline pt-8">
             <p className="label">© 2026 Amartya · the route ends, the desk doesn&apos;t</p>
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center gap-3">
               <HandNote tilt={-2}>the cat will see you out</HandNote>
               <Sticker tone="ink" size="md" tilt={-1.5} display magnetic href="/about">
                 about me

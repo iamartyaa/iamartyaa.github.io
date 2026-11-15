@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Andaman, all of us · 21–27 Dec 2026</title>
+<meta name="description" content="Our family trip to the Andaman Islands, 21–27 December 2026. Three plans, every experience, veg food, stays and budget.">
+<meta property="og:title" content="Andaman, all of us · 21–27 Dec 2026">
+<meta property="og:description" content="Pick a plan: Port Blair, Havelock and Neil. Scuba, snorkelling, scooty rides and a Christmas Eve supermoon.">
+<meta property="og:image" content="https://commons.wikimedia.org/wiki/Special:FilePath/Havelock%20Island%2C%20Radhanagar%20Beach%20before%20sunset%2C%20Andaman%20Islands.jpg?width=1200">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&family=Shrikhand&display=swap" rel="stylesheet">
+<style>
+:root{
+  --lagoon:#0B6B6F; --lagoon-deep:#064B4F; --aqua:#9FE0D6; --aqua-soft:#E3F6F2;
+  --sand:#FBFDFC; --ink:#10282F; --muted:#4F6A70; --night:#0A2233; --moon:#F3E3A1;
+  --hibiscus:#D6336C; --line:#CFE6E1;
+  --display:"Shrikhand", Georgia, serif; --body:"Hanken Grotesk", system-ui, sans-serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--sand);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.55;-webkit-font-smoothing:antialiased}
+img{display:block;max-width:100%}
+a{color:var(--lagoon)}
+button{font:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--hibiscus);outline-offset:2px;border-radius:6px}
+.wrap{max-width:1040px;margin:0 auto;padding:0 20px}
+h1,h2,h3{font-family:var(--display);font-weight:400;line-height:1.08;margin:0}
+h2{font-size:clamp(30px,5vw,46px);color:var(--lagoon-deep)}
+h3{font-size:22px}
+p{margin:0 0 .8em}
+.lede{color:var(--muted);max-width:62ch;margin-top:10px}
+section{padding:64px 0}
+
+/* hero */
+.hero{position:relative;min-height:92svh;display:flex;align-items:flex-end;color:#fff;overflow:hidden;background:var(--night)}
+.hero img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.92}
+.hero::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(6,30,40,.15) 0%,rgba(6,30,40,0) 35%,rgba(6,30,40,.78) 100%)}
+.hero .wrap{position:relative;z-index:1;padding-bottom:56px;width:100%}
+.hero h1{font-size:clamp(56px,13vw,148px);letter-spacing:-.01em;text-shadow:0 4px 30px rgba(0,0,0,.35)}
+.hero .sub{font-size:clamp(18px,2.6vw,22px);max-width:40ch;margin:14px 0 22px}
+.hero .meta{display:flex;flex-wrap:wrap;gap:10px}
+.pill{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.14);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.3);padding:8px 14px;border-radius:999px;font-weight:600;font-size:15px;color:#fff;text-decoration:none}
+.pill.cta{background:var(--hibiscus);border-color:var(--hibiscus)}
+.credit-hero{position:absolute;right:12px;bottom:8px;z-index:1;font-size:11px;opacity:.75}
+.credit-hero a{color:#fff}
+
+/* moon */
+.moon{background:var(--night);color:#E8F1F4;padding:72px 0}
+.moon h2{color:var(--moon)}
+.moon .lede{color:#B9CCD3}
+.moonstrip{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin:36px 0 18px}
+.mday{text-align:center;padding:12px 2px 10px;border-radius:16px}
+.mday svg{width:100%;max-width:64px;height:auto;margin:0 auto 8px;display:block}
+.mday b{display:block;font-size:15px}
+.mday span{font-size:12.5px;color:#93AAB3}
+.mday.full{background:rgba(243,227,161,.1);outline:1px solid rgba(243,227,161,.45)}
+.mday.full b{color:var(--moon)}
+.moonnotes{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:22px;margin-top:28px}
+.moonnotes h3{color:var(--moon);font-size:20px;margin-bottom:6px}
+.moonnotes p{color:#C7D7DC;font-size:16px}
+
+/* plans */
+.picker{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:28px 0 8px}
+.pick{border:2px solid var(--line);background:#fff;border-radius:18px;padding:14px 14px 12px;text-align:left;color:var(--ink);transition:border-color .2s,background .2s}
+.pick b{font-family:var(--display);font-weight:400;font-size:22px;display:block;color:var(--lagoon-deep)}
+.pick span{font-size:14px;color:var(--muted);display:block;line-height:1.35}
+.pick[aria-selected="true"]{border-color:var(--lagoon);background:var(--aqua-soft)}
+.plansum{display:grid;grid-template-columns:1.3fr 1fr;gap:28px;margin-top:26px;align-items:start}
+.route{display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin:14px 0 4px}
+.stop{background:var(--lagoon);color:#fff;border-radius:999px;padding:6px 12px;font-weight:600;font-size:14px}
+.stop small{opacity:.8;font-weight:500}
+.route i{width:18px;height:2px;background:var(--lagoon);opacity:.5}
+.facts{background:#fff;border:1px solid var(--line);border-radius:20px;padding:18px 20px}
+.facts dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:15.5px}
+.facts dt{color:var(--muted)}
+.facts dd{margin:0;font-weight:600}
+.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+.btn{display:inline-flex;align-items:center;gap:8px;border:none;border-radius:999px;padding:11px 18px;font-weight:700;font-size:15px;text-decoration:none}
+.btn.primary{background:var(--hibiscus);color:#fff}
+.btn.ghost{background:#fff;color:var(--lagoon-deep);border:2px solid var(--line)}
+
+/* timeline */
+.days{margin-top:44px;position:relative}
+.day{display:grid;grid-template-columns:86px 1fr;gap:18px;padding-bottom:34px;position:relative}
+.day::before{content:"";position:absolute;left:42px;top:70px;bottom:0;width:2px;background:var(--line)}
+.day:last-child::before{display:none}
+.date{text-align:center}
+.date .dnum{font-family:var(--display);font-size:42px;color:var(--lagoon);line-height:1}
+.date .dmon{font-size:13px;color:var(--muted);font-weight:600}
+.date .dmoon{margin:8px auto 0;width:26px}
+.dcard{background:#fff;border:1px solid var(--line);border-radius:24px;overflow:hidden}
+.dcard .banner{height:190px;position:relative;background:var(--aqua-soft)}
+.dcard .banner img{width:100%;height:100%;object-fit:cover}
+.dcard .banner .where{position:absolute;left:14px;bottom:12px;background:rgba(6,30,40,.7);color:#fff;border-radius:999px;padding:5px 12px;font-size:13.5px;font-weight:600}
+.dbody{padding:18px 20px 16px}
+.dbody h3{color:var(--lagoon-deep);margin-bottom:6px}
+.dbody .note{color:var(--muted);font-size:15.5px}
+.slots{list-style:none;padding:0;margin:12px 0 0}
+.slots li{display:grid;grid-template-columns:78px 1fr;gap:10px;padding:9px 0;border-top:1px dashed var(--line);font-size:15.5px}
+.slots .t{color:var(--muted);font-weight:600;font-size:14px;padding-top:1px}
+.xp{background:none;border:none;padding:0;color:var(--lagoon);font-weight:700;text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:3px;text-decoration-color:var(--aqua);text-align:left}
+.xp:hover{text-decoration-color:var(--lagoon)}
+.eat{display:inline-block;background:#F2FBEF;color:#2F6B21;border:1px solid #CDEBC3;border-radius:8px;padding:1px 7px;font-size:13px;font-weight:700;margin-right:6px}
+.stay{margin-top:10px;font-size:14.5px;color:var(--muted)}
+.swap{margin-top:6px;background:var(--aqua-soft);border-radius:14px;padding:12px 14px;font-size:15px}
+
+/* experiences grid */
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin:22px 0}
+.chip{border:2px solid var(--line);background:#fff;border-radius:999px;padding:7px 14px;font-weight:600;font-size:14.5px;color:var(--ink)}
+.chip[aria-pressed="true"]{background:var(--lagoon);border-color:var(--lagoon);color:#fff}
+.xgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px}
+.xcard{position:relative;border:none;border-radius:20px;overflow:hidden;aspect-ratio:4/5;padding:0;background:var(--aqua-soft);text-align:left;color:#fff}
+.xcard img{width:100%;height:100%;object-fit:cover;transition:transform .5s}
+.xcard:hover img{transform:scale(1.04)}
+.xcard .cap{position:absolute;inset:auto 0 0 0;padding:40px 14px 14px;background:linear-gradient(180deg,transparent,rgba(6,30,40,.85))}
+.xcard .cap b{font-family:var(--display);font-weight:400;font-size:21px;display:block;line-height:1.1}
+.xcard .cap span{font-size:13.5px;opacity:.9}
+.xcard .vid{position:absolute;top:12px;right:12px;background:var(--hibiscus);color:#fff;border-radius:999px;font-size:12.5px;font-weight:700;padding:4px 10px}
+
+/* stays + food */
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:22px 0}
+.hgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:16px}
+.hcard{background:#fff;border:1px solid var(--line);border-radius:22px;overflow:hidden;display:flex;flex-direction:column}
+.hcard .ph{height:170px;position:relative}
+.hcard .ph img{width:100%;height:100%;object-fit:cover}
+.hcard .ph small{position:absolute;left:10px;bottom:8px;background:rgba(6,30,40,.7);color:#fff;border-radius:8px;padding:2px 8px;font-size:11.5px}
+.hcard .hb{padding:16px 18px 18px;display:flex;flex-direction:column;gap:6px;flex:1}
+.hcard h3{font-size:21px;color:var(--lagoon-deep)}
+.tier{font-weight:700;color:var(--hibiscus);font-size:14.5px}
+.hcard p{font-size:15px;color:var(--muted);margin:0}
+.hcard .links{margin-top:auto;padding-top:8px;display:flex;gap:14px;font-weight:700;font-size:14.5px}
+.food{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:26px;margin-top:26px}
+.food h3{color:var(--lagoon-deep);margin-bottom:10px}
+.food ul{list-style:none;padding:0;margin:0}
+.food li{padding:10px 0;border-top:1px solid var(--line);font-size:15.5px}
+.food li b{display:block}
+.food li span{color:var(--muted);font-size:14.5px}
+.tag{font-size:12px;font-weight:700;border-radius:6px;padding:1px 6px;margin-left:6px;vertical-align:2px}
+.tag.pv{background:#E5F5DF;color:#2F6B21}
+.tag.vf{background:#FFF2D9;color:#8A5A00}
+.foodphotos{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:26px}
+.foodphotos img{aspect-ratio:1;object-fit:cover;border-radius:16px;width:100%}
+
+/* budget */
+.budget{background:var(--aqua-soft)}
+.calc{display:grid;grid-template-columns:1fr 1fr;gap:26px;margin-top:24px;align-items:start}
+.field{margin-bottom:18px}
+.field label{display:block;font-weight:700;margin-bottom:8px}
+.stepper{display:inline-flex;align-items:center;border:2px solid var(--line);border-radius:999px;background:#fff}
+.stepper button{border:none;background:none;width:44px;height:44px;font-size:22px;color:var(--lagoon)}
+.stepper output{min-width:40px;text-align:center;font-weight:700;font-size:19px}
+.seg{display:flex;flex-wrap:wrap;gap:8px}
+.result{background:#fff;border-radius:24px;padding:22px;border:1px solid var(--line)}
+.result .big{font-family:var(--display);font-size:clamp(34px,6vw,50px);color:var(--lagoon-deep);line-height:1.05}
+.result table{width:100%;border-collapse:collapse;margin-top:14px;font-size:15px}
+.result td{padding:7px 0;border-top:1px solid var(--line)}
+.result td:last-child{text-align:right;font-weight:600}
+.fine{font-size:13.5px;color:var(--muted);margin-top:12px}
+
+/* checklist */
+.check{list-style:none;padding:0;margin:24px 0 0;display:grid;gap:10px;max-width:760px}
+.check label{display:flex;gap:12px;align-items:flex-start;background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px 16px;cursor:pointer}
+.check input{width:22px;height:22px;accent-color:var(--lagoon);margin-top:2px;flex:none}
+.check b{display:block}
+.check span{color:var(--muted);font-size:15px}
+.check input:checked + div b{text-decoration:line-through;color:var(--muted)}
+
+footer{background:var(--night);color:#B9CCD3;padding:48px 0;font-size:13.5px}
+footer h3{color:var(--moon);margin-bottom:12px}
+footer a{color:var(--aqua)}
+.credits{columns:2 320px;column-gap:28px}
+.credits li{break-inside:avoid;margin-bottom:4px}
+
+/* sheet */
+.sheet{position:fixed;inset:0;z-index:50;display:none}
+.sheet.open{display:block}
+.scrim{position:absolute;inset:0;background:rgba(6,25,33,.55)}
+.panel{position:absolute;left:0;right:0;bottom:0;max-height:92svh;overflow:auto;background:var(--sand);border-radius:26px 26px 0 0;animation:up .28s ease-out}
+@media (min-width:860px){.panel{left:50%;right:auto;bottom:auto;top:50%;transform:translate(-50%,-50%);width:780px;border-radius:26px;animation:none}}
+@keyframes up{from{transform:translateY(40px);opacity:.4}to{transform:none;opacity:1}}
+.gal{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:8px;padding:8px}
+.gal figure{margin:0;flex:0 0 86%;scroll-snap-align:center;position:relative}
+.gal img{width:100%;height:300px;object-fit:cover;border-radius:18px}
+.gal figcaption{position:absolute;left:8px;bottom:8px;font-size:11px;background:rgba(6,30,40,.7);color:#fff;border-radius:8px;padding:2px 8px;max-width:90%}
+.gal figcaption a{color:#fff}
+.pbody{padding:10px 22px 28px}
+.pbody h2{font-size:34px}
+.pbody .where2{color:var(--muted);font-weight:600;margin:6px 0 14px}
+.kv{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin:14px 0}
+.kv div{background:#fff;border:1px solid var(--line);border-radius:14px;padding:10px 12px}
+.kv small{display:block;color:var(--muted);font-size:13px}
+.kv b{font-size:15.5px}
+.tips{padding-left:20px;margin:6px 0 0}
+.tips li{margin-bottom:6px;font-size:15.5px}
+.video{position:relative;aspect-ratio:16/9;border-radius:18px;overflow:hidden;background:#000;margin:16px 0 6px}
+.video button{position:absolute;inset:0;border:none;padding:0;background:#000}
+.video button img{width:100%;height:100%;object-fit:cover;opacity:.85}
+.video button span{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);background:var(--hibiscus);color:#fff;border-radius:999px;padding:12px 20px;font-weight:700}
+.video iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.vlink{font-size:13.5px}
+.close{position:sticky;top:10px;float:right;margin:10px 12px 0 0;z-index:2;border:none;background:#fff;border-radius:999px;width:42px;height:42px;font-size:22px;box-shadow:0 2px 10px rgba(0,0,0,.15)}
+
+@media (max-width:720px){
+  section{padding:48px 0}
+  .picker{grid-template-columns:1fr}
+  .plansum,.calc{grid-template-columns:1fr}
+  .day{grid-template-columns:56px 1fr;gap:12px}
+  .day::before{left:27px}
+  .date .dnum{font-size:32px}
+  .slots li{grid-template-columns:1fr;gap:2px}
+  .mday span{display:none}
+  .mday b{font-size:13px}
+  .gal img{height:240px}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+@media print{
+  .hero{min-height:auto;color:var(--ink)} .hero img,.hero::after,.no-print,.sheet,#experiences,#budget,#checklist{display:none!important}
+  .hero h1{color:var(--lagoon-deep);text-shadow:none;font-size:56px} .hero .sub{color:var(--ink)}
+  .moon{background:#fff;color:var(--ink)} .moon h2{color:var(--lagoon-deep)} .moon .lede,.moonnotes p,.mday span{color:var(--muted)} .moonnotes h3{color:var(--lagoon)}
+  .dcard{break-inside:avoid} .dcard .banner{height:120px}
+  section{padding:24px 0} footer{background:#fff;color:var(--muted)}
+}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <img src="" data-file="Havelock Island, Radhanagar Beach before sunset, Andaman Islands.jpg" data-w="2000" alt="Radhanagar Beach on Havelock Island just before sunset">
+  <div class="wrap">
+    <h1>Andaman,<br>all of us.</h1>
+    <p class="sub">21 to 27 December 2026. Port Blair, Havelock and Neil, with scuba, scooty rides, coral reefs and a Christmas Eve supermoon over the sea.</p>
+    <div class="meta">
+      <span class="pill" id="countdown">Counting down…</span>
+      <a class="pill cta" href="#plans">Pick our plan</a>
+      <a class="pill" href="#food">Veg food guide</a>
+    </div>
+  </div>
+  <span class="credit-hero">Photo: Vyacheslav Argenberg, <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a></span>
+</header>
+
+<section class="moon" id="moon">
+  <div class="wrap">
+    <h2>The moon picked our dates.</h2>
+    <p class="lede">The full moon lands on Christmas Eve, and it is the biggest supermoon of 2026. Here is how much of it we will see on each night of the trip.</p>
+    <div class="moonstrip" id="moonstrip"></div>
+    <div class="moonnotes">
+      <div><h3>Moonrise over the sea</h3><p>A full moon rises in the east as the sun sets. Kalapathar on Havelock and Sitapur on Neil both face east, so on 23 and 24 December we can sit on the sand and watch it come up out of the water.</p></div>
+      <div><h3>The lowest tides of the month</h3><p>Full moons pull the sea far back. That is the best time to walk out to Neil's Natural Bridge and its rock pools. We'll check the tide table the evening before.</p></div>
+      <div><h3>What we are skipping</h3><p>Bioluminescence kayaking needs dark nights. With this much moonlight the glow is hard to see, so we save about ₹3,500 each and spend it on scuba instead.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="plans">
+  <div class="wrap">
+    <h2>Three ways to do the week</h2>
+    <p class="lede">Same islands, different pace. Tap a plan to see every day. Tap anything underlined to see photos, videos, prices and tips.</p>
+    <div class="picker" role="tablist" id="picker"></div>
+    <div class="plansum" id="plansum"></div>
+    <div class="days" id="days"></div>
+  </div>
+</section>
+
+<section id="experiences" style="background:#fff">
+  <div class="wrap">
+    <h2>Every experience</h2>
+    <p class="lede">All the places across the three plans. Cards marked with a video have a clip inside.</p>
+    <div class="filters" id="xfilters"></div>
+    <div class="xgrid" id="xgrid"></div>
+  </div>
+</section>
+
+<section id="stays">
+  <div class="wrap">
+    <h2>Where we could stay</h2>
+    <p class="lede">Family-friendly picks on each island, from simple to splurge. Prices are indicative for a double room per night and climb in the last week of December, so check live rates before booking. Photos show the area; tap "Room photos" for the hotel itself.</p>
+    <div class="tabs" id="htabs"></div>
+    <div class="hgrid" id="hgrid"></div>
+    <p class="swap" style="margin-top:20px"><b>Christmas Eve catch:</b> some resorts add a compulsory gala dinner on 24 December. One Havelock hotel lists ₹3,499 per adult. Ask before paying, and ask whether the gala menu has a proper veg spread.</p>
+  </div>
+</section>
+
+<section id="food" style="background:#fff">
+  <div class="wrap">
+    <h2>Veg food, island by island</h2>
+    <p class="lede">Pure veg kitchens first, then cafes that serve fish too but do excellent veg plates. On menus, look out for fish sauce and prawn stock in "Thai" dishes and ask.</p>
+    <div class="food" id="foodlist"></div>
+    <div class="foodphotos" id="foodphotos"></div>
+  </div>
+</section>
+
+<section class="budget" id="budget">
+  <div class="wrap">
+    <h2>What will it cost?</h2>
+    <p class="lede">A rough estimate from 2026 peak-season prices, not including flights. Change the numbers and it updates.</p>
+    <div class="calc">
+      <div>
+        <div class="field"><label>How many of us?</label>
+          <div class="stepper"><button type="button" id="minus" aria-label="Fewer people">−</button><output id="ppl">5</output><button type="button" id="plus" aria-label="More people">+</button></div>
+        </div>
+        <div class="field"><label>Which plan?</label><div class="seg" id="bplan"></div></div>
+        <div class="field"><label>Stay style</label><div class="seg" id="btier"></div></div>
+        <div class="field"><label>Scuba for how many?</label>
+          <div class="stepper"><button type="button" id="sminus" aria-label="Fewer divers">−</button><output id="divers">5</output><button type="button" id="splus" aria-label="More divers">+</button></div>
+        </div>
+      </div>
+      <div class="result" id="bresult" aria-live="polite"></div>
+    </div>
+  </div>
+</section>
+
+<section id="checklist">
+  <div class="wrap">
+    <h2>Before we fly</h2>
+    <p class="lede">Ticks are saved on your phone only.</p>
+    <ul class="check" id="checks"></ul>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <h3>Photo and video credits</h3>
+    <p>Photos are from Wikimedia Commons, used under their Creative Commons licences. Videos belong to their YouTube creators and play from YouTube. Prices come from operator and booking sites checked in November 2026. Confirm them before paying.</p>
+    <ul class="credits" id="credits"></ul>
+  </div>
+</footer>
+
+<div class="sheet" id="sheet" aria-hidden="true">
+  <div class="scrim" data-close></div>
+  <div class="panel" role="dialog" aria-modal="true" aria-labelledby="ptitle" tabindex="-1">
+    <button class="close" data-close aria-label="Close">×</button>
+    <div id="pcontent"></div>
+  </div>
+</div>
+
+<script>
+/* ---------- photos (Wikimedia Commons) ---------- */
+const P = {
+ "Havelock Island, Radhanagar Beach before sunset, Andaman Islands.jpg":["Vyacheslav Argenberg","CC BY 4.0"],
+ "Radhanagar Beach in the Andaman Islands.jpg":["La Vacanza Travel Private Limited","CC BY-SA 4.0"],
+ "Radhanagar Beach early in the morning.jpg":["Rudolph.A.furtado","CC BY-SA 4.0"],
+ "Havelock Island, Radhanagar Beach sunset, Andaman Islands.jpg":["Vyacheslav Argenberg","CC BY 4.0"],
+ "Havelock Island, Elephant Beach, Tree, Andamans.jpg":["Vyacheslav Argenberg","CC BY 4.0"],
+ "Havelock Island, Elephant Beach, Andamans.jpg":["Vyacheslav Argenberg","CC BY 4.0"],
+ "Coral reef Elephant Beach ,Andaman 09.jpg":["Harvinder Chandigarh","CC BY-SA 4.0"],
+ "Snorkeling at Elephant Beach on Havelock island of Andaman and Nicobar Archipelago.JPG":["Rudolph.A.furtado","CC BY-SA 4.0"],
+ "Kalapathar Beach.jpg":["Arkadeep Meta","CC BY-SA 4.0"],
+ "Kalapathar beach Havelock Island, Andaman, India.JPG":["Harvinder Chandigarh","CC BY-SA 4.0"],
+ "Andaman Islands, Full moon night, Forest by the sea at night.jpg":["Vyacheslav Argenberg","CC BY 4.0"],
+ "Andaman Islands, Trees by the sea at night, Full moon night.jpg":["Vyacheslav Argenberg","CC BY 4.0"],
+ "Scuba diving in havelock island.jpg":["Kishlay singh","CC BY-SA 4.0"],
+ "Clown fish in the Andaman Coral Reef.jpg":["Ritiks","CC BY-SA 3.0"],
+ "The Coral Reef at the Andaman Islands.jpg":["Ritiks","CC BY-SA 3.0"],
+ "SCUBA bubbles Andaman and Nicobar Islands.jpg":["Vardhanjp","CC BY-SA 4.0"],
+ "Road side landscape ,Havelock Island , Andaman, India.JPG":["Harvinder Chandigarh","CC BY-SA 4.0"],
+ "Road leading from Havelock toward village Shamnagar, Havelock Island, India.JPG":["Harvinder Chandigarh","CC BY-SA 4.0"],
+ "Havelock Island, Tropical forest, Andamans.jpg":["Vyacheslav Argenberg","CC BY 4.0"],
+ "Havelock Island, Sandy lagoon, Andaman Islands.jpg":["Vyacheslav Argenberg","CC BY 4.0"],
+ "Havelock Island, Mangrove tree on the beach, Andaman Islands.jpg":["Vyacheslav Argenberg","CC BY 4.0"],
+ "Havelock Island, Sunset at the beach, Andaman Islands.jpg":["Vyacheslav Argenberg","CC BY 4.0"],
+ "Shaheed Island, Andamans, Coral bridge with natural arch, Panorama.jpg":["Vyacheslav Argenberg","CC BY 4.0"],
+ "Natural Bridge, Neil Island, Andaman, India.JPG":["Harvinder Chandigarh","CC BY-SA 4.0"],
+ "Bharatpur beach, Niel Island,Andaman Islands, India.JPG":["Harvinder Chandigarh","CC BY-SA 4.0"],
+ "Neil Island - Bharatpur beach as seen from jetty.jpg":["Ankur Panchbudhe","CC BY-SA 2.0"],
+ "Shaheed Island, Andamans, Laxmanpur Beach.jpg":["Vyacheslav Argenberg","CC BY 4.0"],
+ "Shaheed Island, Andaman Sea, Sunset.jpg":["Vyacheslav Argenberg","CC BY 4.0"],
+ "Sitapur beach,Neil island,Andaman - panoramio.jpg":["Biswajit Majumdar","CC BY-SA 3.0"],
+ "Shaheed Island, Andamans, Mangrove beach, True wilderness.jpg":["Vyacheslav Argenberg","CC BY 4.0"],
+ "Cellular Jail, Andaman, Port Blair, India.jpg":["Harvinder Chandigarh","CC BY-SA 4.0"],
+ "Cellular Jail, Andaman & Nicobar, Port Blair, India, night view.jpg":["Harvinder Chandigarh","CC BY-SA 4.0"],
+ "Cellular Jail - Light and sound show (15545325069).jpg":["Ankur P","CC BY-SA 2.0"],
+ "Ross Island, Andamans, Banyan tree.jpg":["Vyacheslav Argenberg","CC BY 4.0"],
+ "Ross Island, Andamans, Penal Colony harbor.jpg":["Vyacheslav Argenberg","CC BY 4.0"],
+ "North bay island Andaman vrvbaan042k24 (54).jpg":["Vinayaraj","CC BY-SA 4.0"],
+ "Munda pahar sunset.jpg":["Arpandhar","CC BY-SA 4.0"],
+ "Munda Pahar Beach.jpg":["Jnanam Shah","CC BY-SA 4.0"],
+ "Chidiya Tapu 4180135.JPG":["Biswarup Ganguly","CC BY 3.0"],
+ "Jolly Buoy Island.jpg":["Ayushi rai","CC BY-SA 4.0"],
+ "Beach, Jolly Buoy Island.jpg":["Anshul Arora","CC BY-SA 4.0"],
+ "Glass bottom boat-7-port blair-andaman-India.jpg":["Yercaud-elango","CC BY-SA 4.0"],
+ "Limestone Caves, Baratang, Andaman 01.jpg":["Pratiti090","CC BY-SA 4.0"],
+ "Limestone Caves, Baratang, Andaman 02.jpg":["Pratiti090","CC BY-SA 4.0"],
+ "Corbyns cove beach-3-port blair-andaman-India.jpg":["Yercaud-elango","CC BY-SA 4.0"],
+ "Corbyns cove beach-14-port blair-andaman-India.jpg":["Yercaud-elango","CC BY-SA 4.0"],
+ "Havelock jetty Andaman vrvbaan042k24 (16).jpg":["Vinayaraj","CC BY-SA 4.0"],
+ "Neil Island Jetty,Andaman - panoramio.jpg":["Biswajit Majumdar","CC BY-SA 3.0"],
+ "Andaman Sea, Sunset.jpg":["Vyacheslav Argenberg","CC BY 4.0"],
+ "Aberdeen Clock Tower, Port Blair vrvbaan042k24 (3).jpg":["Vinayaraj","CC BY-SA 4.0"],
+ "Masala dosa 01.jpg":["Marajozkee","CC BY-SA 4.0"],
+ "Vegetarian Thali 4.jpg":["Ganesh Mohan T","CC BY-SA 4.0"],
+ "Tender coconut water 02.jpg":["Vis M","CC BY-SA 4.0"]
+};
+const LIC = {"CC BY 4.0":"https://creativecommons.org/licenses/by/4.0/","CC BY-SA 4.0":"https://creativecommons.org/licenses/by-sa/4.0/","CC BY-SA 3.0":"https://creativecommons.org/licenses/by-sa/3.0/","CC BY-SA 2.0":"https://creativecommons.org/licenses/by-sa/2.0/","CC BY 3.0":"https://creativecommons.org/licenses/by/3.0/"};
+const img = (f,w=1280)=>"https://commons.wikimedia.org/wiki/Special:FilePath/"+encodeURIComponent(f)+"?width="+w;
+const page = f=>"https://commons.wikimedia.org/wiki/File:"+encodeURIComponent(f.replace(/ /g,"_"));
+const credit = f=>{const c=P[f]||["Wikimedia Commons",""];return `<a href="${page(f)}" target="_blank" rel="noopener">${c[0]}</a>, ${c[1]}`};
+const maps = q=>"https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(q);
+const esc = s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+/* ---------- experiences ---------- */
+const X = {
+ chidiya:{t:"Chidiya Tapu and Munda Pahar trek",isl:"Port Blair",photos:["Munda pahar sunset.jpg","Munda Pahar Beach.jpg","Chidiya Tapu 4180135.JPG"],
+  d:"The southern tip of South Andaman. A guided forest trail of about an hour ends on Munda Pahar beach, one of the best sunset spots near Port Blair. Easy enough for parents at a gentle pace.",
+  kv:[["Time","Afternoon to sunset"],["Cost","Cab from Port Blair, about 1 hr each way. Fix the fare first."],["Good for","Everyone, walking shoes"]],
+  tips:["Leave Port Blair by 2:30 PM to walk the trail before the light goes.","Carry water and mosquito repellent for the forest stretch.","Bird Island (Chidiya Tapu) gets its name from the birdlife, so keep an eye on the treetops."],q:"Munda Pahar Beach Chidiya Tapu"},
+ cellular:{t:"Cellular Jail and the Light and Sound Show",isl:"Port Blair",photos:["Cellular Jail, Andaman, Port Blair, India.jpg","Cellular Jail - Light and sound show (15545325069).jpg","Cellular Jail, Andaman & Nicobar, Port Blair, India, night view.jpg"],
+  d:"Kala Pani, the colonial prison where freedom fighters were held in solitary cells. Walk the wings and climb the central tower by day, then come back in the evening for the show that tells the story with light and narration.",
+  kv:[["Museum entry","₹30 per person"],["Show","₹300 adult, ₹150 child (5–11)"],["Closed","Museum shut on Mondays"]],
+  tips:["Book show tickets only on the official Andaman Tourism e-Tourist portal, and do it early.","Hindi shows run first in the evening, English later. Check the slot when booking.","No photography during the show."],
+  video:"ffvnCZQDaZc",vt:"Curly Tales on the history of Kala Pani",link:["Official show booking","https://tourism.andamannicobar.gov.in/etourist/show-details"],q:"Cellular Jail Port Blair"},
+ corbyn:{t:"Corbyn's Cove",isl:"Port Blair",photos:["Corbyns cove beach-3-port blair-andaman-India.jpg","Corbyns cove beach-14-port blair-andaman-India.jpg"],
+  d:"Port Blair's palm-lined town beach, ten minutes from the airport. Perfect for a lazy last morning or an evening walk after landing.",
+  kv:[["Cost","Free"],["Time","1–2 hours"],["Good for","Tender coconut and a sea breeze"]],tips:["Swim only in the marked area.","Go early on the 27th if your flight is after lunch."],q:"Corbyn's Cove Beach Port Blair"},
+ ross:{t:"Ross Island (Netaji Subhas Chandra Bose Dweep)",isl:"Port Blair",photos:["Ross Island, Andamans, Banyan tree.jpg","Ross Island, Andamans, Penal Colony harbor.jpg"],
+  d:"The old British headquarters, now ruins swallowed by banyan roots, with deer wandering the paths. A short boat ride from Port Blair.",
+  kv:[["Boat","About ₹300–500 return"],["Time","2–3 hours"],["Add-on","North Bay for coral and a lighthouse"]],tips:["Boats leave in the morning from the Aberdeen side. Check the day's timings.","Wear walking shoes; it is a loop on foot."],q:"Ross Island Port Blair"},
+ jolly:{t:"Jolly Buoy Island",isl:"Port Blair",photos:["Jolly Buoy Island.jpg","Beach, Jolly Buoy Island.jpg","Glass bottom boat-7-port blair-andaman-India.jpg"],
+  d:"Inside Mahatma Gandhi Marine National Park, with some of the clearest water and healthiest coral near Port Blair. A boat from Wandoor, then a glass-bottom boat over the reef, then snorkelling off a white-sand beach.",
+  kv:[["Tickets","From about ₹1,275 with permit"],["Open","November to April, closed Mondays"],["Time","Wandoor by 7 AM, back by 3 PM"]],
+  tips:["Permits are limited per day. Book a day or two ahead.","No plastic is allowed on the island; bags are checked.","There are no restaurants on the island, so pack a veg lunch."],
+  video:"29ssRTHAKqM",vt:"Complete guide: permit, glass-bottom boat and coral",q:"Wandoor Jetty Jolly Buoy"},
+ baratang:{t:"Baratang limestone caves",isl:"Port Blair",photos:["Limestone Caves, Baratang, Andaman 01.jpg","Limestone Caves, Baratang, Andaman 02.jpg"],
+  d:"A long day north: a road convoy through the Jarawa reserve, a vehicle ferry, a speedboat through mangrove creeks and a short forest walk into caves of dripping limestone.",
+  kv:[["Package","About ₹3,500–6,500 per person"],["Start","Around 3 AM"],["Time","10–12 hours door to door"]],
+  tips:["Optional swap for Plan C. It is tiring for elders.","No photos, stopping or contact with the tribe on the reserve road.","Wear proper shoes for the cave trail."],q:"Baratang Limestone Caves"},
+ radhanagar:{t:"Radhanagar Beach sunset",isl:"Havelock",photos:["Havelock Island, Radhanagar Beach before sunset, Andaman Islands.jpg","Radhanagar Beach in the Andaman Islands.jpg","Havelock Island, Radhanagar Beach sunset, Andaman Islands.jpg"],
+  d:"Beach No. 7, one of Asia's most celebrated beaches. A long arc of white sand backed by tall forest, facing west for the sunset.",
+  kv:[["Cost","Free"],["Ride","About 12 km from the jetty by scooty"],["Eat","Mohwa Cafe is right on the sand"]],
+  tips:["Reach by 4:30 PM for a spot; sunset is around 5 PM in late December.","Lifeguards mark the safe swimming area. Stay inside it.","The ride back is dark. Go slow on the forest road."],
+  video:"E8fFOJzRxFA",vt:"Radhanagar from a drone, in 4K",q:"Radhanagar Beach Havelock"},
+ elephant:{t:"Elephant Beach snorkelling",isl:"Havelock",photos:["Havelock Island, Elephant Beach, Tree, Andamans.jpg","Coral reef Elephant Beach ,Andaman 09.jpg","Snorkeling at Elephant Beach on Havelock island of Andaman and Nicobar Archipelago.JPG"],
+  d:"Shallow coral right off the beach, the easiest first snorkel in the islands. A speedboat from Havelock jetty takes about 30 minutes; in Plan C we walk in through the jungle instead.",
+  kv:[["Boat","From ₹1,000 return, 5 min snorkel included"],["Longer snorkel","About ₹500–1,000 extra"],["Sea walk","About ₹3,500, no swimming needed"]],
+  tips:["Take the earliest boat slot. The water is clearer and the beach quieter.","Remember your boat's name; the same boat brings you back.","Jungle trek option: about 2.5 km each way, free, needs good shoes."],
+  video:"vFRFkGTNJOM",vt:"What snorkelling here looks like",video2:"Nm8AuhckXe4",vt2:"The jungle trek route",q:"Elephant Beach Havelock"},
+ scuba:{t:"Scuba diving",isl:"Havelock",photos:["Scuba diving in havelock island.jpg","Clown fish in the Andaman Coral Reef.jpg","SCUBA bubbles Andaman and Nicobar Islands.jpg"],
+  d:"No swimming or experience needed. A PADI instructor holds you the whole time. The shore dive goes to about 8 metres; the boat dive goes to a reef at about 12 metres with more coral and fish.",
+  kv:[["Shore dive","About ₹3,500 per person"],["Boat dive","About ₹5,400 per person"],["Age","10 and above"]],
+  tips:["Dive at least 24 hours before the flight. Every plan already does this.","Book a morning slot; afternoon sea is choppier.","Photos and video are usually included. Confirm before paying."],
+  video:"aq8UpXPo054",vt:"A first dive at Havelock",q:"scuba diving Havelock Island"},
+ kalapathar:{t:"Kalapathar sunrise and moonrise",isl:"Havelock",photos:["Kalapathar Beach.jpg","Kalapathar beach Havelock Island, Andaman, India.JPG","Andaman Islands, Full moon night, Forest by the sea at night.jpg"],
+  d:"A quiet east-facing beach of black rocks and turquoise water. Sunrise here is gorgeous, and around Christmas Eve the full moon rises right out of the sea at dusk.",
+  kv:[["Cost","Free"],["Moonrise","Around sunset, 23–24 Dec"],["Ride","About 7 km from the jetty"]],
+  tips:["Bring a mat and a flask of chai for moonrise.","Check moonrise time on a weather app that afternoon.","Phones struggle with the moon. Use night mode and rest the phone on something."],
+  video:"bBQJaKMjmyk",vt:"Kalapathar from above",q:"Kalapathar Beach Havelock"},
+ scooty:{t:"Scooty rides around Havelock",isl:"Havelock",photos:["Road side landscape ,Havelock Island , Andaman, India.JPG","Road leading from Havelock toward village Shamnagar, Havelock Island, India.JPG","Havelock Island, Tropical forest, Andamans.jpg"],
+  d:"Havelock is small, green and calm. Two to a scooty, we can hop between beaches, cafes and villages on our own time.",
+  kv:[["Rent","About ₹500 a day per scooty"],["Deposit","About ₹2,000, refundable"],["Bring","Driving licence"]],
+  tips:["Rent on Havelock and Neil, but take cabs in Port Blair; locals advise the same.","Fill up at the petrol pump near the market; there are few.","Helmets on, and avoid riding the forest road after dark."],q:"Havelock Island scooty rental"},
+ ferry:{t:"Island ferries",isl:"Ferries",photos:["Havelock jetty Andaman vrvbaan042k24 (16).jpg","Neil Island Jetty,Andaman - panoramio.jpg"],
+  d:"Private catamarans (Makruzz, Nautika, Green Ocean, ITT Majestic) link Port Blair, Havelock and Neil. Green Ocean has an open deck for the sea breeze.",
+  kv:[["Port Blair to Havelock","About ₹1,300–2,000"],["Havelock to Neil","About ₹1,000–1,700"],["Neil to Port Blair","About ₹1,200–1,700"]],
+  tips:["Book now. Late-December sailings sell out.","Reach Haddo jetty 45 minutes early with photo ID.","Never plan a ferry for the day of your flight."],q:"Haddo Jetty Port Blair"},
+ bridge:{t:"Natural Bridge at low tide",isl:"Neil",photos:["Shaheed Island, Andamans, Coral bridge with natural arch, Panorama.jpg","Natural Bridge, Neil Island, Andaman, India.JPG"],
+  d:"A rock arch carved by the sea, with rock pools full of starfish, sea cucumbers and tiny fish. Full-moon tides pull the water back further than usual.",
+  kv:[["Cost","Small entry, local guides optional"],["When","Low tide only"],["Walk","Short, over rough rock"]],
+  tips:["Check the tide time the evening before.","Wear sandals with grip, not flip-flops.","Don't step on or pick up live coral or creatures."],
+  video:"9Y5rf16KnX4",vt:"The bridge at low tide",q:"Natural Bridge Neil Island"},
+ bharatpur:{t:"Bharatpur Beach snorkelling",isl:"Neil",photos:["Bharatpur beach, Niel Island,Andaman Islands, India.JPG","Neil Island - Bharatpur beach as seen from jetty.jpg"],
+  d:"Calm, shallow and right next to Neil jetty. Snorkelling and glass-bottom boats over the reef, great for anyone nervous in the water.",
+  kv:[["Snorkel","About ₹400–800 per person"],["Glass-bottom","Pay at the counter"],["Hours","About 5 AM to 6 PM"]],
+  tips:["Go before 11 AM when the water is calmer.","Carry cash; Neil has few ATMs and cards don't always work."],q:"Bharatpur Beach Neil Island"},
+ laxmanpur:{t:"Laxmanpur Beach sunset",isl:"Neil",photos:["Shaheed Island, Andamans, Laxmanpur Beach.jpg","Shaheed Island, Andaman Sea, Sunset.jpg"],
+  d:"Neil's sunset point: a wide curve of sand that turns gold in the evening. Quieter than Radhanagar.",
+  kv:[["Cost","Free"],["Time","4:30 PM onwards"],["Ride","Short scooty or auto ride"]],tips:["Bring a mat and snacks; there are only a few stalls.","Shell collecting is not allowed. Take photos instead."],q:"Laxmanpur Beach Neil Island"},
+ sitapur:{t:"Sitapur sunrise and moonrise",isl:"Neil",photos:["Sitapur beach,Neil island,Andaman - panoramio.jpg","Andaman Islands, Trees by the sea at night, Full moon night.jpg"],
+  d:"Neil's east-facing beach, wild and empty at dawn. On Christmas Eve in Plan B, this is where we watch the supermoon rise over the water.",
+  kv:[["Cost","Free"],["Sunrise","Around 5:45 AM"],["Distance","About 5 km from the bazaar"]],tips:["Ask your hotel for an auto the night before for the sunrise trip.","Carry a torch for the path back after moonrise."],q:"Sitapur Beach Neil Island"},
+ neilloop:{t:"Cycle or scooty around Neil",isl:"Neil",photos:["Shaheed Island, Andamans, Mangrove beach, True wilderness.jpg","Bharatpur beach, Niel Island,Andaman Islands, India.JPG"],
+  d:"Neil is about 14 square kilometres of paddy fields, banana groves and village lanes. You can loop the whole island in an afternoon.",
+  kv:[["Scooty","About ₹500 a day"],["Cycle","Cheaper, ask at your stay"],["Time","Half a day"]],tips:["Stop at the vegetable market; Neil is the islands' vegetable bowl.","Carry water; shade is patchy at midday."],q:"Neil Island bazaar"}
+};
+/* videos for hero tile */
+const HERO_VIDEO = {id:"9WBzVC66vhA",t:"Andaman in 4K, a cinematic film"};
+
+/* ---------- plans ---------- */
+const DAYS = ["Mon 21","Tue 22","Wed 23","Thu 24","Fri 25","Sat 26","Sun 27"];
+const MOON = [0.86,0.93,0.98,1,0.97,0.91,0.83]; // approx illumination
+const PLANS = {
+ a:{name:"Plan A",tag:"Classic and easy on the family",route:[["Port Blair",1],["Havelock",3],["Neil",1],["Port Blair",1]],
+   facts:[["Pace","Relaxed, one big thing a day"],["Scuba","Shore dive"],["Moonrise","Kalapathar, Havelock"],["Per person","PP"]],
+   days:[
+   {h:"Land, then a jungle walk to the sunset",w:"Port Blair",ph:"Munda pahar sunset.jpg",s:[["Morning","Land at Port Blair, check in, rest"],["Lunch","<span class=eat>Veg</span>Annapurna Cafeteria, Aberdeen Bazaar"],["3 PM",["chidiya","Chidiya Tapu and the Munda Pahar trek"]],["Dinner","<span class=eat>Veg</span>Icy Spicy"]],stay:"Port Blair",note:"The Cellular Jail museum is closed on Mondays, so we save it for Saturday."},
+   {h:"Ferry to Havelock and the famous sunset",w:"Havelock",ph:"Radhanagar Beach in the Andaman Islands.jpg",s:[["Morning",["ferry","Ferry to Havelock"]],["Noon",["scooty","Pick up scooties"]],["Lunch","<span class=eat>Veg</span>Shakahaar, Govind Nagar"],["4:30 PM",["radhanagar","Radhanagar Beach sunset"]],["Dinner","<span class=eat>Veg</span>Full Moon Cafe"]],stay:"Havelock"},
+   {h:"Coral day",w:"Havelock",ph:"Coral reef Elephant Beach ,Andaman 09.jpg",s:[["8 AM",["elephant","Elephant Beach boat and snorkelling"]],["Afternoon","Rest at the hotel, beach time"],["5 PM",["kalapathar","Near-full moonrise at Kalapathar"]],["Dinner","<span class=eat>Veg-friendly</span>Anju Coco"]],stay:"Havelock"},
+   {h:"Christmas Eve: scuba, then the supermoon",w:"Havelock",ph:"Andaman Islands, Full moon night, Forest by the sea at night.jpg",s:[["8 AM",["scuba","Scuba diving, shore dive"]],["Afternoon","Cafe hop: Something Different, B3 by the jetty"],["5 PM",["kalapathar","Supermoon rise at Kalapathar or Beach 5"]],["Dinner","Christmas Eve dinner at the hotel. Check the veg menu."]],stay:"Havelock"},
+   {h:"Christmas on Neil",w:"Neil",ph:"Shaheed Island, Andamans, Coral bridge with natural arch, Panorama.jpg",s:[["Morning",["ferry","Ferry to Neil"]],["Low tide",["bridge","Natural Bridge and rock pools"]],["Midday",["bharatpur","Snorkelling at Bharatpur"]],["4:30 PM",["laxmanpur","Laxmanpur sunset"]],["Dinner","<span class=eat>Veg</span>Shakahari Pure Veg, or Garden View"]],stay:"Neil"},
+   {h:"Sunrise, ferry, and history",w:"Port Blair",ph:"Cellular Jail, Andaman, Port Blair, India.jpg",s:[["5:45 AM",["sitapur","Sitapur sunrise"]],["Morning",["ferry","Ferry back to Port Blair"]],["3 PM",["cellular","Cellular Jail museum"]],["Evening",["cellular","Light and Sound Show"]],["Dinner","<span class=eat>Veg</span>Icy Spicy"]],stay:"Port Blair"},
+   {h:"One last beach, then home",w:"Port Blair",ph:"Corbyns cove beach-3-port blair-andaman-India.jpg",s:[["Morning",["ross","Ross Island, if your flight is after 2 PM"]],["Or",["corbyn","Coconut water at Corbyn's Cove"]],["Later","Fly out from Port Blair"]]}
+   ]},
+ b:{name:"Plan B",tag:"The most beach and scooty time",route:[["Havelock",3],["Neil",2],["Port Blair",1]],
+   facts:[["Pace","Slow island days"],["Scuba","Shore dive"],["Moonrise","Sitapur, Neil, on Christmas Eve"],["Per person","PP"],["Needs","Flight landing by 11 AM"]],
+   days:[
+   {h:"Straight from the airport to the sea",w:"Havelock",ph:"Havelock jetty Andaman vrvbaan042k24 (16).jpg",s:[["Noon",["ferry","Afternoon ferry to Havelock (1 PM or 2 PM)"]],["Snack","<span class=eat>Veg</span>Grab Annapurna parcels on the way to Haddo"],["Evening","Settle in, walk Beach 5 at dusk"],["Dinner","<span class=eat>Veg</span>Shakahaar"]],stay:"Havelock"},
+   {h:"Underwater morning, golden evening",w:"Havelock",ph:"Clown fish in the Andaman Coral Reef.jpg",s:[["8 AM",["scuba","Scuba diving, shore dive"]],["Noon",["scooty","Pick up scooties"]],["4:30 PM",["radhanagar","Radhanagar sunset with Mohwa Cafe"]],["Dinner","<span class=eat>Veg-friendly</span>Full Moon Cafe"]],stay:"Havelock"},
+   {h:"Coral and moonrise",w:"Havelock",ph:"Havelock Island, Elephant Beach, Tree, Andamans.jpg",s:[["8 AM",["elephant","Elephant Beach snorkelling"]],["Afternoon","Cafes and rest"],["5 PM",["kalapathar","Moonrise at Kalapathar"]],["Dinner","<span class=eat>Veg-friendly</span>Anju Coco"]],stay:"Havelock"},
+   {h:"Christmas Eve supermoon on Neil",w:"Neil",ph:"Andaman Islands, Trees by the sea at night, Full moon night.jpg",s:[["Morning",["ferry","Ferry to Neil"]],["Low tide",["bridge","Natural Bridge and rock pools"]],["5 PM",["sitapur","Supermoon rise at Sitapur"]],["Dinner","<span class=eat>Veg</span>Shakahari Pure Veg"]],stay:"Neil"},
+   {h:"Christmas, slow and sunny",w:"Neil",ph:"Bharatpur beach, Niel Island,Andaman Islands, India.JPG",s:[["Morning",["neilloop","Loop the island by scooty or cycle"]],["Midday",["bharatpur","Glass-bottom boat and snorkelling at Bharatpur"]],["4:30 PM",["laxmanpur","Laxmanpur sunset"]],["Dinner","<span class=eat>Veg-friendly</span>Dugong at SeaShell for Christmas, or OrganiKa's veg thali"]],stay:"Neil"},
+   {h:"Back to Port Blair",w:"Port Blair",ph:"Cellular Jail - Light and sound show (15545325069).jpg",s:[["Morning",["ferry","Ferry to Port Blair"]],["Afternoon",["corbyn","Corbyn's Cove"]],["Evening",["cellular","Cellular Jail and the Light and Sound Show"]],["Dinner","<span class=eat>Veg</span>Icy Spicy"]],stay:"Port Blair"},
+   {h:"Fly home",w:"Port Blair",ph:"Aberdeen Clock Tower, Port Blair vrvbaan042k24 (3).jpg",s:[["Morning","Souvenirs at Aberdeen Bazaar, breakfast at Annapurna"],["Later","Fly out from Port Blair"]]}
+   ]},
+ c:{name:"Plan C",tag:"More adventure, fewer crowds",route:[["Port Blair",2],["Havelock",2],["Neil",1],["Port Blair",1]],
+   facts:[["Pace","Active, early starts"],["Scuba","Boat dive, deeper reef"],["Moonrise","Kalapathar, Havelock"],["Per person","PP"]],
+   days:[
+   {h:"Land and trek to the sunset",w:"Port Blair",ph:"Munda Pahar Beach.jpg",s:[["Lunch","<span class=eat>Veg</span>Annapurna Cafeteria"],["3 PM",["chidiya","Munda Pahar trek and Chidiya Tapu sunset"]],["Dinner","<span class=eat>Veg</span>Icy Spicy"]],stay:"Port Blair"},
+   {h:"The clearest water near Port Blair",w:"Port Blair",ph:"Jolly Buoy Island.jpg",s:[["7 AM",["jolly","Jolly Buoy: glass-bottom boat and snorkelling"]],["Lunch","Packed veg lunch (no food on the island)"],["Evening",["cellular","Cellular Jail Light and Sound Show"]]],stay:"Port Blair",swap:"Prefer caves to coral? Swap this day for the <button class=xp data-x=baratang>Baratang limestone caves</button>. It's a 3 AM start."},
+   {h:"Ferry, then walk to Elephant Beach",w:"Havelock",ph:"Havelock Island, Tropical forest, Andamans.jpg",s:[["6 AM",["ferry","Early ferry to Havelock"]],["Noon",["scooty","Pick up scooties"]],["1 PM",["elephant","Jungle trek to Elephant Beach and snorkel"]],["5 PM",["kalapathar","Moonrise at Kalapathar"]],["Dinner","<span class=eat>Veg</span>Shakahaar"]],stay:"Havelock"},
+   {h:"Christmas Eve: the deep dive",w:"Havelock",ph:"The Coral Reef at the Andaman Islands.jpg",s:[["8 AM",["scuba","Boat dive (non-swimmers can sea walk instead)"]],["4:30 PM",["radhanagar","Radhanagar sunset"]],["Night",["kalapathar","Supermoon over the sea from Beach 5"]]],stay:"Havelock"},
+   {h:"Christmas sunrise and Neil",w:"Neil",ph:"Natural Bridge, Neil Island, Andaman, India.JPG",s:[["5:45 AM",["kalapathar","Sunrise ride to Kalapathar"]],["Morning",["ferry","Ferry to Neil"]],["Low tide",["bridge","Natural Bridge"]],["4:30 PM",["laxmanpur","Laxmanpur sunset"]],["Dinner","<span class=eat>Veg</span>Shakahari Pure Veg"]],stay:"Neil"},
+   {h:"Back to town",w:"Port Blair",ph:"Ross Island, Andamans, Banyan tree.jpg",s:[["Morning",["ferry","Ferry to Port Blair"]],["Afternoon",["ross","Ross Island if boat timings work, otherwise Corbyn's Cove"]],["Dinner","<span class=eat>Veg</span>Annapurna for a farewell thali"]],stay:"Port Blair"},
+   {h:"Fly home",w:"Port Blair",ph:"Andaman Sea, Sunset.jpg",s:[["Morning",["corbyn","Corbyn's Cove"]],["Later","Fly out from Port Blair"]]}
+   ]}
+};
+
+/* ---------- stays ---------- */
+const STAYS = {
+ "Port Blair":[
+  {n:"Sinclairs Bayview",tier:"₹₹₹, from about ₹9,500",p:"Waterfront hotel where almost every room looks at the sea. Family rooms sleep four, and meals are served on a sea-facing deck.",ph:"Andaman Sea, Sunset.jpg",cap:"The bay near the hotel"},
+  {n:"SeaShell Port Blair",tier:"₹₹, from about ₹7,500",p:"On Marine Hill, about a kilometre from Cellular Jail, so the evening show is a short walk. Rooftop restaurant Amaya.",ph:"Cellular Jail, Andaman & Nicobar, Port Blair, India, night view.jpg",cap:"Cellular Jail, nearby"},
+  {n:"Megapode Nest (government-run)",tier:"₹–₹₹",p:"Hilltop property on 7.5 green acres with harbour views, four km from the airport. Bookable online.",ph:"Aberdeen Clock Tower, Port Blair vrvbaan042k24 (3).jpg",cap:"Port Blair town"}],
+ "Havelock":[
+  {n:"Dolphin Resort (government-run)",tier:"₹–₹₹, best value",p:"On Beach No. 5 with a long private beach. Guests describe spacious rooms with balconies and a relaxed, family-safe feel.",ph:"Havelock Island, Sandy lagoon, Andaman Islands.jpg",cap:"Havelock's east coast"},
+  {n:"Havelock Island Beach Resort",tier:"₹₹, about ₹3,000–5,000",p:"A stone's throw from the beach, mid-range and good for families who want simple comfort.",ph:"Havelock Island, Mangrove tree on the beach, Andaman Islands.jpg",cap:"A Havelock beach"},
+  {n:"Symphony Palms Beach Resort",tier:"₹₹, from about ₹5,300",p:"Big cottage resort near Govind Nagar Beach, with a spa and dive centre. Shakahaar pure-veg restaurant is about 20 minutes away.",ph:"Havelock Island, Sunset at the beach, Andaman Islands.jpg",cap:"Havelock sunset"},
+  {n:"Silver Sand Beach Resort",tier:"₹₹₹, about ₹6,000–7,700+",p:"Lagoon-facing villas on Vijaynagar Beach with an in-house restaurant. The splurge pick.",ph:"Kalapathar beach Havelock Island, Andaman, India.JPG",cap:"Havelock's east coast"}],
+ "Neil":[
+  {n:"SeaShell Neil",tier:"₹₹₹",p:"Beachfront, with Dugong restaurant, which has a wide veg selection. Good for a Christmas night treat.",ph:"Shaheed Island, Andaman Sea, Sunset.jpg",cap:"Neil at sunset"},
+  {n:"TSG Neil",tier:"₹₹, about ₹6,000",p:"Mid-budget resort on Sitapur Beach, the east-facing beach for sunrise and the Christmas Eve moonrise.",ph:"Sitapur beach,Neil island,Andaman - panoramio.jpg",cap:"Sitapur Beach"},
+  {n:"Simple guesthouses near the bazaar",tier:"₹",p:"Neil has many family-run cottages close to the jetty and Bharatpur Beach. Book on Booking or MakeMyTrip and read recent reviews.",ph:"Neil Island - Bharatpur beach as seen from jetty.jpg",cap:"Bharatpur, by the jetty"}]
+};
+
+/* ---------- food ---------- */
+const FOOD = {
+ "Port Blair":[["Annapurna Cafeteria","pv","Over 30 years in Aberdeen Bazaar. South Indian breakfasts, North Indian thalis, Jain options. Opens 7 AM, about ₹500 for two."],["Icy Spicy","pv","Two-floor pure veg favourite: Indian, Chinese, pizza, pav bhaji. Reliable for families."],["Shree Bikaner","pv","Pure veg sweets and snacks. Good for the train-style namkeen cravings."]],
+ "Havelock":[["Shakahaar Pure Veg","pv","Govind Nagar, near Beach 5. Homely dal, sabzi and hot chapatis. 7:30 AM to 10 PM."],["South Indian joints by the jetty","pv","Masala dosa, uttapam and thalis, quick before an early ferry."],["Anju Coco","vf","A Havelock favourite with family recipes and praised veg dishes."],["Full Moon Cafe","vf","Relaxed beach-style cafe; good breakfasts and veg mains."],["Something Different","vf","Beach cafe with excellent veg plates and sunset seating."],["Mohwa Cafe","vf","The only cafe right on Radhanagar beach. Chai with a view."]],
+ "Neil":[["Shakahari Pure Veg","pv","Small, homely and loved. The laccha paratha is the thing. They even deliver to your room."],["OrganiKa","pv","Known for its veg thali, made with Neil's own vegetables."],["Garden View","vf","Big veg menu near the jetty."],["Dugong at SeaShell","vf","Beachfront and pricier, with a wide veg spread. A Christmas dinner pick."]]
+};
+
+/* ---------- budget model (per person unless noted) ---------- */
+const COST = {
+ ferry:[3500,5400],
+ act:{a:[4300,5900],b:[3800,5300],c:[4800,7400]}, // excludes scuba
+ scuba:{a:[3500,3500],b:[3500,3500],c:[5400,5500]},
+ local:[1500,2500], food:[4200,7000], scooty:[1200,1800],
+ room:{budget:[2500,4000],mid:[5000,8000],comfort:[9000,14000]}
+};
+
+function perPerson(pl,tier){const R=COST.room[tier];const keys=[[R[0]*3,R[1]*3],COST.ferry,COST.scuba[pl],COST.act[pl],COST.scooty,COST.local,COST.food];return [keys.reduce((a,k)=>a+k[0],0),keys.reduce((a,k)=>a+k[1],0)]}
+const kfmt=n=>"₹"+Math.round(n/1000)+"k";
+/* ---------- render ---------- */
+const $ = s=>document.querySelector(s);
+document.querySelectorAll("img[data-file]").forEach(i=>{i.src=img(i.dataset.file,+i.dataset.w||1280)});
+
+function moonSVG(k,waxing,size=64){
+  const r=28,c=32,rx=r*Math.abs(2*k-1),lit="#F3E3A1",dark="#163A4C";
+  const s=waxing?1:0; // lit side right if waxing
+  let d;
+  if(k>=0.5){ d=`M${c} ${c-r} A${r} ${r} 0 0 ${s} ${c} ${c+r} A${rx} ${r} 0 0 ${s} ${c} ${c-r}Z`; }
+  else { d=`M${c} ${c-r} A${r} ${r} 0 0 ${s} ${c} ${c+r} A${rx} ${r} 0 0 ${1-s} ${c} ${c-r}Z`; }
+  return `<svg viewBox="0 0 64 64" width="${size}" height="${size}" aria-hidden="true"><circle cx="${c}" cy="${c}" r="${r}" fill="${dark}"/><path d="${d}" fill="${lit}"/>${k===1?`<circle cx="${c}" cy="${c}" r="${r}" fill="${lit}"/><circle cx="${c}" cy="${c}" r="${r+3}" fill="none" stroke="${lit}" stroke-opacity=".35" stroke-width="2"/>`:""}</svg>`;
+}
+$("#moonstrip").innerHTML = DAYS.map((d,i)=>`<div class="mday ${MOON[i]===1?"full":""}">${moonSVG(MOON[i],i<3)}<b>${d.split(" ")[1]} Dec</b><span>${MOON[i]===1?"Full, Christmas Eve":"~"+Math.round(MOON[i]*100)+"% lit"}</span></div>`).join("");
+
+/* countdown */
+(function(){const t=new Date("2026-12-21T00:00:00+05:30"),n=new Date();const d=Math.ceil((t-n)/864e5);
+ $("#countdown").textContent = d>1?`${d} days to go`:d===1?"Tomorrow!":(n<new Date("2026-12-28T00:00:00+05:30")?"We're on the islands":"Hope it was magical");})();
+
+/* plans */
+let current = "a";
+function slotHTML(s){const [t,v]=s; if(Array.isArray(v)){return `<li><span class="t">${t}</span><span><button class="xp" data-x="${v[0]}">${esc(v[1])}</button></span></li>`} return `<li><span class="t">${t}</span><span>${v}</span></li>`}
+function renderPlan(id){
+  current=id; const p=PLANS[id];
+  $("#picker").innerHTML = Object.entries(PLANS).map(([k,v])=>`<button class="pick" role="tab" aria-selected="${k===id}" data-plan="${k}"><b>${v.name}</b><span>${v.tag}</span></button>`).join("");
+  const nights = p.route.map(r=>`<span class="stop">${r[0]} <small>${r[1]}N</small></span>`).join("<i></i>");
+  const wa = "https://wa.me/?text="+encodeURIComponent(`I vote for ${p.name} (${p.tag}) for our Andaman trip! ${location.href.split("#")[0]}#plan-${id}`);
+  $("#plansum").innerHTML = `<div><h3 style="font-size:30px;color:var(--lagoon-deep)">${p.name}: ${p.tag}</h3><div class="route">${nights}<i></i><span class="stop">Fly home</span></div>
+   <div class="actions no-print"><a class="btn primary" href="${wa}" target="_blank" rel="noopener">Vote for ${p.name} on WhatsApp</a><button class="btn ghost" id="printbtn" type="button">Save this plan as PDF</button></div></div>
+   <div class="facts"><dl>${p.facts.map(f=>`<dt>${f[0]}</dt><dd>${f[1]==="PP"?(()=>{const r=perPerson(id,"budget");return "About "+kfmt(r[0])+"–"+kfmt(r[1])+" with simple stays"})():f[1]}</dd>`).join("")}</dl></div>`;
+  $("#days").innerHTML = p.days.map((d,i)=>`<article class="day"><div class="date"><div class="dnum">${21+i}</div><div class="dmon">${DAYS[i].split(" ")[0]} Dec</div><div class="dmoon">${moonSVG(MOON[i],i<3,26)}</div></div>
+   <div class="dcard"><div class="banner"><img loading="lazy" src="${img(d.ph,1000)}" alt=""><span class="where">${d.w}</span></div>
+   <div class="dbody"><h3>${d.h}</h3>${d.note?`<p class="note">${d.note}</p>`:""}<ul class="slots">${d.s.map(slotHTML).join("")}</ul>${d.swap?`<p class="swap">${d.swap}</p>`:""}${d.stay?`<p class="stay">Night in ${d.stay}</p>`:""}</div></div></article>`).join("");
+  $("#printbtn").onclick=()=>window.print();
+  if(location.hash!=="#plan-"+id && location.hash.startsWith("#plan-")) history.replaceState(null,"","#plan-"+id);
+}
+$("#picker").addEventListener("click",e=>{const b=e.target.closest("[data-plan]"); if(b){renderPlan(b.dataset.plan); history.replaceState(null,"","#plan-"+b.dataset.plan); setBudgetPlan(b.dataset.plan)}});
+const h=location.hash.match(/^#plan-([abc])$/); renderPlan(h?h[1]:"a");
+
+/* experiences grid */
+const ISL=["All","Port Blair","Havelock","Neil","Ferries"]; let fsel="All";
+function renderX(){
+  $("#xfilters").innerHTML = ISL.map(i=>`<button class="chip" aria-pressed="${i===fsel}" data-f="${i}">${i}</button>`).join("");
+  $("#xgrid").innerHTML = Object.entries(X).filter(([k,v])=>fsel==="All"||v.isl===fsel).map(([k,v])=>`<button class="xcard" data-x="${k}"><img loading="lazy" src="${img(v.photos[0],700)}" alt="">${v.video?`<span class="vid">Video</span>`:""}<span class="cap"><b>${esc(v.t)}</b><span>${v.isl}</span></span></button>`).join("");
+}
+$("#xfilters").addEventListener("click",e=>{const b=e.target.closest("[data-f]"); if(b){fsel=b.dataset.f;renderX()}});
+renderX();
+
+/* sheet */
+let lastFocus=null;
+function vblock(id,t){return `<div class="video"><button type="button" data-yt="${id}" aria-label="Play video: ${esc(t)}"><img loading="lazy" src="https://i.ytimg.com/vi/${id}/hqdefault.jpg" alt=""><span>Play: ${esc(t)}</span></button></div><a class="vlink" href="https://www.youtube.com/watch?v=${id}" target="_blank" rel="noopener">Open on YouTube</a>`}
+function openX(k){
+  const v=X[k]; if(!v) return; lastFocus=document.activeElement;
+  $("#pcontent").innerHTML = `<div class="gal">${v.photos.map(f=>`<figure><img src="${img(f,1100)}" alt="${esc(v.t)}"><figcaption>${credit(f)}</figcaption></figure>`).join("")}</div>
+   <div class="pbody"><h2 id="ptitle">${esc(v.t)}</h2><p class="where2">${v.isl}</p><p>${v.d}</p>
+   <div class="kv">${v.kv.map(x=>`<div><small>${x[0]}</small><b>${x[1]}</b></div>`).join("")}</div>
+   <h3 style="font-size:20px;margin-top:16px">Good to know</h3><ul class="tips">${v.tips.map(t=>`<li>${t}</li>`).join("")}</ul>
+   ${v.video?vblock(v.video,v.vt):""}${v.video2?vblock(v.video2,v.vt2):""}
+   <p style="margin-top:16px">${v.link?`<a href="${v.link[1]}" target="_blank" rel="noopener"><b>${v.link[0]}</b></a> &nbsp; `:""}<a href="${maps(v.q)}" target="_blank" rel="noopener"><b>Open in Google Maps</b></a></p></div>`;
+  const s=$("#sheet"); s.classList.add("open"); s.setAttribute("aria-hidden","false"); document.body.style.overflow="hidden"; s.querySelector(".panel").focus();
+}
+function closeX(){const s=$("#sheet"); s.classList.remove("open"); s.setAttribute("aria-hidden","true"); $("#pcontent").innerHTML=""; document.body.style.overflow=""; if(lastFocus) lastFocus.focus();}
+document.addEventListener("click",e=>{
+  const x=e.target.closest("[data-x]"); if(x){openX(x.dataset.x);return}
+  if(e.target.closest("[data-close]")){closeX();return}
+  const y=e.target.closest("[data-yt]"); if(y){const id=y.dataset.yt; y.parentElement.innerHTML=`<iframe src="https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0" title="YouTube video" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>`}
+});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&$("#sheet").classList.contains("open"))closeX()});
+
+/* stays */
+let hsel="Havelock";
+function renderH(){
+  $("#htabs").innerHTML = Object.keys(STAYS).map(k=>`<button class="chip" aria-pressed="${k===hsel}" data-h="${k}">${k}</button>`).join("");
+  $("#hgrid").innerHTML = STAYS[hsel].map(s=>`<div class="hcard"><div class="ph"><img loading="lazy" src="${img(s.ph,800)}" alt=""><small>${s.cap}</small></div><div class="hb"><h3>${s.n}</h3><span class="tier">${s.tier}</span><p>${s.p}</p><div class="links"><a href="${maps(s.n+" "+hsel+" Andaman")}" target="_blank" rel="noopener">Room photos and reviews</a></div></div></div>`).join("");
+}
+$("#htabs").addEventListener("click",e=>{const b=e.target.closest("[data-h]"); if(b){hsel=b.dataset.h;renderH()}});
+renderH();
+
+/* food */
+$("#foodlist").innerHTML = Object.entries(FOOD).map(([isl,list])=>`<div><h3>${isl}</h3><ul>${list.map(r=>`<li><b><a href="${maps(r[0].replace(/ \(.*\)/,"")+" "+isl+" Andaman")}" target="_blank" rel="noopener">${r[0]}</a><span class="tag ${r[1]}">${r[1]==="pv"?"Pure veg":"Veg-friendly"}</span></b><span>${r[2]}</span></li>`).join("")}</ul></div>`).join("");
+$("#foodphotos").innerHTML = ["Masala dosa 01.jpg","Vegetarian Thali 4.jpg","Tender coconut water 02.jpg"].map(f=>`<img loading="lazy" src="${img(f,600)}" alt="">`).join("");
+
+/* budget */
+let ppl=5, divers=5, bplan="a", btier="budget";
+const inr=n=>"₹"+(Math.round(n/100)*100).toLocaleString("en-IN");
+function setBudgetPlan(p){bplan=p;renderB()}
+function seg(el,opts,sel,key){el.innerHTML=opts.map(([k,l])=>`<button class="chip" type="button" aria-pressed="${k===sel}" data-${key}="${k}">${l}</button>`).join("")}
+function renderB(){
+  seg($("#bplan"),[["a","Plan A"],["b","Plan B"],["c","Plan C"]],bplan,"bp");
+  seg($("#btier"),[["budget","Simple"],["mid","Comfortable"],["comfort","Splurge"]],btier,"bt");
+  $("#ppl").textContent=ppl; $("#divers").textContent=divers;
+  const rooms=Math.ceil(ppl/2), nights=6, R=COST.room[btier];
+  const rows=[
+   ["Stays ("+rooms+" room"+(rooms>1?"s":"")+" × 6 nights)",[R[0]*rooms*nights,R[1]*rooms*nights]],
+   ["Ferries",[COST.ferry[0]*ppl,COST.ferry[1]*ppl]],
+   ["Scuba ("+divers+")",[COST.scuba[bplan][0]*divers,COST.scuba[bplan][1]*divers]],
+   ["Other activities and tickets",[COST.act[bplan][0]*ppl,COST.act[bplan][1]*ppl]],
+   ["Scooties and fuel",[COST.scooty[0]*ppl,COST.scooty[1]*ppl]],
+   ["Cabs, autos, transfers",[COST.local[0]*ppl,COST.local[1]*ppl]],
+   ["Veg meals and snacks",[COST.food[0]*ppl,COST.food[1]*ppl]]];
+  const lo=rows.reduce((a,r)=>a+r[1][0],0), hi=rows.reduce((a,r)=>a+r[1][1],0);
+  $("#bresult").innerHTML=`<div>Total for ${ppl} ${ppl>1?"people":"person"}</div><div class="big">${inr(lo)} – ${inr(hi)}</div><div>About ${inr(lo/ppl)} – ${inr(hi/ppl)} each, without flights</div>
+   <table>${rows.map(r=>`<tr><td>${r[0]}</td><td>${inr(r[1][0])} – ${inr(r[1][1])}</td></tr>`).join("")}</table>
+   <p class="fine">Assumes two per room and six nights. Excludes flights, shopping and any Christmas Eve gala dinner. Government ferries (₹600–875 each way) are far cheaper if you can get tickets.</p>`;
+}
+document.addEventListener("click",e=>{const a=e.target.closest("[data-bp]"); if(a){bplan=a.dataset.bp;renderB()} const t=e.target.closest("[data-bt]"); if(t){btier=t.dataset.bt;renderB()}});
+$("#plus").onclick=()=>{ppl=Math.min(12,ppl+1);divers=Math.min(divers,ppl);renderB()};
+$("#minus").onclick=()=>{ppl=Math.max(1,ppl-1);divers=Math.min(divers,ppl);renderB()};
+$("#splus").onclick=()=>{divers=Math.min(ppl,divers+1);renderB()};
+$("#sminus").onclick=()=>{divers=Math.max(0,divers-1);renderB()};
+bplan=current; renderB();
+
+/* checklist */
+const CHECKS=[
+ ["Book ferries","Late-December sailings sell out. Private catamarans book online; Green Ocean has the open deck."],
+ ["Book hotels and ask about Christmas Eve charges","Some resorts add a compulsory gala dinner on the 24th."],
+ ["Book the Cellular Jail show","Only on the official e-Tourist portal. Choose Hindi or English."],
+ ["Book scuba for the morning","At least 24 hours before the flight home."],
+ ["Jolly Buoy permits (Plan C)","A day or two ahead; closed Mondays."],
+ ["Driving licence for the scooty","Carry the physical card or DigiLocker copy."],
+ ["Cash for Neil","Few ATMs, and cards often fail."],
+ ["Reef-safe sunscreen, hats, water shoes","Water shoes help on the Natural Bridge rocks."],
+ ["Never a ferry on flight day","Return to Port Blair on the 26th in every plan."],
+ ["Download offline maps","Mobile signal is patchy on Havelock and Neil."]];
+let done={}; try{done=JSON.parse(localStorage.getItem("andaman26-checks")||"{}")}catch(e){}
+$("#checks").innerHTML=CHECKS.map((c,i)=>`<li><label><input type="checkbox" data-c="${i}" ${done[i]?"checked":""}><div><b>${c[0]}</b><span>${c[1]}</span></div></label></li>`).join("");
+$("#checks").addEventListener("change",e=>{const i=e.target.dataset.c; done[i]=e.target.checked; try{localStorage.setItem("andaman26-checks",JSON.stringify(done))}catch(err){}});
+
+/* credits */
+const used=new Set(); Object.values(X).forEach(v=>v.photos.forEach(f=>used.add(f))); Object.values(PLANS).forEach(p=>p.days.forEach(d=>used.add(d.ph))); Object.values(STAYS).flat().forEach(s=>used.add(s.ph)); ["Masala dosa 01.jpg","Vegetarian Thali 4.jpg","Tender coconut water 02.jpg","Havelock Island, Radhanagar Beach before sunset, Andaman Islands.jpg"].forEach(f=>used.add(f));
+$("#credits").innerHTML=[...used].filter(f=>P[f]).map(f=>`<li><a href="${page(f)}" target="_blank" rel="noopener">${esc(f.replace(/\.(jpe?g|JPG)$/,""))}</a> by ${esc(P[f][0])}, <a href="${LIC[P[f][1]]||"#"}" target="_blank" rel="noopener">${P[f][1]}</a></li>`).join("");
+</script>
+</body>
+</html>

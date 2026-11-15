@@ -177,6 +177,7 @@ footer a{color:var(--aqua)}
 .sheet{position:fixed;inset:0;z-index:50;display:none}
 .sheet.open{display:block}
 .scrim{position:absolute;inset:0;background:rgba(6,25,33,.55)}
+.panel:focus{outline:none}
 .panel{position:absolute;left:0;right:0;bottom:0;max-height:92svh;overflow:auto;background:var(--sand);border-radius:26px 26px 0 0;animation:up .28s ease-out}
 @media (min-width:860px){.panel{left:50%;right:auto;bottom:auto;top:50%;transform:translate(-50%,-50%);width:780px;border-radius:26px;animation:none}}
 @keyframes up{from{transform:translateY(40px);opacity:.4}to{transform:none;opacity:1}}
